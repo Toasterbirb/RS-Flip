@@ -46,7 +46,7 @@ void PrintHelp()
 	"  cancel [ID] Cancels an on-going flip and removes it from the database\n" <<
 	"  list 	Lists all on-going flips with their IDs, buy and sell values\n" <<
 	"  stats  	Prints out profit statistics\n" <<
-	"  repair 	Attempts to repair the statistics from the flip data in-case of some bug\n";
+	"  repair 	Attempts to repair the statistics from the flip data in-case of some bug. Also restores the backup\n";
 }
 
 int main(int argc, char** argv)
@@ -78,6 +78,9 @@ int main(int argc, char** argv)
 		}
 		if (!strcmp(argv[1], "repair"))
 		{
+			/* Restore backup */
+			Flips::RestoreBackup();
+
 			/* Attempt to repair issues in the json data */
 			Flips::FixStats();
 			return 0;

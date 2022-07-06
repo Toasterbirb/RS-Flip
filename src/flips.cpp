@@ -96,6 +96,9 @@ namespace Flips
 
 	void WriteJson()
 	{
+		/* Backup the file before writing anything */
+		std::filesystem::copy_file(data_file, data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
+
 		std::ofstream file(data_file);
 		file << std::setw(4) << json_data << std::endl;
 	}
@@ -174,6 +177,13 @@ namespace Flips
 
 		/* Update the data file */
 		WriteJson();
+	}
+
+	void RestoreBackup()
+	{
+		/* Check if the backup exists */
+		if (std::filesystem::exists(data_file + "_backup"))
+			std::filesystem::rename(data_file + "_backup", data_file);
 	}
 
 	void List()

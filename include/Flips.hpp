@@ -31,6 +31,7 @@ namespace Flips
 	void Init();
 	void PrintStats();
 	void FixStats();
+	void RestoreBackup();
 	void List(); /* List on-going flips */
 	void Add(Flip flip); /* Add a new flip */
 	void Cancel(const int& ID); /* Cancel an existing flip */
