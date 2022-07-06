@@ -39,8 +39,8 @@ void PrintHelp()
 	"\n" <<
 	"  sold  Finish an on-going flip\n" <<
 		"\t-i [ID] 		The ID number can be found with the `--list` command\n" <<
-		"\t-s [Selling price]\n" <<
-		"\t-l [Amount sold] 	Optional. This argument is for cases where the full buy limit didn't buy\n" <<
+		"\t-s [Selling price] 	Optional. This arg is for cases where final sell value changed\n" <<
+		"\t-l [Amount sold] 	Optional. This arg is for cases where the full buy limit didn't buy\n" <<
 		"\t\t\t\tor the amount sold was partial.\n" <<
 	"\n" <<
 	"  cancel [ID] Cancels an on-going flip and removes it from the database\n" <<

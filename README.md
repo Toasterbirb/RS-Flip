@@ -16,7 +16,7 @@ add 	Add a flip to the database
 
 sold  Finish an on-going flip
 	-i [ID] 			The ID number can be found with the `--list` command
-	-s [Selling price]
+	-s [Selling price] 	Optional. This argument is for cases where final sell value changed
 	-l [Amount sold]  	Optional. This argument is for cases where the full buy limit didn't buy or the amount sold was partial.
 
 cancel [ID] 	Cancels an on-going flip and removes it from the database
