@@ -27,6 +27,7 @@ int main(int argc, char** argv)
 
 	bool run_tests = false;
 
+	/* Single arg commands */
 	if (argc == 2)
 	{
 		if (!strcmp(argv[1], "--test")) run_tests = true;
@@ -37,7 +38,6 @@ int main(int argc, char** argv)
 		}
 		if (!strcmp(argv[1], "--list"))
 		{
-			Flips::Init();
 			Flips::List();
 			return 0;
 		}
@@ -45,6 +45,16 @@ int main(int argc, char** argv)
 		{
 			/* Attempt to repair issues in the json data */
 			Flips::FixStats();
+			return 0;
+		}
+	}
+
+	/* 2 arg commands */
+	if (argc == 3)
+	{
+		if (!strcmp(argv[1], "--cancel"))
+		{
+			Flips::Cancel(std::atoi(argv[2]));
 			return 0;
 		}
 	}

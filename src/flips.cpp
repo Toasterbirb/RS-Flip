@@ -25,6 +25,7 @@ namespace Flips
 		sell_price 	= j["sell"];
 		sold_price 	= j["sold"];
 		buylimit 	= j["limit"];
+		cancelled 	= j["cancelled"];
 		done 		= j["done"];
 	}
 
@@ -35,6 +36,7 @@ namespace Flips
 		this->sell_price 	= sell_price;
 		this->sold_price 	= 0;
 		this->buylimit 		= buy_amount;
+		this->cancelled 	= false;
 		this->done 			= false;
 	}
 
@@ -48,12 +50,13 @@ namespace Flips
 	{
 		nlohmann::json j;
 
-		j["item"] 	= item;
-		j["buy"] 	= buy_price;
-		j["sell"] 	= sell_price;
-		j["sold"] 	= sold_price;
-		j["limit"] 	= buylimit;
-		j["done"] 	= done;
+		j["item"] 		= item;
+		j["buy"] 		= buy_price;
+		j["sell"] 		= sell_price;
+		j["sold"] 		= sold_price;
+		j["limit"] 		= buylimit;
+		j["cancelled"] 	= cancelled;
+		j["done"] 		= done;
 
 		return j;
 	}
@@ -116,7 +119,7 @@ namespace Flips
 		for (int i = 0; i < json_data["flips"].size(); i++)
 		{
 			/* Don't load cancelled flips */
-			if (!json_data["flips"][i]["cancelled"].is_null())
+			if (json_data["flips"][i]["cancelled"] == true)
 				continue;
 
 			flips.push_back(json_data["flips"][i]);
@@ -133,7 +136,7 @@ namespace Flips
 	{
 		Init();
 
-		std::cout << "## Stats ##\n";
+		Utils::PrintTitle("Stats");
 		std::cout << "Total profit: " << Utils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
 		std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
 	}
@@ -171,15 +174,18 @@ namespace Flips
 
 	void List()
 	{
-		std::cout << "## On-going flips ##" << std::endl;
+		Init();
+		LoadFlipArray();
+
+		Utils::PrintTitle("On-going flips");
 		int index = 0;
-		for (int i = 0; i < json_data["flips"].size(); i++)
+		for (int i = 0; i < flips.size(); i++)
 		{
 			/* Check if the flip is done yet */
-			if (json_data["flips"][i]["done"] == true)
+			if (flips[i]["done"] == true)
 				continue;
 
-			std::cout << "[" << index << "] " << json_data["flips"][i]["item"] << " | Buy: " << json_data["flips"][i]["buy"] << " | Estimated sell: " << json_data["flips"][i]["sell"] << std::endl;
+			std::cout << "[" << index << "] " << flips[i]["item"] << " | Buy: " << flips[i]["buy"] << " | Estimated sell: " << flips[i]["sell"] << std::endl;
 			index++;
 		}
 	}
@@ -221,6 +227,21 @@ namespace Flips
 		Init();
 		LoadFlipArray();
 		flips.push_back(flip.ToJson());
+		ApplyFlipArray();
+	}
+
+	void Cancel(const int& ID)
+	{
+		Init();
+		LoadFlipArray();
+
+		/* Mark the flip as cancelled. It will be removed when the flip array
+		 * is loaded next time around and saved */
+		int flip_to_cancel = FindRealIDWithUndoneID(ID);
+		flips[flip_to_cancel]["cancelled"] = true;
+
+		std::cout << "Flip [" << flips[flip_to_cancel]["item"] << "] cancelled!\n";
+
 		ApplyFlipArray();
 	}
 

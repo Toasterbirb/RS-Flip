@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Utils.hpp"
 #include "doctest/doctest.h"
 
@@ -41,5 +42,10 @@ namespace Utils
 		CHECK(RoundBigNumbers(150) == "150");
 		CHECK(RoundBigNumbers(1250000) == "1.25m");
 		CHECK(RoundBigNumbers(3000000) == "3m");
+	}
+
+	void PrintTitle(const std::string& text)
+	{
+		std::cout << "####| " << text << " |####\n";
 	}
 }

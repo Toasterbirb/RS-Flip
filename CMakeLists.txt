@@ -8,6 +8,7 @@ project(rs-flip
 	LANGUAGES CXX)
 
 option(TESTS "Enable tests in the build" OFF)
+option(DEBUG "Enable debug symbols" OFF)
 
 if (NOT TESTS)
 	add_definitions(-DDOCTEST_CONFIG_DISABLE)
@@ -22,5 +23,9 @@ add_executable(rs-flip
 	src/margin.cpp
 	src/utils.cpp)
 
-target_compile_options(rs-flip PRIVATE -std=c++17)
+if (DEBUG)
+	target_compile_options(rs-flip PRIVATE -std=c++17 -g)
+else()
+	target_compile_options(rs-flip PRIVATE -std=c++17)
+endif()
 #target_link_libraries(rs-flip)

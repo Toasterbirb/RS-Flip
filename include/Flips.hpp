@@ -24,6 +24,7 @@ namespace Flips
 		int sell_price;
 		int sold_price;
 		int buylimit;
+		bool cancelled;
 		bool done; /* Is the flip completed */
 	};
 
