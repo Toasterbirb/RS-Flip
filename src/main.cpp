@@ -139,8 +139,8 @@ int main(int argc, char** argv)
 			Flips::Flip flip(item_name, buyValue, sellValue);
 
 			std::cout << "Adding item: " << item_name << std::endl;
-			std::cout << "Buy price: " << sellValue << std::endl;
-			std::cout << "Sell price: " << buyValue << std::endl;
+			std::cout << "Buy price: " << buyValue << std::endl;
+			std::cout << "Sell price: " << sellValue << std::endl;
 
 			Flips::Add(flip);
 			break;

@@ -133,7 +133,7 @@ namespace Flips
 			if (json_data["flips"][i]["done"] == true)
 				continue;
 
-			std::cout << "[" << index << "] " << json_data["flips"][i]["item"] << " | Buy: " << json_data["flips"][i]["sell"] << " | Sell: " << json_data["flips"][i]["buy"] << std::endl;
+			std::cout << "[" << index << "] " << json_data["flips"][i]["item"] << " | Buy: " << json_data["flips"][i]["buy"] << " | Sell: " << json_data["flips"][i]["sell"] << std::endl;
 			index++;
 		}
 	}
@@ -189,9 +189,9 @@ namespace Flips
 		flips_done++;
 		json_data["stats"]["flips_done"] = flips_done;
 
-		int cost = json_data["flips"][result]["sell"];
+		int buy_price = json_data["flips"][result]["buy"];
 		int total_profit = json_data["stats"]["profit"];
-		int profit = ((sell_value - cost) * sell_amount);
+		int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = profit;
 
