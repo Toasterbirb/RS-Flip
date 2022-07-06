@@ -121,6 +121,7 @@ namespace Flips
 
 		std::cout << "## Stats ##\n";
 		std::cout << "Total profit: " << json_data["stats"]["profit"] << std::endl;
+		std::cout << "Flips done: " << json_data["stats"]["flips_done"] << std::endl;
 	}
 
 	void List()
