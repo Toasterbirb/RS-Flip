@@ -55,6 +55,13 @@ int main(int argc, char** argv)
 
 	bool run_tests = false;
 
+	/* No arguments were given */
+	if (argc == 1)
+	{
+		PrintHelp();
+		return 0;
+	}
+
 	/* Single arg commands */
 	if (argc == 2)
 	{
