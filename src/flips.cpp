@@ -246,7 +246,7 @@ namespace Flips
 		ApplyFlipArray();
 	}
 
-	void Sell(const int& index, const int& sell_value, int sell_amount)
+	void Sell(const int& index, int sell_value, int sell_amount)
 	{
 		Init();
 		int result = FindRealIDWithUndoneID(index);
@@ -259,8 +259,12 @@ namespace Flips
 		else
 			flips[result]["limit"] = sell_amount;
 
-		flips[result]["done"] 	= true;
-		flips[result]["sold"] 	= sell_value;
+		flips[result]["done"] = true;
+
+		if (sell_value == 0)
+			sell_value = flips[result]["sell"];
+		else
+			flips[result]["sold"] = sell_value;
 
 		/* Update the stats */
 		int flips_done = json_data["stats"]["flips_done"];

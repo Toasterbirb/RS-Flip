@@ -34,7 +34,7 @@ namespace Flips
 	void List(); /* List on-going flips */
 	void Add(Flip flip); /* Add a new flip */
 	void Cancel(const int& ID); /* Cancel an existing flip */
-	void Sell(const int& index, const int& sell_value, int sell_amount);
+	void Sell(const int& index, int sell_value, int sell_amount);
 
 	static nlohmann::json json_data;
 	static std::vector<nlohmann::json> flips;

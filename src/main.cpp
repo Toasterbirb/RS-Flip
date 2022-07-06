@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 				continue;
 			}
 
-			if (!strcmp(argv[processed_args], "sold") && (argc == 6 || argc == 8))
+			if (!strcmp(argv[processed_args], "sold") && (argc == 4 || argc == 6 || argc == 8))
 			{
 				mode = Mode::Sold;
 				processed_args++;
