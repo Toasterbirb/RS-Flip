@@ -108,12 +108,25 @@ namespace Flips
 		/* Read the json data file */
 		std::string json_string = ReadFile(data_file);
 		json_data = nlohmann::json::parse(json_string);
+	}
 
+	void LoadFlipArray()
+	{
 		/* Add existing flips to the array */
 		for (int i = 0; i < json_data["flips"].size(); i++)
 		{
+			/* Don't load cancelled flips */
+			if (!json_data["flips"][i]["cancelled"].is_null())
+				continue;
+
 			flips.push_back(json_data["flips"][i]);
 		}
+	}
+
+	void ApplyFlipArray()
+	{
+		json_data["flips"] = flips;
+		WriteJson();
 	}
 
 	void PrintStats()
@@ -171,28 +184,18 @@ namespace Flips
 		}
 	}
 
-	void Add(Flip flip)
+	int FindRealIDWithUndoneID(const int& undone_ID)
 	{
-		Init();
-		flips.push_back(flip.ToJson());
-
-		json_data["flips"] = flips;
-		WriteJson();
-	}
-
-	void Sell(const int& index, const int& sell_value, int sell_amount)
-	{
-		Init();
 		int undone_index = 0;
 		int result;
 		bool result_found = false;
-		for (int i = index; i < json_data["flips"].size(); i++)
+		for (int i = undone_ID; i < json_data["flips"].size(); i++)
 		{
 			/* Skip flips that are already done */
 			if (json_data["flips"][i]["done"] == true)
 				continue;
 
-			if (undone_index != index)
+			if (undone_index != undone_ID)
 				undone_index++;
 			else
 			{
@@ -204,9 +207,27 @@ namespace Flips
 
 		if (!result_found)
 		{
-			std::cout << "No items matching ID [" << index << "] were found!" << std::endl;
-			return;
+			std::cout << "No items matching ID [" << undone_ID << "] were found!" << std::endl;
+			return -1;
 		}
+		else
+		{
+			return result;
+		}
+	}
+
+	void Add(Flip flip)
+	{
+		Init();
+		LoadFlipArray();
+		flips.push_back(flip.ToJson());
+		ApplyFlipArray();
+	}
+
+	void Sell(const int& index, const int& sell_value, int sell_amount)
+	{
+		Init();
+		int result = FindRealIDWithUndoneID(index);
 
 		/* Update the flip values */
 		if (sell_amount == 0)
@@ -224,7 +245,7 @@ namespace Flips
 
 		int buy_price = json_data["flips"][result]["buy"];
 		int total_profit = json_data["stats"]["profit"];
-		int profit = ((buy_price - sell_value) * sell_amount);
+		int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = profit;
 
