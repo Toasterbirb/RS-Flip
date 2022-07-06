@@ -192,13 +192,14 @@ namespace Flips
 
 	int FindRealIDWithUndoneID(const int& undone_ID)
 	{
+		LoadFlipArray();
 		int undone_index = 0;
 		int result;
 		bool result_found = false;
-		for (int i = undone_ID; i < json_data["flips"].size(); i++)
+		for (int i = 0; i < flips.size(); i++)
 		{
 			/* Skip flips that are already done */
-			if (json_data["flips"][i]["done"] == true)
+			if (flips[i]["done"] == true)
 				continue;
 
 			if (undone_index != undone_ID)
@@ -249,23 +250,25 @@ namespace Flips
 	{
 		Init();
 		int result = FindRealIDWithUndoneID(index);
+		if (result == -1)
+			return;
 
 		/* Update the flip values */
 		if (sell_amount == 0)
-			sell_amount = json_data["flips"][result]["limit"];
+			sell_amount = flips[result]["limit"];
 		else
-			json_data["flips"][result]["limit"] = sell_amount;
+			flips[result]["limit"] = sell_amount;
 
-		json_data["flips"][result]["done"] 	= true;
-		json_data["flips"][result]["sold"] 	= sell_value;
+		flips[result]["done"] 	= true;
+		flips[result]["sold"] 	= sell_value;
 
 		/* Update the stats */
 		int flips_done = json_data["stats"]["flips_done"];
 		flips_done++;
 		json_data["stats"]["flips_done"] = flips_done;
 
-		int buy_price = json_data["flips"][result]["buy"];
 		int total_profit = json_data["stats"]["profit"];
+		int buy_price = flips[result]["buy"];
 		int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = total_profit;
@@ -275,6 +278,6 @@ namespace Flips
 		std::cout << "Total profit so far: " << total_profit << " (" << Utils::RoundBigNumbers(total_profit) << ")" << std::endl;
 
 		/* Update the json file */
-		WriteJson();
+		ApplyFlipArray();
 	}
 }
