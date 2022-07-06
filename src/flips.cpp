@@ -274,6 +274,7 @@ namespace Flips
 		json_data["stats"]["profit"] = total_profit;
 
 		Utils::PrintTitle("Flip complete");
+		std::cout << "Item: " << flips[result]["item"] << std::endl;
 		std::cout << "Profit: " << profit << " (" << Utils::RoundBigNumbers(profit) << ")" << std::endl;
 		std::cout << "Total profit so far: " << total_profit << " (" << Utils::RoundBigNumbers(total_profit) << ")" << std::endl;
 
