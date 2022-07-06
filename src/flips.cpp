@@ -100,6 +100,21 @@ namespace Flips
 		file << std::setw(4) << json_data << std::endl;
 	}
 
+	void LoadFlipArray()
+	{
+		flips.clear();
+
+		/* Add existing flips to the array */
+		for (int i = 0; i < json_data["flips"].size(); i++)
+		{
+			/* Don't load cancelled flips */
+			if (json_data["flips"][i]["cancelled"] == true)
+				continue;
+
+			flips.push_back(json_data["flips"][i]);
+		}
+	}
+
 	void Init()
 	{
 		if (!std::filesystem::exists(data_path))
@@ -111,19 +126,8 @@ namespace Flips
 		/* Read the json data file */
 		std::string json_string = ReadFile(data_file);
 		json_data = nlohmann::json::parse(json_string);
-	}
 
-	void LoadFlipArray()
-	{
-		/* Add existing flips to the array */
-		for (int i = 0; i < json_data["flips"].size(); i++)
-		{
-			/* Don't load cancelled flips */
-			if (json_data["flips"][i]["cancelled"] == true)
-				continue;
-
-			flips.push_back(json_data["flips"][i]);
-		}
+		LoadFlipArray();
 	}
 
 	void ApplyFlipArray()
@@ -175,7 +179,6 @@ namespace Flips
 	void List()
 	{
 		Init();
-		LoadFlipArray();
 
 		Utils::PrintTitle("On-going flips");
 		int index = 0;
@@ -192,7 +195,6 @@ namespace Flips
 
 	int FindRealIDWithUndoneID(const int& undone_ID)
 	{
-		LoadFlipArray();
 		int undone_index = 0;
 		int result;
 		bool result_found = false;
@@ -226,7 +228,6 @@ namespace Flips
 	void Add(Flip flip)
 	{
 		Init();
-		LoadFlipArray();
 		flips.push_back(flip.ToJson());
 		ApplyFlipArray();
 	}
@@ -234,7 +235,6 @@ namespace Flips
 	void Cancel(const int& ID)
 	{
 		Init();
-		LoadFlipArray();
 
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
