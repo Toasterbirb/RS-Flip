@@ -166,7 +166,7 @@ namespace Flips
 			if (json_data["flips"][i]["done"] == true)
 				continue;
 
-			std::cout << "[" << index << "] " << json_data["flips"][i]["item"] << " | Buy: " << json_data["flips"][i]["buy"] << " | Sell: " << json_data["flips"][i]["sell"] << std::endl;
+			std::cout << "[" << index << "] " << json_data["flips"][i]["item"] << " | Buy: " << json_data["flips"][i]["buy"] << " | Estimated sell: " << json_data["flips"][i]["sell"] << std::endl;
 			index++;
 		}
 	}
