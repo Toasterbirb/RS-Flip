@@ -31,7 +31,7 @@ void PrintHelp()
 	"\t-s [Insta sell price]\n" <<
 	"\t-l [Buy limit for the item]\n" <<
 	"\n" <<
-	"  flip 	Add a flip to the database\n" <<
+	"  add 	Add a flip to the database\n" <<
 		"\t-i [Item name]\n" <<
 		"\t-b [Buying price]\n" <<
 		"\t-s [Assumed future selling price]\n" <<
@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 				continue;
 			}
 
-			if (!strcmp(argv[processed_args], "flip") && argc == 10)
+			if (!strcmp(argv[processed_args], "add") && argc == 10)
 			{
 				mode = Mode::Flip;
 				processed_args++;

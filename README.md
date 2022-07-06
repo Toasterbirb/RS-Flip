@@ -8,7 +8,7 @@ calc 	Calculate the margin for an item and possible profits
 	-s [Insta sell price]
 	-l [Buy limit for the item]
 
-flip 	Add a flip to the database
+add 	Add a flip to the database
 	-i [Item name]
 	-b [Buying price]
 	-s [Assumed future selling price]
