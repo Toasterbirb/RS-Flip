@@ -25,6 +25,14 @@ RS-Flip is a CLI utility to help with flipping in RuneScape. The core features i
 --repair 	Attempts to repair the statistics from the flip data in-case of some bug
 ```
 
+## Compiling
+```sh
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
 ## 3rd party libs
 - [doctest](https://github.com/doctest/doctest)
 - [json](https://github.com/nlohmann/json)
