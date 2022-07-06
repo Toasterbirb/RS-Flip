@@ -268,7 +268,7 @@ namespace Flips
 		int total_profit = json_data["stats"]["profit"];
 		int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
-		json_data["stats"]["profit"] = profit;
+		json_data["stats"]["profit"] = total_profit;
 
 		Utils::PrintTitle("Flip complete");
 		std::cout << "Profit: " << profit << " (" << Utils::RoundBigNumbers(profit) << ")" << std::endl;
