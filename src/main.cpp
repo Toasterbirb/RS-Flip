@@ -26,27 +26,27 @@ void PrintHelp()
 {
 	Utils::PrintTitle("Help");
 	std::cout <<
-	"  --calc 	Calculate the margin for an item and possible profits\n" <<
+	"  calc 	Calculate the margin for an item and possible profits\n" <<
 	"\t-b [Insta buy price]\n" <<
 	"\t-s [Insta sell price]\n" <<
 	"\t-l [Buy limit for the item]\n" <<
 	"\n" <<
-	"  --flip 	Add a flip to the database\n" <<
+	"  flip 	Add a flip to the database\n" <<
 		"\t-i [Item name]\n" <<
 		"\t-b [Buying price]\n" <<
 		"\t-s [Assumed future selling price]\n" <<
 		"\t-l [Buy limit for the item]\n" <<
 	"\n" <<
-	"  --sold  Finish an on-going flip\n" <<
+	"  sold  Finish an on-going flip\n" <<
 		"\t-i [ID] 		The ID number can be found with the `--list` command\n" <<
 		"\t-s [Selling price]\n" <<
 		"\t-l [Amount sold] 	Optional. This argument is for cases where the full buy limit didn't buy\n" <<
 		"\t\t\t\tor the amount sold was partial.\n" <<
 	"\n" <<
-	"  --cancel [ID] Cancels an on-going flip and removes it from the database\n" <<
-	"  --list 	Lists all on-going flips with their IDs, buy and sell values\n" <<
-	"  --stats  	Prints out profit statistics\n" <<
-	"  --repair 	Attempts to repair the statistics from the flip data in-case of some bug\n";
+	"  cancel [ID] Cancels an on-going flip and removes it from the database\n" <<
+	"  list 	Lists all on-going flips with their IDs, buy and sell values\n" <<
+	"  stats  	Prints out profit statistics\n" <<
+	"  repair 	Attempts to repair the statistics from the flip data in-case of some bug\n";
 }
 
 int main(int argc, char** argv)
@@ -65,24 +65,24 @@ int main(int argc, char** argv)
 	/* Single arg commands */
 	if (argc == 2)
 	{
-		if (!strcmp(argv[1], "--test")) run_tests = true;
-		if (!strcmp(argv[1], "--stats"))
+		if (!strcmp(argv[1], "test")) run_tests = true;
+		if (!strcmp(argv[1], "stats"))
 		{
 			Flips::PrintStats();
 			return 0;
 		}
-		if (!strcmp(argv[1], "--list"))
+		if (!strcmp(argv[1], "list"))
 		{
 			Flips::List();
 			return 0;
 		}
-		if (!strcmp(argv[1], "--repair"))
+		if (!strcmp(argv[1], "repair"))
 		{
 			/* Attempt to repair issues in the json data */
 			Flips::FixStats();
 			return 0;
 		}
-		if (!strcmp(argv[1], "--help"))
+		if (!strcmp(argv[1], "help"))
 		{
 			PrintHelp();
 			return 0;
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	/* 2 arg commands */
 	if (argc == 3)
 	{
-		if (!strcmp(argv[1], "--cancel"))
+		if (!strcmp(argv[1], "cancel"))
 		{
 			Flips::Cancel(std::atoi(argv[2]));
 			return 0;
@@ -122,21 +122,21 @@ int main(int argc, char** argv)
 		/* Modes */
 		if (mode == Mode::None)
 		{
-			if (!strcmp(argv[processed_args], "--calc") && argc == 8)
+			if (!strcmp(argv[processed_args], "calc") && argc == 8)
 			{
 				mode = Mode::Calc;
 				processed_args++;
 				continue;
 			}
 
-			if (!strcmp(argv[processed_args], "--flip") && argc == 10)
+			if (!strcmp(argv[processed_args], "flip") && argc == 10)
 			{
 				mode = Mode::Flip;
 				processed_args++;
 				continue;
 			}
 
-			if (!strcmp(argv[processed_args], "--sold") && (argc == 6 || argc == 8))
+			if (!strcmp(argv[processed_args], "sold") && (argc == 6 || argc == 8))
 			{
 				mode = Mode::Sold;
 				processed_args++;
