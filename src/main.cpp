@@ -41,6 +41,12 @@ int main(int argc, char** argv)
 			Flips::List();
 			return 0;
 		}
+		if (!strcmp(argv[1], "--repair"))
+		{
+			/* Attempt to repair issues in the json data */
+			Flips::FixStats();
+			return 0;
+		}
 	}
 
 	if (run_tests)
@@ -136,7 +142,7 @@ int main(int argc, char** argv)
 
 		case (Mode::Flip):
 		{
-			Flips::Flip flip(item_name, buyValue, sellValue);
+			Flips::Flip flip(item_name, buyValue, sellValue, buyLimit);
 
 			std::cout << "Adding item: " << item_name << std::endl;
 			std::cout << "Buy price: " << buyValue << std::endl;

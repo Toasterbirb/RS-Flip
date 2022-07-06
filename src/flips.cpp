@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include "Flips.hpp"
+#include "Utils.hpp"
 
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
 
@@ -27,13 +28,13 @@ namespace Flips
 		done 		= j["done"];
 	}
 
-	Flip::Flip(const std::string& item, const int& buy_price, const int& sell_price)
+	Flip::Flip(const std::string& item, const int& buy_price, const int& sell_price, const int& buy_amount)
 	{
 		this->item 			= item;
 		this->buy_price 	= buy_price;
 		this->sell_price 	= sell_price;
 		this->sold_price 	= 0;
-		this->buylimit 		= 0;
+		this->buylimit 		= buy_amount;
 		this->done 			= false;
 	}
 
@@ -120,8 +121,39 @@ namespace Flips
 		Init();
 
 		std::cout << "## Stats ##\n";
-		std::cout << "Total profit: " << json_data["stats"]["profit"] << std::endl;
-		std::cout << "Flips done: " << json_data["stats"]["flips_done"] << std::endl;
+		std::cout << "Total profit: " << Utils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
+		std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
+	}
+
+	void FixStats()
+	{
+		Init();
+		std::cout << "Recalculating statistics..." << std::endl;
+
+		int total_profit = 0;
+		int flip_count = 0;
+
+		for (int i = 0; i < json_data["flips"].size(); i++)
+		{
+			/* Check if the flip is done */
+			if (json_data["flips"][i]["done"] == true)
+			{
+				flip_count++;
+
+				/* Calculate the profit */
+				int buy_price 	= json_data["flips"][i]["buy"];
+				int sell_price 	= json_data["flips"][i]["sold"];
+				int limit 		= json_data["flips"][i]["limit"];
+				total_profit += (sell_price - buy_price) * limit;
+			}
+		}
+
+		/* Update the stats values */
+		json_data["stats"]["profit"] 		= total_profit;
+		json_data["stats"]["flips_done"] 	= flip_count;
+
+		/* Update the data file */
+		WriteJson();
 	}
 
 	void List()
@@ -192,13 +224,13 @@ namespace Flips
 
 		int buy_price = json_data["flips"][result]["buy"];
 		int total_profit = json_data["stats"]["profit"];
-		int profit = ((sell_value - buy_price) * sell_amount);
+		int profit = ((buy_price - sell_value) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = profit;
 
 		std::cout << "Flip complete!" << std::endl;
-		std::cout << "Profit: " << profit << " (" << profit / 1000 << "k)" << std::endl;
-		std::cout << "Total profit so far: " << total_profit << " (" << total_profit / 1000 << "k)" << std::endl;
+		std::cout << "Profit: " << profit << " (" << Utils::RoundBigNumbers(profit) << ")" << std::endl;
+		std::cout << "Total profit so far: " << total_profit << " (" << Utils::RoundBigNumbers(total_profit) << ")" << std::endl;
 
 		/* Update the json file */
 		WriteJson();

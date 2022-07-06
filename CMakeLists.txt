@@ -19,7 +19,8 @@ include_directories(include/ vendor/)
 add_executable(rs-flip
 	src/main.cpp
 	src/flips.cpp
-	src/margin.cpp)
+	src/margin.cpp
+	src/utils.cpp)
 
 target_compile_options(rs-flip PRIVATE -std=c++17)
 #target_link_libraries(rs-flip)

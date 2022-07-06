@@ -14,7 +14,7 @@ namespace Flips
 	public:
 		Flip();
 		Flip(nlohmann::json j);
-		Flip(const std::string& item, const int& buy_price, const int& sell_price);
+		Flip(const std::string& item, const int& buy_price, const int& sell_price, const int& buy_amount);
 		void Sell(const int& sell_price);
 		nlohmann::json ToJson();
 
@@ -29,6 +29,7 @@ namespace Flips
 
 	void Init();
 	void PrintStats();
+	void FixStats();
 	void List(); /* List on-going flips */
 	void Add(Flip flip); /* Add a new flip */
 	void Sell(const int& index, const int& sell_value, int sell_amount);

@@ -1,4 +1,5 @@
 #include "Margin.hpp"
+#include "Utils.hpp"
 #include <iostream>
 #include "doctest/doctest.h"
 
@@ -40,18 +41,18 @@ namespace Margin
 		int big_cut_profit = CalcProfit(margin, buylimit, 5);
 
 		std::cout << "Margin: " << margin << std::endl;
-		std::cout << "Required capital: " << (instaBuy * (buylimit - 1)) / 1000 << "k" << std::endl;
+		std::cout << "Required capital: " << Utils::RoundBigNumbers(instaBuy * (buylimit - 1)) << std::endl;
 		std::cout << "ROI: " << ((double)margin / instaSell) * 100 << "%\n";
 
 		PrintLine();
 
-		std::cout << "Profit: " << profit << " (" << profit / 1000 << "k)" << std::endl;
-		std::cout << "Profit (after price check): " << profit - margin << " (" << (profit - margin) / 1000 << "k)" << std::endl;
+		std::cout << "Profit: " << profit << " (" << Utils::RoundBigNumbers(profit) << ")" << std::endl;
+		std::cout << "Profit (after price check): " << profit - margin << " (" << Utils::RoundBigNumbers(profit - margin) << ")" << std::endl;
 
 		PrintLine();
 
-		std::cout << "Profit (1 cut): " << cut_profit << " (" << cut_profit / 1000 << "k)" << std::endl;
-		std::cout << "Profit (5 cut): " << big_cut_profit << " (" << big_cut_profit / 1000 << "k)" << std::endl;
+		std::cout << "Profit (1 cut): " << cut_profit << " (" << Utils::RoundBigNumbers(cut_profit) << ")" << std::endl;
+		std::cout << "Profit (5 cut): " << big_cut_profit << " (" << Utils::RoundBigNumbers(big_cut_profit) << ")" << std::endl;
 
 		PrintLine();
 
