@@ -17,15 +17,15 @@ endif()
 # Headers
 include_directories(include/ vendor/)
 
-add_executable(rs-flip
+add_executable(flip
 	src/main.cpp
 	src/flips.cpp
 	src/margin.cpp
 	src/utils.cpp)
 
 if (DEBUG)
-	target_compile_options(rs-flip PRIVATE -std=c++17 -g)
+	target_compile_options(flip PRIVATE -std=c++17 -g)
 else()
-	target_compile_options(rs-flip PRIVATE -std=c++17)
+	target_compile_options(flip PRIVATE -std=c++17)
 endif()
 #target_link_libraries(rs-flip)
