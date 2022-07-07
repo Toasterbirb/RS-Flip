@@ -28,6 +28,20 @@ namespace Margin
 		CHECK(CalcProfit(20, 500, 2) == 8000);
 	}
 
+	int CalcProfit(Flips::Flip flip)
+	{
+		return (flip.sell_price - flip.buy_price) * flip.buylimit;
+	}
+
+	TEST_CASE("Calculate profit from a flip")
+	{
+		Flips::Flip flipA("Some item", 10, 20, 50);
+		CHECK(CalcProfit(flipA) == 500);
+
+		Flips::Flip flipB("Another item", 30, 15, 90);
+		CHECK(CalcProfit(flipB) == -1350);
+	}
+
 	void PrintLine()
 	{
 		std::cout << "-------------------------------\n";

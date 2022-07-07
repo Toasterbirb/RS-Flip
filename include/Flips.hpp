@@ -9,16 +9,14 @@ namespace Flips
 	static const std::string data_path = user_home + "/.local/share/rs-flip";
 	static const std::string data_file = data_path + "/flips.json";
 
-	class Flip
+	struct Flip
 	{
-	public:
 		Flip();
 		Flip(nlohmann::json j);
 		Flip(const std::string& item, const int& buy_price, const int& sell_price, const int& buy_amount);
 		void Sell(const int& sell_price);
 		nlohmann::json ToJson();
 
-	private:
 		std::string item;
 		int buy_price;
 		int sell_price;

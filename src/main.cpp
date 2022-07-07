@@ -200,7 +200,8 @@ int main(int argc, char** argv)
 			std::cout << "Adding item: " << item_name << std::endl;
 			std::cout << "Buy price: " << Utils::RoundBigNumbers(buyValue) << std::endl;
 			std::cout << "Sell price: " << Utils::RoundBigNumbers(sellValue) << std::endl;
-			std::cout << "Buy count: " << buyLimit << std::endl;
+			std::cout << "Buy count: " << buyLimit << "\n\n";
+			std::cout << "Estimated profit: " << Utils::RoundBigNumbers(Margin::CalcProfit(flip)) << std::endl;
 
 			Flips::Add(flip);
 			break;
