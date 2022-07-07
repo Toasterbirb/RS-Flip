@@ -22,7 +22,7 @@ sold  Finish an on-going flip
 cancel [ID] 	Cancels an on-going flip and removes it from the database
 list 		Lists all on-going flips with their IDs, buy and sell values
 stats  	Prints out profit statistics
-repair 	Attempts to repair the statistics from the flip data in-case of some bug. Also restores the backup
+repair 	Attempts to repair the statistics from the flip data in-case of some bug.
 ```
 
 ## Compiling

@@ -57,4 +57,21 @@ namespace Utils
 	{
 		std::cout << "####| " << text << " |####\n";
 	}
+
+	int Clamp(const int& value, const int& min, const int& max)
+	{
+		if (value < min)
+			return min;
+		else if (value > max)
+			return max;
+
+		return value;
+	}
+
+	TEST_CASE("Clamp integer values")
+	{
+		CHECK(Clamp(15, 0, 10) 	== 10);
+		CHECK(Clamp(3, -5, 5) 	== 3);
+		CHECK(Clamp(-2, 5, 10) 	== 5);
+	}
 }

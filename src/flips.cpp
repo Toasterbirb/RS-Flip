@@ -1,6 +1,8 @@
 #include <fstream>
 #include <filesystem>
 #include <iostream>
+#include "Stats.hpp"
+#include "AvgStat.hpp"
 #include "Flips.hpp"
 #include "Utils.hpp"
 
@@ -139,13 +141,34 @@ namespace Flips
 		WriteJson();
 	}
 
-	void PrintStats()
+	void PrintStats(const int& topValueCount)
 	{
 		Init();
 
 		Utils::PrintTitle("Stats");
 		std::cout << "Total profit: " << Utils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
 		std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
+		std::cout << "\n";
+
+		/* Print top performing flips */
+		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
+
+
+		Utils::PrintTitle("Top flips by ROI-%");
+		std::vector<Stats::AvgStat> topROI = Stats::SortFlipsByROI(stats);
+		for (int i = 0; i < Utils::Clamp(topROI.size(), 0, topValueCount); i++)
+		{
+			std::cout << "[" << i << "] " << topROI[i].name << " | " << std::to_string(topROI[i].AvgROI()) + "%" << std::endl;
+		}
+		std::cout << "\n";
+
+		Utils::PrintTitle("Top flips by Profit");
+		std::vector<Stats::AvgStat> topProfit = Stats::SortFlipsByProfit(stats);
+		for (int i = 0; i < Utils::Clamp(topProfit.size(), 0, topValueCount); i++)
+		{
+			std::cout << "[" << i << "] " << topProfit[i].name << " | " << Utils::RoundBigNumbers(topProfit[i].AvgProfit()) << std::endl;
+		}
+
 	}
 
 	void FixStats()
@@ -162,6 +185,10 @@ namespace Flips
 			if (json_data["flips"][i]["done"] == true)
 			{
 				flip_count++;
+
+				/* Flip is done, but the sold price is missing */
+				if (json_data["flips"][i]["sold"] == 0)
+					json_data["flips"][i]["sold"] = json_data["flips"][i]["sell"];
 
 				/* Calculate the profit */
 				int buy_price 	= json_data["flips"][i]["buy"];
@@ -273,8 +300,8 @@ namespace Flips
 
 		if (sell_value == 0)
 			sell_value = flips[result]["sell"];
-		else
-			flips[result]["sold"] = sell_value;
+
+		flips[result]["sold"] = sell_value;
 
 		/* Update the stats */
 		int flips_done = json_data["stats"]["flips_done"];

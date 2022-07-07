@@ -43,10 +43,10 @@ void PrintHelp()
 		"\t-l [Amount sold] 	Optional. This arg is for cases where the full buy limit didn't buy\n" <<
 		"\t\t\t\tor the amount sold was partial.\n" <<
 	"\n" <<
-	"  cancel [ID] Cancels an on-going flip and removes it from the database\n" <<
-	"  list 	Lists all on-going flips with their IDs, buy and sell values\n" <<
-	"  stats  	Prints out profit statistics\n" <<
-	"  repair 	Attempts to repair the statistics from the flip data in-case of some bug. Also restores the backup\n";
+	"  cancel [ID]\tCancels an on-going flip and removes it from the database\n" <<
+	"  list\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
+	"  stats [count]\tPrints out profit statistics. Count sets the length of top-lists\n" <<
+	"  repair\tAttempts to repair the statistics from the flip data in-case of some bug.\n";
 }
 
 int main(int argc, char** argv)
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 		if (!strcmp(argv[1], "repair"))
 		{
 			/* Restore backup */
-			Flips::RestoreBackup();
+			//Flips::RestoreBackup();
 
 			/* Attempt to repair issues in the json data */
 			Flips::FixStats();
@@ -98,6 +98,11 @@ int main(int argc, char** argv)
 		if (!strcmp(argv[1], "cancel"))
 		{
 			Flips::Cancel(std::atoi(argv[2]));
+			return 0;
+		}
+		if (!strcmp(argv[1], "stats"))
+		{
+			Flips::PrintStats(std::atoi(argv[2]));
 			return 0;
 		}
 	}
