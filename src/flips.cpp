@@ -198,7 +198,7 @@ namespace Flips
 			if (flips[i]["done"] == true)
 				continue;
 
-			std::cout << "[" << index << "] " << flips[i]["item"] << " | Buy: " << flips[i]["buy"] << " | Estimated sell: " << flips[i]["sell"] << std::endl;
+			std::cout << "[" << index << "] " << flips[i]["item"] << " | Count: " << flips[i]["limit"] << " | Buy: " << flips[i]["buy"] << " | Estimated sell: " << flips[i]["sell"] << std::endl;
 			index++;
 		}
 	}
