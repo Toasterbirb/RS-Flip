@@ -27,21 +27,30 @@ namespace Utils
 
 	std::string RoundBigNumbers(const int& number)
 	{
-		if (number > 1000000)
+		if (number > 1000000 || number < -1000000)
 			return CleanDecimals((double)number / 1000000) + "m";
-		else if (number > 1000)
+		else if (number > 1000 || number < -1000)
 			return CleanDecimals((double)number / 1000) + "k";
-		else
-			return std::to_string(number);
+
+		/* Small enough number to not need rounding */
+		return std::to_string(number);
 	}
 
 	TEST_CASE("Rounding big numbers into text format")
 	{
+		/* Positive numbers */
 		CHECK(RoundBigNumbers(20000) == "20k");
 		CHECK(RoundBigNumbers(9500) == "9.5k");
 		CHECK(RoundBigNumbers(150) == "150");
 		CHECK(RoundBigNumbers(1250000) == "1.25m");
 		CHECK(RoundBigNumbers(3000000) == "3m");
+
+		/* Negative numbers */
+		CHECK(RoundBigNumbers(-20000) == "-20k");
+		CHECK(RoundBigNumbers(-9500) == "-9.5k");
+		CHECK(RoundBigNumbers(-150) == "-150");
+		CHECK(RoundBigNumbers(-1250000) == "-1.25m");
+		CHECK(RoundBigNumbers(-3000000) == "-3m");
 	}
 
 	void PrintTitle(const std::string& text)
