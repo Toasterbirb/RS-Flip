@@ -208,6 +208,8 @@ namespace Flips
 
 	void RestoreBackup()
 	{
+		std::cout << "Restoring the backup. Make sure to create a new one if you want to keep it, because the old one is lost" << std::endl;
+
 		/* Check if the backup exists */
 		if (std::filesystem::exists(data_file + "_backup"))
 			std::filesystem::rename(data_file + "_backup", data_file);
