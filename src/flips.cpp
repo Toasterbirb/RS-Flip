@@ -220,7 +220,7 @@ namespace Flips
 		PrintTableSep(name_length);
 		for (int i = 0; i < Utils::Clamp(topStability.size(), 0, topValueCount); i++)
 		{
-			std::cout << " " << std::setw(name_length) << topStability[i].name << " | " << std::to_string(topStability[i].FlipStability()) + "%" << std::endl;
+			std::cout << " " << std::setw(name_length) << topStability[i].name << " | " << Utils::CleanDecimals(std::round(topStability[i].FlipStability())) << std::endl;
 		}
 		PrintTableSep(name_length);
 		std::cout << "\n";

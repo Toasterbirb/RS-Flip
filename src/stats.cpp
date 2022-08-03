@@ -90,7 +90,7 @@ namespace Stats
 		while (had_swap)
 		{
 			had_swap = false;
-			for (int i = 0; i < flips.size() - 1; i++)
+			for (int i = 0; i < result.size() - 1; i++)
 			{
 				/* Erase a flip if it has only been done once */
 				if (result[i].FlipCount() == 1)
