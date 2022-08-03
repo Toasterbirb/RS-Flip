@@ -25,6 +25,9 @@ add_executable(flip
 	src/avgstat.cpp
 	src/stats.cpp)
 
+target_precompile_headers(flip
+    PRIVATE include/pch.hpp)
+
 if (DEBUG)
 	target_compile_options(flip PRIVATE -std=c++17 -g)
 else()

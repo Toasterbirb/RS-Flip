@@ -1,8 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT
-#include <string.h>
-#include <string>
-#include <iostream>
-#include <vector>
+#include "pch.hpp"
 #include "doctest/doctest.h"
 #include "Margin.hpp"
 #include "Flips.hpp"

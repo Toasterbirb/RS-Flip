@@ -1,6 +1,5 @@
 #include "Margin.hpp"
 #include "Utils.hpp"
-#include <iostream>
 #include "doctest/doctest.h"
 
 namespace Margin

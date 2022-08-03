@@ -1,6 +1,5 @@
 #pragma once
-#include <json/json.hpp>
-#include <string>
+#include "pch.hpp"
 #include "AvgStat.hpp"
 
 namespace Stats

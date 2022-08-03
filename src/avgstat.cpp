@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Utils.hpp"
 #include "AvgStat.hpp"
 #include "Stats.hpp"
