@@ -54,7 +54,7 @@ namespace Utils
 
 	void PrintTitle(const std::string& text)
 	{
-		std::cout << "####| " << text << " |####\n";
+		std::cout << "\e[1m\e[32m#####| " << text << " |#####\e[0m\n";
 	}
 
 	int Clamp(const int& value, const int& min, const int& max)

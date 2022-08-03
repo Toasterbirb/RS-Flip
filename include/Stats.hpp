@@ -8,4 +8,5 @@ namespace Stats
 	double CalcROI(const nlohmann::json& flip);
 	std::vector<AvgStat> SortFlipsByROI(const std::vector<AvgStat>& flips);
 	std::vector<AvgStat> SortFlipsByProfit(const std::vector<AvgStat>& flips);
+	std::vector<AvgStat> SortFlipsByStability(const std::vector<AvgStat>& flips);
 }

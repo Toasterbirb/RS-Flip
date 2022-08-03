@@ -17,6 +17,7 @@ namespace Stats
 		total_profit 	= 0;
 		total_roi 		= 0;
 		value_count 	= 0;
+		highest_profit 	= 0;
 	}
 
 	void AvgStat::AddData(const int& profit, const double& ROI)
@@ -24,6 +25,9 @@ namespace Stats
 		total_profit += profit;
 		total_roi += ROI;
 		value_count++;
+
+		if (highest_profit == 0 || highest_profit < profit)
+			highest_profit = profit;
 	}
 
 	double AvgStat::AvgProfit() const
@@ -36,6 +40,16 @@ namespace Stats
 		return (double)total_roi / value_count;
 	}
 
+	double AvgStat::FlipStability() const
+	{
+		return (double)(highest_profit - AvgProfit()) / AvgProfit();
+	}
+
+	int AvgStat::FlipCount() const
+	{
+		return value_count;
+	}
+
 	TEST_CASE("Average stats per item")
 	{
 		AvgStat statA("Item A");
@@ -44,6 +58,8 @@ namespace Stats
 		statA.AddData(100, 25);
 		CHECK(statA.AvgProfit() == 100);
 		CHECK(statA.AvgROI() == 25);
+		CHECK(statA.FlipStability() == 0);
+		CHECK(statA.FlipCount() == 3);
 
 		AvgStat statB("Item B");
 		statB.AddData(100, 25);
@@ -51,11 +67,15 @@ namespace Stats
 		statB.AddData(120, 75);
 		CHECK(statB.AvgProfit() == 90);
 		CHECK(statB.AvgROI() == 50);
+		CHECK(statB.FlipStability() == (120 - statB.AvgProfit()) / statB.AvgProfit());
+		CHECK(statB.FlipCount() == 3);
 
 		AvgStat statC("Item C");
 		statC.AddData(10, 1);
 		statC.AddData(100000, 1);
 		CHECK(statC.AvgProfit() == 50005);
+		CHECK(statC.FlipStability() == (100000 - statC.AvgProfit()) / statC.AvgProfit());
+		CHECK(statC.FlipCount() == 2);
 	}
 
 	std::vector<AvgStat> FlipsToAvgstats(const std::vector<nlohmann::json>& flips)

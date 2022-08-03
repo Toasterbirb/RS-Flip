@@ -138,6 +138,30 @@ namespace Flips
 		WriteJson();
 	}
 
+	int FindLongestName(std::vector<Stats::AvgStat> stats)
+	{
+		int result = stats[0].name.size();
+
+		for (int i = 1; i < stats.size(); i++)
+			if (result < stats[i].name.size())
+				result = stats[i].name.size();
+
+		return result;
+	}
+
+	void PrintTableSep(const int& name_length)
+	{
+		for (int i = 0; i < name_length + 2; i++)
+			std::cout << "-";
+
+		std::cout << "|";
+
+		for (int i = 0; i < 18; i++)
+			std::cout << "-";
+
+		std::cout << "\n";
+	}
+
 	void PrintStats(const int& topValueCount)
 	{
 		Init();
@@ -149,23 +173,49 @@ namespace Flips
 
 		/* Print top performing flips */
 		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
+		int name_length = 0;
 
 
 		Utils::PrintTitle("Top flips by ROI-%");
 		std::vector<Stats::AvgStat> topROI = Stats::SortFlipsByROI(stats);
+		name_length = FindLongestName(topROI);
+
+		PrintTableSep(name_length);
+		std::cout << std::setw(name_length + 1) << "Item name" << " | ROI-%" << std::endl;
+		PrintTableSep(name_length);
 		for (int i = 0; i < Utils::Clamp(topROI.size(), 0, topValueCount); i++)
 		{
-			std::cout << "[" << i << "] " << topROI[i].name << " | " << std::to_string(topROI[i].AvgROI()) + "%" << std::endl;
+			std::cout << " " << std::setw(name_length) << topROI[i].name << " | " << std::to_string(topROI[i].AvgROI()) + "%" << std::endl;
 		}
+		PrintTableSep(name_length);
+		std::cout << "\n";
+
+		Utils::PrintTitle("Top flips by stability");
+		std::vector<Stats::AvgStat> topStability = Stats::SortFlipsByStability(stats);
+		name_length = FindLongestName(topStability);
+
+		PrintTableSep(name_length);
+		std::cout << std::setw(name_length + 1) << "Item name" << " | Flip instability" << std::endl;
+		PrintTableSep(name_length);
+		for (int i = 0; i < Utils::Clamp(topStability.size(), 0, topValueCount); i++)
+		{
+			std::cout << " " << std::setw(name_length) << topStability[i].name << " | " << std::to_string(topStability[i].FlipStability()) + "%" << std::endl;
+		}
+		PrintTableSep(name_length);
 		std::cout << "\n";
 
 		Utils::PrintTitle("Top flips by Profit");
 		std::vector<Stats::AvgStat> topProfit = Stats::SortFlipsByProfit(stats);
+		name_length = FindLongestName(topProfit);
+
+		PrintTableSep(name_length);
+		std::cout << std::setw(name_length + 1) << "Item name" << " | Average profit" << std::endl;
+		PrintTableSep(name_length);
 		for (int i = 0; i < Utils::Clamp(topProfit.size(), 0, topValueCount); i++)
 		{
-			std::cout << "[" << i << "] " << topProfit[i].name << " | " << Utils::RoundBigNumbers(topProfit[i].AvgProfit()) << std::endl;
+			std::cout << " " << std::setw(name_length) << topProfit[i].name << " | " << Utils::RoundBigNumbers(topProfit[i].AvgProfit()) << std::endl;
 		}
-
+		PrintTableSep(name_length);
 	}
 
 	void FixStats()
