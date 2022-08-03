@@ -140,11 +140,32 @@ namespace Flips
 
 	int FindLongestName(std::vector<Stats::AvgStat> stats)
 	{
+		if (stats.size() == 0)
+			return 0;
+
 		int result = stats[0].name.size();
 
 		for (int i = 1; i < stats.size(); i++)
 			if (result < stats[i].name.size())
 				result = stats[i].name.size();
+
+		return result;
+	}
+
+	int FindLongestName(std::vector<nlohmann::json> flip_list)
+	{
+		if (flip_list.size() == 0)
+			return 0;
+
+		std::string element = flip_list[0]["item"];
+		int result = element.size();
+
+		for (int i = 1; i < flip_list.size(); i++)
+		{
+			element = flip_list[i]["item"];
+			if (result < element.size())
+				result = element.size();
+		}
 
 		return result;
 	}
@@ -266,16 +287,24 @@ namespace Flips
 	{
 		Init();
 
-		Utils::PrintTitle("On-going flips");
-		int index = 0;
+		std::vector<nlohmann::json> undone_flips;
+
 		for (int i = 0; i < flips.size(); i++)
 		{
 			/* Check if the flip is done yet */
 			if (flips[i]["done"] == true)
 				continue;
 
-			std::cout << "[" << index << "] " << flips[i]["item"] << " | Count: " << flips[i]["limit"] << " | Buy: " << flips[i]["buy"] << " | Estimated sell: " << flips[i]["sell"] << std::endl;
-			index++;
+			undone_flips.push_back(flips[i]);
+		}
+
+		int name_length = FindLongestName(undone_flips);
+		std::cout << "Name length: " << name_length << std::endl;
+		Utils::PrintTitle("On-going flips");
+		for (int i = 0; i < undone_flips.size(); i++)
+		{
+			std::string flip_name = undone_flips[i]["item"];
+			std::cout << "[" << i << "] " << undone_flips[i]["item"] << std::setw(name_length - flip_name.size() + 10) << " | Count: " << undone_flips[i]["limit"] << " | Buy: " << undone_flips[i]["buy"] << " | Estimated sell: " << undone_flips[i]["sell"] << std::endl;
 		}
 	}
 
