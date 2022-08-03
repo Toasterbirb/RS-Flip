@@ -3,7 +3,7 @@
 
 #define PROFIT_WEIGHT 0.7
 #define BUYLIMIT_WEIGHT 0.3
-#define FLIP_COUNT_MULTIPLIER 0.95
+#define FLIP_COUNT_MULTIPLIER 0.90
 
 namespace Stats
 {
