@@ -64,7 +64,7 @@ namespace Margin
 
 		PrintLine();
 
-		std::cout << "Profit (1 cut): " << cut_profit << " (" << Utils::RoundBigNumbers(cut_profit) << ")" << std::endl;
+		std::cout << "\e[31mProfit (1 cut): " << cut_profit << " (" << Utils::RoundBigNumbers(cut_profit) << ")\e[0m" << std::endl;
 		std::cout << "Profit (5 cut): " << big_cut_profit << " (" << Utils::RoundBigNumbers(big_cut_profit) << ")" << std::endl;
 
 		PrintLine();
