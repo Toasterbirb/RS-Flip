@@ -50,8 +50,8 @@ namespace Margin
 	{
 		int margin = CalcMargin(instaBuy, instaSell);
 		int profit = CalcProfit(margin, buylimit, 0);
-		int cut_profit = CalcProfit(margin, buylimit, 1);
-		int big_cut_profit = CalcProfit(margin, buylimit, 5);
+		int cut_profit = CalcProfit(margin, buylimit - 1, 1);
+		int big_cut_profit = CalcProfit(margin, buylimit - 1, 5);
 
 		std::cout << "Margin: " << margin << std::endl;
 		std::cout << "Required capital: " << Utils::RoundBigNumbers(instaSell * (buylimit - 1)) << std::endl;
