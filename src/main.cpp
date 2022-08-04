@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	int buyValue = 0;
 	int sellValue = 0;
 	int buyLimit = 0;
-	int sel_index;
+	int sel_index = -1;
 
 	/* Filtering values */
 	int flip_count = 0;
@@ -231,6 +231,12 @@ int main(int argc, char** argv)
 
 		case (Mode::Sold):
 		{
+			if (sel_index < 0)
+			{
+				std::cout << "No valid item ID was given" << std::endl;
+				break;
+			}
+
 			Flips::Sell(sel_index, sellValue, buyLimit);
 			break;
 		}
