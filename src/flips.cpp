@@ -194,37 +194,39 @@ namespace Flips
 		std::cout << "\n";
 	}
 
-	void PrintStats(const int& topValueCount)
+	void PrintStats(const int& topValueCount, const bool& only_stability)
 	{
 		Init();
-
-		Utils::PrintTitle("Stats");
-		std::cout << "Total profit: " << Utils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
-		std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
-		std::cout << "\n";
-
-		/* Quit if zero flips done */
-		if (json_data["stats"]["flips_done"] == 0)
-			return;
 
 		/* Print top performing flips */
 		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
 		int name_length = 0;
 
-
-		Utils::PrintTitle("Top flips by ROI-%");
-		std::vector<Stats::AvgStat> topROI = Stats::SortFlipsByROI(stats);
-		name_length = FindLongestName(topROI);
-
-		PrintTableSep(name_length);
-		std::cout << std::setw(name_length + 1) << "Item name" << " | ROI-%            |" << std::endl;
-		PrintTableSep(name_length);
-		for (int i = 0; i < Utils::Clamp(topROI.size(), 0, topValueCount); i++)
+		if (!only_stability)
 		{
-			std::cout << " " << std::setw(name_length) << topROI[i].name << " | " << std::to_string(topROI[i].AvgROI()) + "%" << std::endl;
+			Utils::PrintTitle("Stats");
+			std::cout << "Total profit: " << Utils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
+			std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
+			std::cout << "\n";
+
+			/* Quit if zero flips done */
+			if (json_data["stats"]["flips_done"] == 0)
+				return;
+
+			Utils::PrintTitle("Top flips by ROI-%");
+			std::vector<Stats::AvgStat> topROI = Stats::SortFlipsByROI(stats);
+			name_length = FindLongestName(topROI);
+
+			PrintTableSep(name_length);
+			std::cout << std::setw(name_length + 1) << "Item name" << " | ROI-%            |" << std::endl;
+			PrintTableSep(name_length);
+			for (int i = 0; i < Utils::Clamp(topROI.size(), 0, topValueCount); i++)
+			{
+				std::cout << " " << std::setw(name_length) << topROI[i].name << " | " << std::to_string(topROI[i].AvgROI()) + "%" << std::endl;
+			}
+			PrintTableSep(name_length);
+			std::cout << "\n";
 		}
-		PrintTableSep(name_length);
-		std::cout << "\n";
 
 		Utils::PrintTitle("Top flips by stability");
 		std::vector<Stats::AvgStat> topStability = Stats::SortFlipsByStability(stats);
@@ -237,28 +239,32 @@ namespace Flips
 		{
 			std::cout << " " << std::setw(name_length) << topStability[i].name << " | " << Utils::CleanDecimals(std::round(topStability[i].FlipStability())) << std::endl;
 		}
-		PrintTableSep(name_length);
-		std::cout << "\n";
 
-		Utils::PrintTitle("Top flips by Profit");
-		std::vector<Stats::AvgStat> topProfit = Stats::SortFlipsByProfit(stats);
-		name_length = FindLongestName(topProfit);
-
-		PrintTableSep(name_length, 20);
-		std::cout << std::setw(name_length + 1) << "Item name" << " | Average profit   | Instability score  |" << std::endl;
-		PrintTableSep(name_length, 20);
-		for (int i = 0; i < Utils::Clamp(topProfit.size(), 0, topValueCount); i++)
+		if (!only_stability)
 		{
-			std::string avgprofit_string = Utils::RoundBigNumbers(topProfit[i].AvgProfit());
-			std::string instability_score = Utils::CleanDecimals(std::round(topProfit[i].FlipStability()));
-			if (instability_score == "0")
-				instability_score = "-";
+			PrintTableSep(name_length);
+			std::cout << "\n";
 
-			std::cout << " " << std::setw(name_length) << topProfit[i].name << " | "
-				<< avgprofit_string << std::setw(19 - avgprofit_string.length()) << " | "
-				<< instability_score << std::setw(21 - instability_score.length()) << " | " << std::endl;
+			Utils::PrintTitle("Top flips by Profit");
+			std::vector<Stats::AvgStat> topProfit = Stats::SortFlipsByProfit(stats);
+			name_length = FindLongestName(topProfit);
+
+			PrintTableSep(name_length, 20);
+			std::cout << std::setw(name_length + 1) << "Item name" << " | Average profit   | Instability score  |" << std::endl;
+			PrintTableSep(name_length, 20);
+			for (int i = 0; i < Utils::Clamp(topProfit.size(), 0, topValueCount); i++)
+			{
+				std::string avgprofit_string = Utils::RoundBigNumbers(topProfit[i].AvgProfit());
+				std::string instability_score = Utils::CleanDecimals(std::round(topProfit[i].FlipStability()));
+				if (instability_score == "0")
+					instability_score = "-";
+
+				std::cout << " " << std::setw(name_length) << topProfit[i].name << " | "
+					<< avgprofit_string << std::setw(19 - avgprofit_string.length()) << " | "
+					<< instability_score << std::setw(21 - instability_score.length()) << " | " << std::endl;
+			}
+			PrintTableSep(name_length, 20);
 		}
-		PrintTableSep(name_length, 20);
 	}
 
 	void FixStats()

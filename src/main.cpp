@@ -46,7 +46,7 @@ void PrintHelp()
 	"\n" <<
 	"  cancel [ID]\tCancels an on-going flip and removes it from the database\n" <<
 	"  list\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
-	"  stats [count]\tPrints out profit statistics. Count sets the length of top-lists\n" <<
+	"  stats [--stability] [count]\tPrints out profit statistics. Count sets the length of top-lists\n" <<
 	"  repair\tAttempts to repair the statistics from the flip data in-case of some bug.\n";
 }
 
@@ -103,7 +103,34 @@ int main(int argc, char** argv)
 		}
 		if (!strcmp(argv[1], "stats"))
 		{
-			Flips::PrintStats(std::atoi(argv[2]));
+			if (strcmp(argv[2], "--stability") != 0)
+			{
+				int result_count = std::atoi(argv[2]);
+				if (result_count < 1)
+					result_count = 10;
+
+				Flips::PrintStats(result_count);
+			}
+			else
+			{
+				/* Only print the stability chart with 10 results */
+				Flips::PrintStats(10, true);
+			}
+
+			return 0;
+		}
+	}
+
+	/* 3 arg commands */
+	if (argc == 4)
+	{
+		if (!strcmp(argv[1], "stats") && !strcmp(argv[2], "--stability"))
+		{
+			int result_count = std::atoi(argv[3]);
+			if (result_count < 1)
+				result_count = 10;
+
+			Flips::PrintStats(result_count, true);
 			return 0;
 		}
 	}

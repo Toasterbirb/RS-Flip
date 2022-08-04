@@ -25,7 +25,7 @@ namespace Flips
 	};
 
 	void Init();
-	void PrintStats(const int& topValueCount = 10);
+	void PrintStats(const int& topValueCount = 10, const bool& only_stability = false);
 	void FixStats();
 	void RestoreBackup();
 	void List(); /* List on-going flips */
