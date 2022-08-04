@@ -403,4 +403,74 @@ namespace Flips
 		/* Update the json file */
 		ApplyFlipArray();
 	}
+
+	/* Filtering */
+	void FilterName(const std::string& name)
+	{
+		Init();
+		std::cout << "Filter: " << name << std::endl;
+
+		/* Quit if zero flips done */
+		int flip_count = Flips::json_data["stats"]["flips_done"];
+		if (flip_count == 0)
+			return;
+
+		std::vector<nlohmann::json> found_flips;
+		for (int i = 0; i < flip_count; i++)
+		{
+			std::string flip_name = flips[i]["item"];
+			if (flip_name == name && flips[i]["done"])
+				found_flips.push_back(flips[i]);
+		}
+
+		std::cout << "Results: " << found_flips.size() << std::endl;
+		if (found_flips.size() == 0)
+			return;
+
+		/* List out the flips */
+		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+		std::cout << "| Buy         | Sell        | Count   | Profit      |" << std::endl;
+		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+
+		int total_profit = 0;
+		for (int i = 0; i < found_flips.size(); i++)
+		{
+			Flip flip(found_flips[i]);
+
+			std::string buy_price = Utils::RoundBigNumbers(flip.buy_price);
+			std::string sell_price = Utils::RoundBigNumbers(flip.sold_price);
+			int profit = (flip.sold_price - flip.buy_price) * flip.buylimit;
+			total_profit += profit;
+			std::string profit_text = Utils::RoundBigNumbers(profit);
+			std::string item_count = std::to_string(flip.buylimit);
+
+			std::cout << "| " << buy_price << std::setw(14 - buy_price.length()) << " | " <<
+				sell_price << std::setw(14 - sell_price.length()) << " | " <<
+				item_count << std::setw(10 - item_count.length()) << " | " <<
+				profit_text << std::setw(13 - profit_text.length()) << "|" << std::endl;
+		}
+
+		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+
+		/* Calculate average profit */
+		std::cout << "\n\e[33mAverage profit: " << Utils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\e[0m" << std::endl;
+		std::cout << "\e[32mTotal profit:   " << Utils::RoundBigNumbers((double)total_profit) << "\e[0m" << std::endl;
+	}
+
+	void FilterCount(const int& flip_count)
+	{
+		Init();
+
+		/* Don't do anything if there are no flips in the db */
+		if (flips.size() == 0)
+			return;
+
+		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
+
+		for (int i = 0; i < avgStats.size(); i++)
+		{
+			if (avgStats[i].FlipCount() <= flip_count)
+				std::cout << avgStats[i].name << std::endl;
+		}
+	}
 }

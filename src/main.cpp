@@ -7,7 +7,7 @@
 
 enum Mode
 {
-	Calc, Flip, Sold, None
+	Calc, Flip, Sold, Filtering, None
 };
 
 bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode)
@@ -37,8 +37,12 @@ void PrintHelp()
 	"  sold  Finish an on-going flip\n" <<
 		"\t-i [ID] 		The ID number can be found with the `--list` command\n" <<
 		"\t-s [Selling price] 	Optional. This arg is for cases where final sell value changed\n" <<
-		"\t-l [Amount sold] 	Optional. This arg is for cases where the full buy limit didn't buy\n" <<
-		"\t\t\t\tor the amount sold was partial.\n" <<
+		"\t-l [Amount sold] 	Optional. This arg is for cases where the full buy limit didn't\n" <<
+		"\t\t\t\tbuy or the amount sold was partial.\n" <<
+	"\n" <<
+	"  filter  Look for items with filters\n" <<
+		"\t-i [Item name] 		Find stats for a specific item\n" <<
+		"\t-c [Flip count] 	Find flips that have been done count <= times\n" <<
 	"\n" <<
 	"  cancel [ID]\tCancels an on-going flip and removes it from the database\n" <<
 	"  list\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
@@ -115,11 +119,14 @@ int main(int argc, char** argv)
 	Mode mode = Mode::None;
 
 	/* Calc mode */
-	std::string item_name;
+	std::string item_name = "";
 	int buyValue = 0;
 	int sellValue = 0;
 	int buyLimit = 0;
 	int sel_index;
+
+	/* Filtering values */
+	int flip_count = 0;
 
 	int processed_args = 1;
 	while (processed_args < argc)
@@ -147,6 +154,13 @@ int main(int argc, char** argv)
 				processed_args++;
 				continue;
 			}
+
+			if (!strcmp(argv[processed_args], "filter") && argc == 4)
+			{
+				mode = Mode::Filtering;
+				processed_args++;
+				continue;
+			}
 		}
 
 		/* Mode sub values */
@@ -168,13 +182,19 @@ int main(int argc, char** argv)
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-i") && AcceptedModes({Flip, Sold}, mode))
+		else if (!strcmp(argv[processed_args], "-i") && AcceptedModes({Flip, Sold, Filtering}, mode))
 		{
-			if (mode == Mode::Flip)
+			if (mode == Mode::Flip || mode == Mode::Filtering)
 				item_name = argv[processed_args + 1];
 			else
 				sel_index = atoi(argv[processed_args + 1]);
 
+			processed_args += 2;
+			continue;
+		}
+		else if (!strcmp(argv[processed_args], "-c") && AcceptedModes({Filtering}, mode))
+		{
+			flip_count = atoi(argv[processed_args + 1]);
 			processed_args += 2;
 			continue;
 		}
@@ -212,6 +232,17 @@ int main(int argc, char** argv)
 		case (Mode::Sold):
 		{
 			Flips::Sell(sel_index, sellValue, buyLimit);
+			break;
+		}
+
+		case (Mode::Filtering):
+		{
+			/* Filter by name */
+			if (item_name != "")
+				Flips::FilterName(item_name);
+			else if (flip_count != 0)
+				Flips::FilterCount(flip_count);
+
 			break;
 		}
 

@@ -35,4 +35,8 @@ namespace Flips
 
 	static nlohmann::json json_data;
 	static std::vector<nlohmann::json> flips;
+
+	/* Filtering */
+	void FilterName(const std::string& name);
+	void FilterCount(const int& flip_count);
 }
