@@ -18,21 +18,35 @@ namespace Stats
 		total_roi 			= 0;
 		total_item_count 	= 0;
 		value_count 		= 0;
+
+		lowest_profit 		= 0;
 		highest_profit 		= 0;
+		lowest_item_count 	= 0;
+		highest_item_count 	= 0;
+
+		total_sell_sold_distance 	= 0;
 	}
 
-	void AvgStat::AddData(const int& profit, const double& ROI, const int& item_count)
+	void AvgStat::AddData(const int& profit, const double& ROI, const int& item_count, const int& sell, const int& sold)
 	{
 		total_profit 		+= profit;
 		total_roi 			+= ROI;
 		total_item_count 	+= item_count;
 		value_count++;
 
+		if (lowest_profit == 0 || lowest_profit > profit)
+			lowest_profit = profit;
+
 		if (highest_profit == 0 || highest_profit < profit)
 			highest_profit = profit;
 
+		if (lowest_item_count == 0 || lowest_item_count > item_count)
+			lowest_item_count = item_count;
+
 		if (highest_item_count == 0 || highest_item_count < item_count)
 			highest_item_count = item_count;
+
+		total_sell_sold_distance += std::abs(sell - sold);
 	}
 
 	double AvgStat::AvgProfit() const
@@ -52,9 +66,43 @@ namespace Stats
 
 	double AvgStat::FlipStability() const
 	{
-		double profit_stability 	= ((highest_profit - AvgProfit()) / AvgProfit()) * PROFIT_WEIGHT;
-		double buy_limit_stability 	= ((highest_item_count - AvgBuyLimit()) / AvgBuyLimit()) * BUYLIMIT_WEIGHT;
-		return ((profit_stability + buy_limit_stability) * 100) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count));
+		int low_profit = lowest_profit;
+		if (lowest_profit == 0)
+			low_profit = -1;
+
+		int low_item = lowest_item_count;
+		if (lowest_item_count == 0)
+			low_item = 1;
+
+		double profit_stability 	= (1 - ((double)low_profit / highest_profit)) * PROFIT_WEIGHT;
+		double buy_limit_stability 	= (1 - ((double)low_item / highest_item_count)) * BUYLIMIT_WEIGHT;
+		double average_sell_sold_distance = (double)total_sell_sold_distance / value_count;
+
+		if (average_sell_sold_distance == 0)
+			average_sell_sold_distance = 1;
+
+		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * 100;
+	}
+
+	TEST_CASE("Flip stability stress test")
+	{
+		bool success = true;
+
+		for (int i = 0; i < 100; i++)
+		{
+			AvgStat stat("Item");
+			stat.AddData(100, 25, 500);
+			stat.AddData(50, 50, 450);
+			stat.AddData(120, 75, 475);
+
+			if (stat.FlipStability() > 100)
+			{
+				success = false;
+				break;
+			}
+		}
+
+		CHECK(success);
 	}
 
 	int AvgStat::FlipCount() const
@@ -68,16 +116,18 @@ namespace Stats
 		statA.AddData(100, 25, 1000);
 		statA.AddData(100, 25, 1000);
 		statA.AddData(100, 25, 1000);
+		CHECK(statA.FlipStability() == 0);
 		CHECK(statA.AvgProfit() == 100);
 		CHECK(statA.AvgROI() == 25);
 		CHECK(statA.AvgBuyLimit() == 1000);
-		CHECK(statA.FlipStability() == 0);
 		CHECK(statA.FlipCount() == 3);
 
 		AvgStat statB("Item B");
 		statB.AddData(100, 25, 500);
 		statB.AddData(50, 50, 450);
 		statB.AddData(120, 75, 475);
+
+		CHECK(statB.FlipStability() != 0);
 		CHECK(statB.AvgProfit() == 90);
 		CHECK(statB.AvgROI() == 50);
 		CHECK(statB.AvgBuyLimit() == 475);
@@ -86,6 +136,8 @@ namespace Stats
 		AvgStat statC("Item C");
 		statC.AddData(10, 1, 1000);
 		statC.AddData(100000, 1, 20000);
+
+		CHECK(statC.FlipStability() != 0);
 		CHECK(statC.AvgProfit() == 50005);
 		CHECK(statC.AvgBuyLimit() == 10500);
 		CHECK(statC.FlipCount() == 2);
@@ -119,7 +171,7 @@ namespace Stats
 				/* Check if the flip is already in the avg stat array */
 				if (flips[i]["item"] == result[j].name)
 				{
-					result[j].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"]);
+					result[j].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
 					valueFound = true;
 					break;
 				}
