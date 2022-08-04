@@ -465,6 +465,10 @@ namespace Flips
 		if (flips.size() == 0)
 			return;
 
+		/* Don't do anything if the flip count given is dumb */
+		if (flip_count < 1)
+			return;
+
 		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
 
 		for (int i = 0; i < avgStats.size(); i++)
