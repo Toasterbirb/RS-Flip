@@ -303,7 +303,6 @@ namespace Flips
 		}
 
 		int name_length = FindLongestName(undone_flips);
-		std::cout << "Name length: " << name_length << std::endl;
 		Utils::PrintTitle("On-going flips");
 		for (int i = 0; i < undone_flips.size(); i++)
 		{
