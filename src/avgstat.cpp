@@ -81,7 +81,16 @@ namespace Stats
 		if (average_sell_sold_distance == 0)
 			average_sell_sold_distance = 1;
 
-		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * 100;
+		/* Flips that make profit can be unstable, but they are at least
+		 * making profit. This modifier will punish flips that have made a loss
+		 * at some point and give a boost to flips that at least made some money */
+		double profitability_modifier = 1;
+		if (lowest_profit < 0)
+			profitability_modifier = LOSS_MODIFIER;
+		else
+			profitability_modifier = PROFIT_MODIFIER;
+
+		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * profitability_modifier * 100;
 	}
 
 	TEST_CASE("Flip stability stress test")

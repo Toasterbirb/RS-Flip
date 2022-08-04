@@ -1,9 +1,12 @@
 #pragma once
 #include "pch.hpp"
 
+/* Stability algo parameters */
 #define PROFIT_WEIGHT 0.8
 #define BUYLIMIT_WEIGHT 0.2
 #define FLIP_COUNT_MULTIPLIER 0.90
+#define LOSS_MODIFIER 2
+#define PROFIT_MODIFIER 0.85
 
 namespace Stats
 {
