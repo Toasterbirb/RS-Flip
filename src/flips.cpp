@@ -192,6 +192,10 @@ namespace Flips
 		std::cout << "Flips done: " << Utils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
 		std::cout << "\n";
 
+		/* Quit if zero flips done */
+		if (json_data["stats"]["flips_done"] == 0)
+			return;
+
 		/* Print top performing flips */
 		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
 		int name_length = 0;
