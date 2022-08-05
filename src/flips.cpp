@@ -180,10 +180,10 @@ namespace Flips
 		for (int i = 0; i < 18; i++)
 			std::cout << "-";
 
-		std::cout << "|";
-
 		if (name_length2 != 0)
 		{
+			std::cout << "|";
+
 			for (int i = 0; i < name_length2; i++)
 				std::cout << "-";
 
@@ -218,7 +218,7 @@ namespace Flips
 			name_length = FindLongestName(topROI);
 
 			PrintTableSep(name_length);
-			std::cout << std::setw(name_length + 1) << "Item name" << " | ROI-%            |" << std::endl;
+			std::cout << std::setw(name_length + 1) << "Item name" << " | ROI-%" << std::endl;
 			PrintTableSep(name_length);
 			for (int i = 0; i < Utils::Clamp(topROI.size(), 0, topValueCount); i++)
 			{
@@ -233,7 +233,7 @@ namespace Flips
 		name_length = FindLongestName(topStability);
 
 		PrintTableSep(name_length);
-		std::cout << std::setw(name_length + 1) << "Item name" << " | Flip instability |" << std::endl;
+		std::cout << std::setw(name_length + 1) << "Item name" << " | Flip instability" << std::endl;
 		PrintTableSep(name_length);
 		for (int i = 0; i < Utils::Clamp(topStability.size(), 0, topValueCount); i++)
 		{
@@ -500,5 +500,32 @@ namespace Flips
 			if (avgStats[i].FlipCount() <= flip_count)
 				std::cout << avgStats[i].name << std::endl;
 		}
+	}
+
+	bool FlipRecommendations()
+	{
+		Init();
+
+		if (flips.size() < 1)
+			return false;
+
+		Utils::PrintTitle("Recommended flips");
+
+		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
+		std::vector<Stats::AvgStat> recommendedFlips = Stats::SortFlipsByRecommendation(avgStats);
+
+		int name_length = 0;
+		name_length = FindLongestName(recommendedFlips);
+
+		PrintTableSep(name_length);
+		std::cout << std::setw(name_length + 1) << "Item name " << " | Score" << std::endl;
+		PrintTableSep(name_length);
+		for (int i = 0; i < Utils::Clamp(recommendedFlips.size(), 1, 20); i++)
+		{
+			std::cout << " " << recommendedFlips[i].name << std::setw(29 - recommendedFlips[i].name.length()) << " | " <<
+				recommendedFlips[i].FlipRecommendation() << std::endl;
+		}
+
+		return true;
 	}
 }

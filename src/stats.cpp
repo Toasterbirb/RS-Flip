@@ -115,6 +115,40 @@ namespace Stats
 		return result;
 	}
 
+	std::vector<AvgStat> SortFlipsByRecommendation(const std::vector<AvgStat>& flips)
+	{
+		std::vector<AvgStat> result = flips;
+
+		/* TODO: Switch to some other algorithm than bubblesort */
+
+		bool had_swap = true;
+		AvgStat placeholder;
+		while (had_swap)
+		{
+			had_swap = false;
+			for (int i = 0; i < result.size() - 1; i++)
+			{
+				/* Skip flips with only one trade done */
+				if (result[i].FlipCount() == 1)
+				{
+					result.erase(result.begin() + i);
+					i--;
+					continue;
+				}
+
+				if (result[i].FlipRecommendation() < result[i + 1].FlipRecommendation())
+				{
+					placeholder = result[i];
+					result[i] = result[i + 1];
+					result[i + 1] = placeholder;
+					had_swap = true;
+				}
+			}
+		}
+
+		return result;
+	}
+
 	TEST_CASE("Sorting flips")
 	{
 		/* Create a few flips */

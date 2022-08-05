@@ -114,6 +114,11 @@ namespace Stats
 		CHECK(success);
 	}
 
+	double AvgStat::FlipRecommendation() const
+	{
+		return AvgProfit() / FlipStability();
+	}
+
 	int AvgStat::FlipCount() const
 	{
 		return value_count;

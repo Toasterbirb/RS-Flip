@@ -59,7 +59,8 @@ int main(int argc, char** argv)
 	/* No arguments were given */
 	if (argc == 1)
 	{
-		PrintHelp();
+		if (!Flips::FlipRecommendations())
+			PrintHelp();
 		return 0;
 	}
 

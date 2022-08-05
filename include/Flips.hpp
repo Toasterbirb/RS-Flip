@@ -39,4 +39,7 @@ namespace Flips
 	/* Filtering */
 	void FilterName(const std::string& name);
 	void FilterCount(const int& flip_count);
+
+	/* Flip recommendations */
+	bool FlipRecommendations();
 }
