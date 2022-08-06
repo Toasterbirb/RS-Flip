@@ -185,7 +185,8 @@ namespace Stats
 				/* Check if the flip is already in the avg stat array */
 				if (flips[i]["item"] == result[j].name)
 				{
-					result[j].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
+					int profit = Margin::CalcProfit(flips[i]);
+					result[j].AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
 					valueFound = true;
 					break;
 				}
@@ -195,10 +196,110 @@ namespace Stats
 			{
 				/* Add a new item and the values for it */
 				result.push_back(AvgStat(flips[i]["item"]));
-				result[result.size() - 1].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"]);
+				result[result.size() - 1].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
 			}
 		}
 
 		return result;
+	}
+
+	TEST_CASE("Convert flips to average stats")
+	{
+		std::vector<nlohmann::json> test_flips;
+		std::vector<AvgStat> avgStats;
+
+		Flips::Flip flipA;
+		flipA.buy_price 	= 268;
+		flipA.cancelled 	= false;
+		flipA.done 			= true;
+		flipA.item 			= "Yew logs";
+		flipA.buylimit 		= 24999;
+		flipA.sell_price 	= 294;
+		flipA.sold_price 	= 294;
+		test_flips.push_back(flipA.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(avgStats[0].AvgProfit() == 649974);
+
+		Flips::Flip flipB;
+		flipB.buy_price 	= 271;
+		flipB.cancelled 	= false;
+		flipB.done 			= true;
+		flipB.item 			= "Yew logs";
+		flipB.buylimit 		= 23806;
+		flipB.sell_price 	= 294;
+		flipB.sold_price 	= 294;
+		test_flips.push_back(flipB.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(avgStats[0].AvgProfit() == 598756);
+
+		Flips::Flip flipC;
+		flipC.buy_price 	= 281;
+		flipC.cancelled 	= false;
+		flipC.done 			= true;
+		flipC.item 			= "Yew logs";
+		flipC.buylimit 		= 22332;
+		flipC.sell_price 	= 299;
+		flipC.sold_price 	= 299;
+		test_flips.push_back(flipC.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(std::round(avgStats[0].AvgProfit()) == std::round(533162.6667));
+
+		Flips::Flip flipD;
+		flipD.buy_price 	= 284;
+		flipD.cancelled 	= false;
+		flipD.done 			= true;
+		flipD.item 			= "Yew logs";
+		flipD.buylimit 		= 24999;
+		flipD.sell_price 	= 305;
+		flipD.sold_price 	= 305;
+		test_flips.push_back(flipD.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(std::round(avgStats[0].AvgProfit()) == std::round(531116.75));
+
+		Flips::Flip flipE;
+		flipE.buy_price 	= 277;
+		flipE.cancelled 	= false;
+		flipE.done 			= true;
+		flipE.item 			= "Yew logs";
+		flipE.buylimit 		= 24999;
+		flipE.sell_price 	= 279;
+		flipE.sold_price 	= 276;
+		test_flips.push_back(flipE.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(std::round(avgStats[0].AvgProfit()) == std::round(419893.6));
+
+		Flips::Flip flipF;
+		flipF.buy_price 	= 273;
+		flipF.cancelled 	= false;
+		flipF.done 			= true;
+		flipF.item 			= "Yew logs";
+		flipF.buylimit 		= 24999;
+		flipF.sell_price 	= 275;
+		flipF.sold_price 	= 275;
+		test_flips.push_back(flipF.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(std::round(avgStats[0].AvgProfit()) == std::round(358244.3333));
+
+		Flips::Flip flipG;
+		flipG.buy_price 	= 268;
+		flipG.cancelled 	= false;
+		flipG.done 			= true;
+		flipG.item 			= "Yew logs";
+		flipG.buylimit 		= 24999;
+		flipG.sell_price 	= 271;
+		flipG.sold_price 	= 271;
+		test_flips.push_back(flipG.ToJson());
+
+		avgStats = FlipsToAvgstats(test_flips);
+		CHECK(avgStats.size() == 1);
+		CHECK(avgStats[0].name == "Yew logs");
+		CHECK(avgStats[0].FlipCount() == 7);
+		CHECK(std::round(avgStats[0].AvgProfit()) == std::round(317780.4286));
 	}
 }

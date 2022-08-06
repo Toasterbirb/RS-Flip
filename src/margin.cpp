@@ -25,11 +25,15 @@ namespace Margin
 		CHECK(CalcProfit(20, 500, 0) == 10000);
 		CHECK(CalcProfit(20, 500, 1) == 9000);
 		CHECK(CalcProfit(20, 500, 2) == 8000);
+		CHECK(CalcProfit(-5, 10, 0) == -50);
 	}
 
 	int CalcProfit(Flips::Flip flip)
 	{
-		return (flip.sell_price - flip.buy_price) * flip.buylimit;
+		if (flip.done)
+			return (flip.sold_price - flip.buy_price) * flip.buylimit;
+		else
+			return (flip.sell_price - flip.buy_price) * flip.buylimit;
 	}
 
 	TEST_CASE("Calculate profit from a flip")
@@ -39,6 +43,9 @@ namespace Margin
 
 		Flips::Flip flipB("Another item", 30, 15, 90);
 		CHECK(CalcProfit(flipB) == -1350);
+
+		Flips::Flip yewLogs("Yew logs", 277, 276, 24999);
+		CHECK(CalcProfit(yewLogs) == -24999);
 	}
 
 	void PrintLine()
