@@ -19,6 +19,7 @@ include_directories(include/ vendor/)
 
 add_executable(flip
 	src/main.cpp
+	src/dailygoal.cpp
 	src/flips.cpp
 	src/margin.cpp
 	src/utils.cpp

@@ -73,4 +73,38 @@ namespace Utils
 		CHECK(Clamp(3, -5, 5) 	== 3);
 		CHECK(Clamp(-2, 5, 10) 	== 5);
 	}
+
+	std::string ReadFile(const std::string& filepath)
+	{
+		std::ifstream file(filepath);
+		if (!file.is_open())
+		{
+			std::cerr << "File " << filepath << " couldn't be opened!\n";
+			return "";
+		}
+
+		std::string contents( 	(std::istreambuf_iterator<char>(file)),
+								(std::istreambuf_iterator<char>()));
+		file.close();
+		return contents;
+	}
+
+	void WriteFile(const std::string& filepath, const std::string text)
+	{
+		std::ofstream file(filepath);
+		if (!file.is_open())
+		{
+			std::cerr << "Can't open the data file!" << std::endl;
+			return;
+		}
+
+		file << text;
+		file.close();
+	}
+
+	void WriteJsonFile(nlohmann::json json_data, std::string file_path)
+	{
+		std::ofstream file(file_path);
+		file << std::setw(4) << json_data << std::endl;
+	}
 }

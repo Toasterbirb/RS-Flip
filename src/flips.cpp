@@ -2,6 +2,7 @@
 #include "AvgStat.hpp"
 #include "Flips.hpp"
 #include "Utils.hpp"
+#include "Dailygoal.hpp"
 
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
 
@@ -60,37 +61,9 @@ namespace Flips
 		return j;
 	}
 
-	std::string ReadFile(const std::string& filepath)
-	{
-		std::ifstream file(filepath);
-		if (!file.is_open())
-		{
-			std::cerr << "File " << filepath << " couldn't be opened!\n";
-			return "";
-		}
-
-		std::string contents( 	(std::istreambuf_iterator<char>(file)),
-								(std::istreambuf_iterator<char>()));
-		file.close();
-		return contents;
-	}
-
-	void WriteFile(const std::string& filepath, const std::string text)
-	{
-		std::ofstream file(filepath);
-		if (!file.is_open())
-		{
-			std::cerr << "Can't open the data file!" << std::endl;
-			return;
-		}
-
-		file << text;
-		file.close();
-	}
-
 	void CreateDefaultDataFile()
 	{
-		WriteFile(data_file, DEFAULT_DATA_FILE);
+		Utils::WriteFile(data_file, DEFAULT_DATA_FILE);
 	}
 
 	void WriteJson()
@@ -98,8 +71,7 @@ namespace Flips
 		/* Backup the file before writing anything */
 		std::filesystem::copy_file(data_file, data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
 
-		std::ofstream file(data_file);
-		file << std::setw(4) << json_data << std::endl;
+		Utils::WriteJsonFile(json_data, data_file);
 	}
 
 	void LoadFlipArray()
@@ -126,7 +98,7 @@ namespace Flips
 			CreateDefaultDataFile();
 
 		/* Read the json data file */
-		std::string json_string = ReadFile(data_file);
+		std::string json_string = Utils::ReadFile(data_file);
 		json_data = nlohmann::json::parse(json_string);
 
 		LoadFlipArray();
@@ -333,6 +305,11 @@ namespace Flips
 			std::string flip_name = undone_flips[i]["item"];
 			std::cout << "[" << i << "] " << undone_flips[i]["item"] << std::setw(name_length - flip_name.size() + 10) << " | Count: " << undone_flips[i]["limit"] << " | Buy: " << undone_flips[i]["buy"] << " | Estimated sell: " << undone_flips[i]["sell"] << std::endl;
 		}
+
+		/* Print out daily goal */
+		DailyProgress daily_progress;
+		std::cout << "\n";
+		daily_progress.PrintProgress();
 	}
 
 	int FindRealIDWithUndoneID(const int& undone_ID)
@@ -423,6 +400,12 @@ namespace Flips
 		std::cout << "Item: " << flips[result]["item"] << std::endl;
 		std::cout << "Profit: " << profit << " (" << Utils::RoundBigNumbers(profit) << ")" << std::endl;
 		std::cout << "Total profit so far: " << total_profit << " (" << Utils::RoundBigNumbers(total_profit) << ")" << std::endl;
+
+		/* Handle daily progress */
+		DailyProgress daily_progress;
+		daily_progress.AddProgress(profit);
+		std::cout << "\n";
+		daily_progress.PrintProgress();
 
 		/* Update the json file */
 		ApplyFlipArray();
