@@ -18,8 +18,8 @@ struct Date
 	bool operator!=(const Date& other)
 	{
 		return (day != other.day
-				&& month != other.month
-				&& year != other.year);
+				|| month != other.month
+				|| year != other.year);
 	}
 };
 
