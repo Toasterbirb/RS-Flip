@@ -493,7 +493,7 @@ namespace Flips
 	{
 		Init();
 
-		if (flips.size() < 1)
+		if (flips.size() < 10)
 			return false;
 
 		FlipUtils::PrintTitle("Recommended flips");
