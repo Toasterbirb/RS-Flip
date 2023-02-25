@@ -464,8 +464,8 @@ namespace Flips
 		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
 
 		/* Calculate average profit */
-		std::cout << "\n\e[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\003[0m" << std::endl;
-		std::cout << "\e[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\003[0m" << std::endl;
+		std::cout << "\n\e[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\e[0m" << std::endl;
+		std::cout << "\e[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\e[0m" << std::endl;
 	}
 
 	void FilterCount(const int& flip_count)
