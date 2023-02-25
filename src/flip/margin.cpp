@@ -94,7 +94,14 @@ namespace Margin
 
 		PrintLine();
 
-		std::cout << "\e[31mProfit (1 cut): " << cut_profit << " (" << FlipUtils::RoundBigNumbers(cut_profit) << ")\e[0m" << std::endl;
+		/* Green color by default */
+		int color_code = 32;
+
+		/* Set red color when you'd be making a loss */
+		if (cut_profit < 0)
+			color_code = 31;
+
+		std::cout << "\e[" << color_code << "mProfit (1 cut): " << cut_profit << " (" << FlipUtils::RoundBigNumbers(cut_profit) << ")\e[0m" << std::endl;
 		std::cout << "Profit (5 cut): " << big_cut_profit << " (" << FlipUtils::RoundBigNumbers(big_cut_profit) << ")" << std::endl;
 
 		PrintLine();
