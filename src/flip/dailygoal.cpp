@@ -1,6 +1,6 @@
 #include "Dailygoal.hpp"
 #include "Flips.hpp"
-#include "Utils.hpp"
+#include "FlipUtils.hpp"
 
 Date::Date()
 {
@@ -46,11 +46,11 @@ DailyProgress::DailyProgress()
 		json_data["goal"] 		= default_goal;
 		json_data["progress"] 	= 0;
 
-		Utils::WriteJsonFile(json_data, file_path);
+		FlipUtils::WriteJsonFile(json_data, file_path);
 	}
 	else if (std::filesystem::is_regular_file(file_path))
 	{
-		std::string json_string = Utils::ReadFile(file_path);
+		std::string json_string = FlipUtils::ReadFile(file_path);
 		this->json_data = nlohmann::json::parse(json_string);
 
 		/* Check if the date is different.
@@ -66,7 +66,7 @@ DailyProgress::DailyProgress()
 			today.SetDate(json_data);
 
 			/* Update the file */
-			Utils::WriteJsonFile(json_data, file_path);
+			FlipUtils::WriteJsonFile(json_data, file_path);
 		}
 	}
 	else
@@ -84,7 +84,7 @@ void DailyProgress::AddProgress(const int& amount)
 	progress += amount;
 	json_data["progress"] = progress;
 
-	Utils::WriteJsonFile(this->json_data, this->file_path);
+	FlipUtils::WriteJsonFile(this->json_data, this->file_path);
 }
 
 int DailyProgress::CurrentProgress()
@@ -103,5 +103,5 @@ void DailyProgress::PrintProgress()
 	int goal 		= Goal();
 	float progress_in_percent = ((float)progress / goal) * 100;
 
-	std::cout << "\e[1mDaily progress: " << Utils::RoundBigNumbers(progress) << " / " << Utils::RoundBigNumbers(goal) << " (" << std::round(progress_in_percent) << "%)\e[0m" << std::endl;
+	std::cout << "\e[1mDaily progress: " << FlipUtils::RoundBigNumbers(progress) << " / " << FlipUtils::RoundBigNumbers(goal) << " (" << std::round(progress_in_percent) << "%)\e[0m" << std::endl;
 }

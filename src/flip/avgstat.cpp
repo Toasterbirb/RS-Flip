@@ -1,4 +1,4 @@
-#include "Utils.hpp"
+#include "FlipUtils.hpp"
 #include "AvgStat.hpp"
 #include "Stats.hpp"
 #include "Flips.hpp"
@@ -19,8 +19,6 @@ namespace Stats
 		total_item_count 	= 0;
 		value_count 		= 0;
 
-		lowest_profit 		= 0;
-		highest_profit 		= 0;
 		lowest_item_count 	= 0;
 		highest_item_count 	= 0;
 
@@ -29,16 +27,12 @@ namespace Stats
 
 	void AvgStat::AddData(const int& profit, const double& ROI, const int& item_count, const int& sell, const int& sold)
 	{
+		profit_list.push_back(profit);
+
 		total_profit 		+= profit;
 		total_roi 			+= ROI;
 		total_item_count 	+= item_count;
 		value_count++;
-
-		if (lowest_profit == 0 || lowest_profit > profit)
-			lowest_profit = profit;
-
-		if (highest_profit == 0 || highest_profit < profit)
-			highest_profit = profit;
 
 		if (lowest_item_count == 0 || lowest_item_count > item_count)
 			lowest_item_count = item_count;
@@ -66,17 +60,68 @@ namespace Stats
 
 	double AvgStat::FlipStability() const
 	{
-		int low_profit = lowest_profit;
+		/* Sort the profit list. Highest value first */
+		std::vector<int> sorted_profits = profit_list;
+
+		int placeholder = 0;
+		bool swapped;
+		do
+		{
+			swapped = false;
+			for (size_t i = 0; i < profit_list.size() - 1; i++)
+			{
+				if (sorted_profits[i] < sorted_profits[i + 1])
+				{
+					placeholder = sorted_profits[i];
+					sorted_profits[i] = sorted_profits[i + 1];
+					sorted_profits[i + 1] = placeholder;
+					swapped = true;
+				}
+			}
+		} while (swapped);
+
+		/** Do some analysis on the profit list **/
+		int lowest_profit = sorted_profits[profit_list.size() - 1];
 		if (lowest_profit == 0)
-			low_profit = -1;
+			lowest_profit = -1;
+
+		int highest_profit = sorted_profits[0];
+
+		/* Find the first flip that makes less than the average profit
+		 * and then calculate its percentile */
+		int underperforming_index = 0;
+		float avg_profit = AvgProfit();
+		for (size_t i = 0; i < sorted_profits.size(); i++)
+		{
+			if (sorted_profits[i] < avg_profit)
+			{
+				underperforming_index = i;
+				break;
+			}
+		}
+		float underperforming_percentile = 1 - ((float)underperforming_index / sorted_profits.size());
+
+		/* Got zero from the underperforming_percentile, the flip is probably awesome
+		 * or there's not enough data yet. Let's say that its somewhat awesome */
+		if (underperforming_percentile == 0)
+			underperforming_percentile = 0.4f;
+
+		float bad_profit_multiplier = 1;
+		if (avg_profit < PROFIT_FILTER)
+			bad_profit_multiplier = BAD_PROFIT_MODIFIER;
+
 
 		int low_item = lowest_item_count;
 		if (lowest_item_count == 0)
 			low_item = 1;
 
-		double profit_stability 	= (1 - ((double)low_profit / highest_profit)) * PROFIT_WEIGHT;
-		double buy_limit_stability 	= (1 - ((double)low_item / highest_item_count)) * BUYLIMIT_WEIGHT;
+		double profit_stability 	= (1 - ((double)lowest_profit / avg_profit)) * PROFIT_WEIGHT;
+		double buy_limit_stability 	= (1 - ((double)low_item / ((double)total_item_count / value_count))) * BUYLIMIT_WEIGHT;
 		double average_sell_sold_distance = (double)total_sell_sold_distance / value_count;
+
+		/* Cap sell_sold distance at 10 */
+		if (average_sell_sold_distance > 10)
+			average_sell_sold_distance = 10;
 
 		if (average_sell_sold_distance == 0)
 			average_sell_sold_distance = 1;
@@ -90,28 +135,7 @@ namespace Stats
 		else
 			profitability_modifier = PROFIT_MODIFIER;
 
-		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * profitability_modifier * 100;
-	}
-
-	TEST_CASE("Flip stability stress test")
-	{
-		bool success = true;
-
-		for (int i = 0; i < 100; i++)
-		{
-			AvgStat stat("Item");
-			stat.AddData(100, 25, 500);
-			stat.AddData(50, 50, 450);
-			stat.AddData(120, 75, 475);
-
-			if (stat.FlipStability() > 100)
-			{
-				success = false;
-				break;
-			}
-		}
-
-		CHECK(success);
+		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * profitability_modifier * underperforming_percentile * bad_profit_multiplier * 100;
 	}
 
 	double AvgStat::FlipRecommendation() const

@@ -38,7 +38,7 @@ namespace Stats
 		while (had_swap)
 		{
 			had_swap = false;
-			for (int i = 0; i < flips.size() - 1; i++)
+			for (size_t i = 0; i < flips.size() - 1; i++)
 			{
 				if (result[i].AvgROI() < result[i + 1].AvgROI())
 				{
@@ -64,7 +64,7 @@ namespace Stats
 		while (had_swap)
 		{
 			had_swap = false;
-			for (int i = 0; i < flips.size() - 1; i++)
+			for (size_t i = 0; i < flips.size() - 1; i++)
 			{
 				if (result[i].AvgProfit() < result[i + 1].AvgProfit())
 				{
@@ -90,7 +90,7 @@ namespace Stats
 		while (had_swap)
 		{
 			had_swap = false;
-			for (int i = 0; i < result.size() - 1; i++)
+			for (size_t i = 0; i < result.size() - 1; i++)
 			{
 				/* Erase a flip if it has only been done once */
 				if (result[i].FlipCount() == 1)
@@ -126,7 +126,7 @@ namespace Stats
 		while (had_swap)
 		{
 			had_swap = false;
-			for (int i = 0; i < result.size() - 1; i++)
+			for (size_t i = 0; i < result.size() - 1; i++)
 			{
 				/* Skip flips with only one trade done */
 				if (result[i].FlipCount() == 1)
@@ -188,7 +188,7 @@ namespace Stats
 		flips.push_back(flipDc.ToJson());
 
 		/* Set all flips as done */
-		for (int i = 0; i < flips.size(); i++)
+		for (size_t i = 0; i < flips.size(); i++)
 			flips[i]["done"] = true;
 
 		std::vector<AvgStat> flipAvgStats = FlipsToAvgstats(flips);

@@ -8,6 +8,9 @@
 #define LOSS_MODIFIER 2
 #define PROFIT_MODIFIER 0.85
 
+#define PROFIT_FILTER 500000
+#define BAD_PROFIT_MODIFIER 100
+
 namespace Stats
 {
 	class AvgStat
@@ -27,13 +30,13 @@ namespace Stats
 
 	private:
 
+		std::vector<int> profit_list;
+
 		int total_profit;
 		double total_roi;
 		int total_item_count;
 		int value_count;
 
-		int lowest_profit;
-		int highest_profit;
 		int lowest_item_count;
 		int highest_item_count;
 

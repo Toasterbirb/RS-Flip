@@ -1,0 +1,3 @@
+[submodule "birb2d"]
+	path = birb2d
+	url = https://github.com/toasterbirb/birb2d
