@@ -140,7 +140,10 @@ namespace Stats
 
 	double AvgStat::FlipRecommendation() const
 	{
-		return AvgProfit() / FlipStability();
+		if (FlipCount() > 0)
+			return std::round((AvgProfit() * AvgROI() * (1 - 1.0f / FlipCount()) + 0.1) / 10000.0f);
+		else
+			return 0;
 	}
 
 	int AvgStat::FlipCount() const

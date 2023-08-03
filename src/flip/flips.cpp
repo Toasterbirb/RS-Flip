@@ -507,7 +507,7 @@ namespace Flips
 		PrintTableSep(name_length);
 		std::cout << std::setw(name_length + 1) << "Item name " << " | Score" << std::endl;
 		PrintTableSep(name_length);
-		for (int i = 0; i < FlipUtils::Clamp(recommendedFlips.size(), 1, 20); i++)
+		for (int i = 0; i < FlipUtils::Clamp(recommendedFlips.size(), 1, recommendation_count); i++)
 		{
 			std::cout << " " << recommendedFlips[i].name << std::setw(29 - recommendedFlips[i].name.length()) << " | " <<
 				recommendedFlips[i].FlipRecommendation() << std::endl;

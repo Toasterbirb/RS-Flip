@@ -7,6 +7,8 @@ namespace Flips
 	static const std::string data_path = user_home + "/.local/share/rs-flip";
 	static const std::string data_file = data_path + "/flips.json";
 
+	static constexpr int recommendation_count = 30;
+
 	struct Flip
 	{
 		Flip();
