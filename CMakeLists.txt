@@ -6,10 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(FLIP_GUI flip_gui)
 
 project(rs-flip
-	VERSION 0.1.0
+	VERSION 1.0.1
 	LANGUAGES CXX)
 
-option(BIRB2D_GUI "Build Birb2D gui version" OFF)
 option(TESTS "Enable tests in the build" OFF)
 option(DEBUG "Enable debug symbols" OFF)
 
@@ -42,20 +41,3 @@ endif()
 
 target_precompile_headers(flip
     PRIVATE include/pch.hpp)
-
-if (BIRB2D_GUI)
-	include_directories(birb2d/include/)
-
-	add_subdirectory(birb2d)
-	include_directories(birb2d/vendor/SDL/include)
-
-	add_executable(${FLIP_GUI}
-		src/gui_main.cpp
-		src/gui/guivars.cpp
-		src/gui/tab.cpp)
-	target_link_libraries(${FLIP_GUI} birb2d)
-
-	# Copy the resources into the build directory
-	file(COPY ./res DESTINATION ./)
-	file(COPY ./birb2d/birb2d_res DESTINATION ./res/)
-endif()
