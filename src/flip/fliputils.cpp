@@ -1,7 +1,7 @@
-#include "Utils.hpp"
+#include "FlipUtils.hpp"
 #include "doctest/doctest.h"
 
-namespace Utils
+namespace FlipUtils
 {
 	std::string CleanDecimals(const double& value)
 	{

@@ -1,7 +1,7 @@
-#pragma ocne
+#pragma once
 #include "pch.hpp"
 
-namespace Utils
+namespace FlipUtils
 {
 	std::string CleanDecimals(const double& value);
 

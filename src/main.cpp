@@ -3,7 +3,7 @@
 #include "doctest/doctest.h"
 #include "Margin.hpp"
 #include "Flips.hpp"
-#include "Utils.hpp"
+#include "FlipUtils.hpp"
 
 enum Mode
 {
@@ -12,7 +12,7 @@ enum Mode
 
 bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode)
 {
-	for (int i = 0; i < acceptedModes.size(); i++)
+	for (size_t i = 0; i < acceptedModes.size(); i++)
 		if (acceptedModes[i] == mode)
 			return true;
 
@@ -21,7 +21,7 @@ bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode)
 
 void PrintHelp()
 {
-	Utils::PrintTitle("Help");
+	FlipUtils::PrintTitle("Help");
 	std::cout <<
 	"  calc 	Calculate the margin for an item and possible profits\n" <<
 	"\t-b [Insta buy price]\n" <<
@@ -248,10 +248,12 @@ int main(int argc, char** argv)
 			Flips::Flip flip(item_name, buyValue, sellValue, buyLimit);
 
 			std::cout << "Adding item: " << item_name << std::endl;
-			std::cout << "Buy price: " << Utils::RoundBigNumbers(buyValue) << std::endl;
-			std::cout << "Sell price: " << Utils::RoundBigNumbers(sellValue) << std::endl;
+			std::cout << "Buy price: " << FlipUtils::RoundBigNumbers(buyValue) << std::endl;
+			std::cout << "Sell price: " << FlipUtils::RoundBigNumbers(sellValue) << std::endl;
 			std::cout << "Buy count: " << buyLimit << "\n\n";
-			std::cout << "Estimated profit: " << Utils::RoundBigNumbers(Margin::CalcProfit(flip)) << std::endl;
+
+			int profit = Margin::CalcProfit(flip);
+			std::cout << "Estimated profit: " << FlipUtils::RoundBigNumbers(profit) << std::endl;
 
 			Flips::Add(flip);
 			break;
