@@ -426,7 +426,7 @@ namespace Flips
 			return;
 
 		std::vector<nlohmann::json> found_flips;
-		for (int i = 0; i < flip_count; i++)
+		for (int i = 0; i < Flips::json_data["flips"].size(); i++)
 		{
 			std::string flip_name = flips[i]["item"];
 			if (flip_name == name && flips[i]["done"])
