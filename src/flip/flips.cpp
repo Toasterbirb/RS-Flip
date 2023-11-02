@@ -496,6 +496,9 @@ namespace Flips
 		if (flips.size() < 10)
 			return false;
 
+		/* Read in the item recommendation blacklist */
+		std::unordered_set<std::string> item_blacklist = FlipUtils::ReadFileItems(item_blacklist_file);
+
 		FlipUtils::PrintTitle("Recommended flips");
 
 		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
@@ -507,10 +510,28 @@ namespace Flips
 		PrintTableSep(name_length);
 		std::cout << std::setw(name_length + 1) << "Item name " << " | Score" << std::endl;
 		PrintTableSep(name_length);
-		for (int i = 0; i < FlipUtils::Clamp(recommendedFlips.size(), 1, recommendation_count); i++)
+
+		/* Print recommendations until the recommendation_count has been reached */
+		int i = 0; 		/* The current recommended item */
+		int count = 0; 	/* How many recommendations have been shown */
+
+		/* How many items to recommend in total */
+		int max = FlipUtils::Clamp(recommendedFlips.size(), 1, recommendation_count);
+
+		while (count < max && i < recommendedFlips.size())
 		{
+			/* Skip items that are blacklisted */
+			if (item_blacklist.contains(recommendedFlips[i].name))
+			{
+				++i;
+				continue;
+			}
+
 			std::cout << " " << recommendedFlips[i].name << std::setw(29 - recommendedFlips[i].name.length()) << " | " <<
 				recommendedFlips[i].FlipRecommendation() << std::endl;
+
+			++i;
+			++count;
 		}
 
 		return true;

@@ -1,5 +1,6 @@
 #include "FlipUtils.hpp"
 #include "doctest/doctest.h"
+#include <vector>
 
 namespace FlipUtils
 {
@@ -89,7 +90,25 @@ namespace FlipUtils
 		return contents;
 	}
 
-	void WriteFile(const std::string& filepath, const std::string text)
+	std::unordered_set<std::string> ReadFileItems(const std::string& filepath)
+	{
+		std::unordered_set<std::string> contents;
+
+		std::ifstream file(filepath);
+
+		/* Check if the file exists / can be opened */
+		if (!file.is_open())
+			return contents;
+
+		std::string line;
+		while (std::getline(file, line))
+			contents.insert(line);
+
+		file.close();
+		return contents;
+	}
+
+	void WriteFile(const std::string& filepath, const std::string& text)
 	{
 		std::ofstream file(filepath);
 		if (!file.is_open())

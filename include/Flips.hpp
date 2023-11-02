@@ -6,6 +6,7 @@ namespace Flips
 	static const std::string user_home = (std::string)getenv("HOME");
 	static const std::string data_path = user_home + "/.local/share/rs-flip";
 	static const std::string data_file = data_path + "/flips.json";
+	static const std::string item_blacklist_file = data_path + "/item_blacklist.txt";
 
 	static constexpr int recommendation_count = 30;
 

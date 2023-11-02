@@ -24,6 +24,7 @@ list 		Lists all on-going flips with their IDs, buy and sell values
 stats  	Prints out profit statistics
 repair 	Attempts to repair the statistics from the flip data in-case of some bug.
 ```
+To ignore specific item recommendations, add the item names one per line to `~/.local/share/rs-flip/item_blacklist.txt`
 
 ## Compiling
 ```sh

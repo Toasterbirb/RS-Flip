@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(FLIP_GUI flip_gui)
@@ -34,9 +34,9 @@ add_executable(flip
 	src/flip/stats.cpp)
 
 if (DEBUG)
-	target_compile_options(flip PRIVATE -std=c++17 -g)
+	target_compile_options(flip PRIVATE -std=c++20 -g)
 else()
-	target_compile_options(flip PRIVATE -std=c++17)
+	target_compile_options(flip PRIVATE -std=c++20)
 endif()
 
 target_precompile_headers(flip

@@ -10,6 +10,7 @@ namespace FlipUtils
 	void PrintTitle(const std::string& text); /* #### Prints like this #### */
 	int Clamp(const int& value, const int& min, const int& max);
 	std::string ReadFile(const std::string& filepath);
-	void WriteFile(const std::string& filepath, const std::string text);
+	std::unordered_set<std::string> ReadFileItems(const std::string& filepath); /* Read unique item lines from a file */
+	void WriteFile(const std::string& filepath, const std::string& text);
 	void WriteJsonFile(nlohmann::json json_data, std::string file_path);
 }
