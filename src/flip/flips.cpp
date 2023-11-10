@@ -527,6 +527,13 @@ namespace Flips
 				continue;
 			}
 
+			/* Skip items with average profit below 1m */
+			if (recommendedFlips[i].AvgProfit() < 1000000)
+			{
+				++i;
+				continue;
+			}
+
 			std::cout << " " << recommendedFlips[i].name << std::setw(29 - recommendedFlips[i].name.length()) << " | " <<
 				recommendedFlips[i].FlipRecommendation() << std::endl;
 
