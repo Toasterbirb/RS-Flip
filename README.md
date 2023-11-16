@@ -26,18 +26,14 @@ repair 	Attempts to repair the statistics from the flip data in-case of some bug
 ```
 To ignore specific item recommendations, add the item names one per line to `~/.local/share/rs-flip/item_blacklist.txt`
 
-## Compiling
-### Fetching the source code
-The project includes some submodules that are fetched from a local mirror. To clone the repository fully outside of my network, run the included `fetch_submodules.sh` script
+## Dependencies
+- [doctest](https://github.com/doctest/doctest)
+- [json](https://github.com/nlohmann/json)
 
-### Building the project
+## Compiling
 ```sh
 mkdir build
 cd build
 cmake ..
 make -j$(nproc)
 ```
-
-## 3rd party libs
-- [doctest](https://github.com/doctest/doctest)
-- [json](https://github.com/nlohmann/json)

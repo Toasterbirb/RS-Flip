@@ -1,6 +1,0 @@
-[submodule "vendor/json"]
-	path = vendor/json
-	url = http://192.168.1.104:5000/mirrors/json
-[submodule "vendor/doctest"]
-	path = vendor/doctest
-	url = http://192.168.1.104:5000/mirrors/doctest
