@@ -21,6 +21,11 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 endif(CCACHE_FOUND)
 
+# Dependencies
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(vendor/json)
+include_directories(vendor/json/include)
+
 # Headers
 include_directories(include/ vendor/)
 
@@ -38,6 +43,8 @@ if (DEBUG)
 else()
 	target_compile_options(flip PRIVATE -std=c++20)
 endif()
+
+target_link_libraries(flip PRIVATE nlohmann_json::nlohmann_json)
 
 target_precompile_headers(flip
     PRIVATE include/pch.hpp)
