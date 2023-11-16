@@ -26,6 +26,9 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(vendor/json)
 include_directories(vendor/json/include)
 
+add_subdirectory(vendor/doctest)
+include_directories(vendor/doctest)
+
 # Headers
 include_directories(include/ vendor/)
 
