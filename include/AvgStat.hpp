@@ -20,6 +20,7 @@ namespace Stats
 		AvgStat(const std::string& item_name);
 		void AddData(const int& profit, const double& ROI, const int& item_count, const int& sell = 0, const int& sold = 0);
 		double AvgProfit() const;
+		double RollingAvgProfit() const; /* Get the avg. profit of the latest flips */
 		double AvgROI() const;
 		double AvgBuyLimit() const;
 		double FlipRecommendation() const;
@@ -28,7 +29,6 @@ namespace Stats
 		std::string name;
 
 	private:
-
 		std::vector<int> profit_list;
 
 		int total_profit;

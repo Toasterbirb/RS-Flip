@@ -5,6 +5,8 @@
 
 namespace Stats
 {
+	constexpr int PROFIT_QUEUE_SIZE = 10;
+
 	AvgStat::AvgStat()
 	:name("null")
 	{}
@@ -44,6 +46,32 @@ namespace Stats
 	double AvgStat::AvgProfit() const
 	{
 		return (double)total_profit / value_count;
+	}
+
+	double AvgStat::RollingAvgProfit() const
+	{
+		/* Count the total "rolling" profit */
+		int rolling_total_profit = 0;
+		int rolling_profit_count = 1;
+
+		if (profit_list.size() >= PROFIT_QUEUE_SIZE)
+		{
+			for (int i = profit_list.size() - PROFIT_QUEUE_SIZE; i < profit_list.size(); ++i)
+				rolling_total_profit += profit_list.at(i);
+
+			rolling_profit_count = PROFIT_QUEUE_SIZE;
+		}
+		else
+		{
+			for (int i = 0; i < profit_list.size(); ++i)
+				rolling_total_profit += profit_list.at(i);
+
+			rolling_profit_count = profit_list.size();
+		}
+
+		assert(rolling_profit_count != 0);
+
+		return (double)rolling_total_profit / rolling_profit_count;
 	}
 
 	double AvgStat::AvgROI() const
