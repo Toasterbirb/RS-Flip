@@ -1,5 +1,4 @@
 #include "FlipUtils.hpp"
-#include "doctest/doctest.h"
 
 namespace FlipUtils
 {

@@ -1,6 +1,5 @@
 #include "Flips.hpp"
 #include "Stats.hpp"
-#include "doctest/doctest.h"
 
 namespace Stats
 {

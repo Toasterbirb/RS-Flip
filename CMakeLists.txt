@@ -31,7 +31,9 @@ add_executable(flip
 	src/margin.cpp
 	src/fliputils.cpp
 	src/avgstat.cpp
-	src/stats.cpp)
+	src/stats.cpp
+	src/table.cpp
+)
 
 if (DEBUG)
 	target_compile_options(flip PRIVATE -std=c++20 -g)

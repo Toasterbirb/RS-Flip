@@ -2,7 +2,6 @@
 #include "Stats.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
-#include "doctest/doctest.h"
 
 namespace Stats
 {

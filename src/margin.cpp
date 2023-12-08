@@ -1,6 +1,5 @@
 #include "Margin.hpp"
 #include "FlipUtils.hpp"
-#include "doctest/doctest.h"
 
 namespace Margin
 {

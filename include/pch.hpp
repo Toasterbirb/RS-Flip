@@ -1,9 +1,12 @@
 #pragma once
 #include "nlohmann/json.hpp"
-#include <string>
-#include <string.h>
-#include <vector>
-#include <fstream>
-#include <iostream>
+#include <cassert>
 #include <ctime>
+#include <doctest/doctest.h>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string.h>
+#include <string>
 #include <unordered_set>
+#include <vector>
