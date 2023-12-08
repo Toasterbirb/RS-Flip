@@ -101,7 +101,7 @@ namespace Stats
 
 	std::vector<AvgStat> FlipsToAvgstats(const std::vector<nlohmann::json>& flips)
 	{
-		std::vector<AvgStat> result;
+		std::unordered_map<std::string, AvgStat> avg_stats;
 
 		/* Initialize the result list with the first flip */
 
@@ -112,7 +112,6 @@ namespace Stats
 			if (flips[i]["done"] == true)
 				break;
 		}
-		//result.push_back(AvgStat(flips[i]["item"]));
 
 		/* Convert flips into avg stats */
 		for (; i < flips.size(); i++)
@@ -121,26 +120,15 @@ namespace Stats
 			if (flips[i]["done"] == false)
 				continue;
 
-			bool valueFound = false;
-			for (int j = 0; j < result.size(); j++)
-			{
-				/* Check if the flip is already in the avg stat array */
-				if (flips[i]["item"] == result[j].name)
-				{
-					int profit = Margin::CalcProfit(flips[i]);
-					result[j].AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
-					valueFound = true;
-					break;
-				}
-			}
+			int profit = Margin::CalcProfit(flips[i]);
 
-			if (!valueFound)
-			{
-				/* Add a new item and the values for it */
-				result.push_back(AvgStat(flips[i]["item"]));
-				result[result.size() - 1].AddData(Margin::CalcProfit(flips[i]), Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
-			}
+			avg_stats[flips[i]["item"]].name = flips[i]["item"];
+			avg_stats[flips[i]["item"]].AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
 		}
+
+		/* Convert the map into a vector */
+		std::vector<AvgStat> result;
+		std::transform(avg_stats.begin(), avg_stats.end(), std::back_inserter(result), [](const auto& element) { return element.second; });
 
 		return result;
 	}
