@@ -77,42 +77,6 @@ namespace Stats
 		return result;
 	}
 
-	std::vector<AvgStat> SortFlipsByStability(const std::vector<AvgStat>& flips)
-	{
-		std::vector<AvgStat> result = flips;
-
-		/* TODO: Switch to some other algorithm than bubblesort */
-
-		bool had_swap = true;
-		AvgStat placeholder;
-		while (had_swap)
-		{
-			had_swap = false;
-			for (size_t i = 0; i < result.size() - 1; i++)
-			{
-				/* Erase a flip if it has only been done once */
-				if (result[i].FlipCount() == 1)
-				{
-					result.erase(result.begin() + i);
-					i--;
-					continue;
-				}
-
-				if ((result[i].FlipStability() > result[i + 1].FlipStability())
-						|| (result[i].FlipStability() == result[i + 1].FlipStability() && result[i].FlipCount() < result[i + 1].FlipCount())
-						|| (result[i].FlipStability() == result[i + 1].FlipStability() && result[i].AvgProfit() < result[i + 1].AvgProfit()))
-				{
-					placeholder = result[i];
-					result[i] = result[i + 1];
-					result[i + 1] = placeholder;
-					had_swap = true;
-				}
-			}
-		}
-
-		return result;
-	}
-
 	std::vector<AvgStat> SortFlipsByRecommendation(const std::vector<AvgStat>& flips)
 	{
 		std::vector<AvgStat> result = flips;
@@ -210,14 +174,5 @@ namespace Stats
 			CHECK(sortedList[2].name == "Item A");
 			CHECK(sortedList[3].name == "Item B");
 		}
-
-		SUBCASE("Sort by stability")
-		{
-			std::vector<AvgStat> sortedList = SortFlipsByStability(flipAvgStats);
-
-			CHECK(sortedList[0].name == "Item A");
-			CHECK(sortedList[1].name == "Item D");
-		}
 	}
-
 }

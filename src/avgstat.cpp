@@ -56,86 +56,6 @@ namespace Stats
 		return (double)total_item_count / value_count;
 	}
 
-	double AvgStat::FlipStability() const
-	{
-		/* Sort the profit list. Highest value first */
-		std::vector<int> sorted_profits = profit_list;
-
-		int placeholder = 0;
-		bool swapped;
-		do
-		{
-			swapped = false;
-			for (size_t i = 0; i < profit_list.size() - 1; i++)
-			{
-				if (sorted_profits[i] < sorted_profits[i + 1])
-				{
-					placeholder = sorted_profits[i];
-					sorted_profits[i] = sorted_profits[i + 1];
-					sorted_profits[i + 1] = placeholder;
-					swapped = true;
-				}
-			}
-		} while (swapped);
-
-		/** Do some analysis on the profit list **/
-		int lowest_profit = sorted_profits[profit_list.size() - 1];
-		if (lowest_profit == 0)
-			lowest_profit = -1;
-
-		int highest_profit = sorted_profits[0];
-
-		/* Find the first flip that makes less than the average profit
-		 * and then calculate its percentile */
-		int underperforming_index = 0;
-		float avg_profit = AvgProfit();
-		for (size_t i = 0; i < sorted_profits.size(); i++)
-		{
-			if (sorted_profits[i] < avg_profit)
-			{
-				underperforming_index = i;
-				break;
-			}
-		}
-		float underperforming_percentile = 1 - ((float)underperforming_index / sorted_profits.size());
-
-		/* Got zero from the underperforming_percentile, the flip is probably awesome
-		 * or there's not enough data yet. Let's say that its somewhat awesome */
-		if (underperforming_percentile == 0)
-			underperforming_percentile = 0.4f;
-
-		float bad_profit_multiplier = 1;
-		if (avg_profit < PROFIT_FILTER)
-			bad_profit_multiplier = BAD_PROFIT_MODIFIER;
-
-
-		int low_item = lowest_item_count;
-		if (lowest_item_count == 0)
-			low_item = 1;
-
-		double profit_stability 	= (1 - ((double)lowest_profit / avg_profit)) * PROFIT_WEIGHT;
-		double buy_limit_stability 	= (1 - ((double)low_item / ((double)total_item_count / value_count))) * BUYLIMIT_WEIGHT;
-		double average_sell_sold_distance = (double)total_sell_sold_distance / value_count;
-
-		/* Cap sell_sold distance at 10 */
-		if (average_sell_sold_distance > 10)
-			average_sell_sold_distance = 10;
-
-		if (average_sell_sold_distance == 0)
-			average_sell_sold_distance = 1;
-
-		/* Flips that make profit can be unstable, but they are at least
-		 * making profit. This modifier will punish flips that have made a loss
-		 * at some point and give a boost to flips that at least made some money */
-		double profitability_modifier = 1;
-		if (lowest_profit < 0)
-			profitability_modifier = LOSS_MODIFIER;
-		else
-			profitability_modifier = PROFIT_MODIFIER;
-
-		return (profit_stability + buy_limit_stability) * (std::pow(FLIP_COUNT_MULTIPLIER, value_count)) * average_sell_sold_distance * profitability_modifier * underperforming_percentile * bad_profit_multiplier * 100;
-	}
-
 	double AvgStat::FlipRecommendation() const
 	{
 		if (FlipCount() > 0)
@@ -155,7 +75,6 @@ namespace Stats
 		statA.AddData(100, 25, 1000);
 		statA.AddData(100, 25, 1000);
 		statA.AddData(100, 25, 1000);
-		CHECK(statA.FlipStability() == 0);
 		CHECK(statA.AvgProfit() == 100);
 		CHECK(statA.AvgROI() == 25);
 		CHECK(statA.AvgBuyLimit() == 1000);
@@ -166,7 +85,6 @@ namespace Stats
 		statB.AddData(50, 50, 450);
 		statB.AddData(120, 75, 475);
 
-		CHECK(statB.FlipStability() != 0);
 		CHECK(statB.AvgProfit() == 90);
 		CHECK(statB.AvgROI() == 50);
 		CHECK(statB.AvgBuyLimit() == 475);
@@ -176,7 +94,6 @@ namespace Stats
 		statC.AddData(10, 1, 1000);
 		statC.AddData(100000, 1, 20000);
 
-		CHECK(statC.FlipStability() != 0);
 		CHECK(statC.AvgProfit() == 50005);
 		CHECK(statC.AvgBuyLimit() == 10500);
 		CHECK(statC.FlipCount() == 2);

@@ -22,7 +22,6 @@ namespace Stats
 		double AvgProfit() const;
 		double AvgROI() const;
 		double AvgBuyLimit() const;
-		double FlipStability() const;
 		double FlipRecommendation() const;
 		int FlipCount() const;
 

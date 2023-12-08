@@ -3,7 +3,7 @@
 
 constexpr int COLUMN_PADDING = 4;
 
-Table::Table(std::vector<std::string>& column_names)
+Table::Table(std::vector<std::string> column_names)
 :column_names(column_names)
 {
 	assert(column_names.size() > 1);

@@ -103,35 +103,11 @@ int main(int argc, char** argv)
 		}
 		if (!strcmp(argv[1], "stats"))
 		{
-			if (strcmp(argv[2], "--stability") != 0)
-			{
-				int result_count = std::atoi(argv[2]);
-				if (result_count < 1)
-					result_count = 10;
-
-				Flips::PrintStats(result_count);
-			}
-			else
-			{
-				/* Only print the stability chart with 10 results */
-				Flips::PrintStats(10, true);
-			}
-
-			return 0;
-		}
-	}
-
-	/* 3 arg commands */
-	if (argc == 4)
-	{
-		if (!strcmp(argv[1], "stats") && !strcmp(argv[2], "--stability"))
-		{
-			int result_count = std::atoi(argv[3]);
+			int result_count = std::atoi(argv[2]);
 			if (result_count < 1)
 				result_count = 10;
 
-			Flips::PrintStats(result_count, true);
-			return 0;
+			Flips::PrintStats(result_count);
 		}
 	}
 
