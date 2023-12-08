@@ -26,12 +26,12 @@ include_directories(include/)
 
 add_executable(flip
 	src/main.cpp
-	src/flip/dailygoal.cpp
-	src/flip/flips.cpp
-	src/flip/margin.cpp
-	src/flip/fliputils.cpp
-	src/flip/avgstat.cpp
-	src/flip/stats.cpp)
+	src/dailygoal.cpp
+	src/flips.cpp
+	src/margin.cpp
+	src/fliputils.cpp
+	src/avgstat.cpp
+	src/stats.cpp)
 
 if (DEBUG)
 	target_compile_options(flip PRIVATE -std=c++20 -g)
