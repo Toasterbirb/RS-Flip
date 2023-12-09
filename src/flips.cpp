@@ -112,38 +112,6 @@ namespace Flips
 		WriteJson();
 	}
 
-	int FindLongestName(std::vector<Stats::AvgStat> stats)
-	{
-		if (stats.size() == 0)
-			return 0;
-
-		size_t result = stats[0].name.size();
-
-		for (size_t i = 1; i < stats.size(); i++)
-			if (result < stats[i].name.size())
-				result = stats[i].name.size();
-
-		return result;
-	}
-
-	int FindLongestName(std::vector<nlohmann::json> flip_list)
-	{
-		if (flip_list.size() == 0)
-			return 0;
-
-		std::string element = flip_list[0]["item"];
-		size_t result = element.size();
-
-		for (size_t i = 1; i < flip_list.size(); i++)
-		{
-			element = flip_list[i]["item"];
-			if (result < element.size())
-				result = element.size();
-		}
-
-		return result;
-	}
-
 	void PrintStats(const int& topValueCount)
 	{
 		Init();
@@ -247,13 +215,20 @@ namespace Flips
 			undone_flips.push_back(flips[i]);
 		}
 
-		int name_length = FindLongestName(undone_flips);
+		Table ongoing_flips({"ID", "Item", "Count", "Buy", "Sell"});
+
 		FlipUtils::PrintTitle("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
 		{
-			std::string flip_name = undone_flips[i]["item"];
-			std::cout << "[" << i << "] " << undone_flips[i]["item"] << std::setw(name_length - flip_name.size() + 10) << " | Count: " << undone_flips[i]["limit"] << " | Buy: " << undone_flips[i]["buy"] << " | Estimated sell: " << undone_flips[i]["sell"] << std::endl;
+			std::string flip_name 	= undone_flips[i]["item"];
+			int flip_item_count 	= undone_flips[i]["limit"];
+			int flip_buy 			= undone_flips[i]["buy"];
+			int flip_sell 			= undone_flips[i]["sell"];
+
+			ongoing_flips.add_row({std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell)});
 		}
+
+		ongoing_flips.print();
 
 		/* Print out daily goal */
 		DailyProgress daily_progress;
