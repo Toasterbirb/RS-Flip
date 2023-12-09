@@ -28,7 +28,7 @@ void Table::print() const
 	/* Print the column names */
 	std::cout << std::left;
 	for (int i = 0; i < column_names.size() - 1; ++i)
-		std::cout << std::setw(column_size.at(i) - i) << column_names.at(i);
+		std::cout << "\e[1m" << std::setw(column_size.at(i) - i) << column_names.at(i) << "\e[0m";
 	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
 
 	/* Print a divider */
