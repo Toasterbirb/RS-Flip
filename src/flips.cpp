@@ -144,30 +144,6 @@ namespace Flips
 		return result;
 	}
 
-	void PrintTableSep(const int& name_length, const int& name_length2 = 0)
-	{
-		for (int i = 0; i < name_length + 2; i++)
-			std::cout << "-";
-
-		std::cout << "|";
-
-		for (int i = 0; i < 18; i++)
-			std::cout << "-";
-
-		if (name_length2 != 0)
-		{
-			std::cout << "|";
-
-			for (int i = 0; i < name_length2; i++)
-				std::cout << "-";
-
-			std::cout << "|";
-		}
-
-
-		std::cout << "\n";
-	}
-
 	void PrintStats(const int& topValueCount)
 	{
 		Init();
