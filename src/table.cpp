@@ -7,9 +7,6 @@ Table::Table(std::vector<std::string> column_names)
 :column_names(column_names)
 {
 	assert(column_names.size() > 1);
-	column_size.resize(column_names.size());
-	for (int i = 0; i < column_size.size(); ++i)
-		column_size[i] = 0;
 }
 
 void Table::add_row(std::vector<std::string> data)
@@ -21,6 +18,12 @@ void Table::add_row(std::vector<std::string> data)
 void Table::print() const
 {
 	assert(data.size() > 0);
+
+	/* Get the column sizes */
+	std::vector<size_t> column_size = get_column_sizes();
+
+	assert(column_size.size() == column_names.size());
+	assert(column_size.size() == data.at(0).size());
 
 	/* Print the column names */
 	std::cout << std::left;
@@ -61,16 +64,15 @@ TEST_CASE("Print a table")
 	table.add_row({"Perfect juju prayer potion (4)", "1400", "500", "Alt account 3"});
 	table.add_row({"Monkfish", "254", "10000", "User 2"});
 
-	/* Update the table column sizes */
-	table.update_column_sizes();
-
 	/* Print out the table */
 	table.print();
 }
 
-void Table::update_column_sizes()
+std::vector<size_t> Table::get_column_sizes() const
 {
 	assert(data.empty() == false);
+
+	std::vector<size_t> column_size(column_names.size());
 
 	/* Reset the table sizes */
 	for (int i = 0; i < column_size.size(); ++i)
@@ -94,4 +96,6 @@ void Table::update_column_sizes()
 	/* Pad all of the columns a little bit */
 	for (int i = 0; i < column_size.size(); ++i)
 		column_size[i] += COLUMN_PADDING;
+
+	return column_size;
 }

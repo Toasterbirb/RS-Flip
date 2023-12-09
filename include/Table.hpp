@@ -7,10 +7,9 @@ public:
 	Table(std::vector<std::string> column_names);
 	void add_row(std::vector<std::string> data);
 	void print() const;
-	void update_column_sizes();
 
 private:
+	std::vector<size_t> get_column_sizes() const;
 	const std::vector<std::string> column_names;
-	std::vector<size_t> column_size;
 	std::vector<std::vector<std::string>> data;
 };

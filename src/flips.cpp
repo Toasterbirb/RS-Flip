@@ -193,7 +193,6 @@ namespace Flips
 		for (int i = 0; i < FlipUtils::Clamp(topROI.size(), 0, topValueCount); i++)
 			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), FlipUtils::RoundBigNumbers(topROI[i].AvgProfit())});
 
-		flips_by_roi.update_column_sizes();
 		flips_by_roi.print();
 
 		std::cout << "\n";
@@ -209,7 +208,6 @@ namespace Flips
 			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].AvgROI())});
 		}
 
-		flips_by_profit.update_column_sizes();
 		flips_by_profit.print();
 	}
 
@@ -508,7 +506,6 @@ namespace Flips
 			++count;
 		}
 
-		recommendation_table.update_column_sizes();
 		recommendation_table.print();
 
 		return true;
