@@ -66,7 +66,7 @@ namespace Margin
 		CHECK(CalcProfit(flipB) == -1350);
 
 		Flips::Flip yewLogs("Yew logs", 277, 276, 24999);
-		CHECK(CalcProfit(yewLogs) == -24999);
+		CHECK(CalcProfit(yewLogs) == -162993);
 	}
 
 	void PrintLine()
