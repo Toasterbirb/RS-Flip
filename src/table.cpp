@@ -23,8 +23,9 @@ void Table::print() const
 	assert(data.size() > 0);
 
 	/* Print the column names */
+	std::cout << std::left;
 	for (int i = 0; i < column_names.size() - 1; ++i)
-		std::cout << column_names.at(i) << std::setw(column_size.at(i));
+		std::cout << std::setw(column_size.at(i) - i) << column_names.at(i);
 	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
 
 	/* Print a divider */
@@ -84,6 +85,11 @@ void Table::update_column_sizes()
 				column_size[j] = data[i][j].size();
 		}
 	}
+
+	/* Also check the column names */
+	for (int i = 0; i < column_names.size(); ++i)
+		if (column_size[i] < column_names[i].size())
+			column_size[i] = column_names[i].size();
 
 	/* Pad all of the columns a little bit */
 	for (int i = 0; i < column_size.size(); ++i)
