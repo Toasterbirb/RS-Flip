@@ -477,12 +477,7 @@ namespace Flips
 		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
 		std::vector<Stats::AvgStat> recommendedFlips = Stats::SortFlipsByRecommendation(avgStats);
 
-		int name_length = 0;
-		name_length = FindLongestName(recommendedFlips);
-
-		PrintTableSep(name_length);
-		std::cout << std::setw(name_length + 1) << "Item name " << " | Score" << std::endl;
-		PrintTableSep(name_length);
+		Table recommendation_table({"Item name", "Recent avg. profit", "Avg. profit", "Flip count"});
 
 		/* Print recommendations until the recommendation_count has been reached */
 		int i = 0; 		/* The current recommended item */
@@ -507,12 +502,14 @@ namespace Flips
 				continue;
 			}
 
-			std::cout << " " << recommendedFlips[i].name << std::setw(29 - recommendedFlips[i].name.length()) << " | " <<
-				recommendedFlips[i].FlipRecommendation() << std::endl;
+			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), FlipUtils::RoundBigNumbers(recommendedFlips[i].AvgProfit()), std::to_string(recommendedFlips[i].FlipCount())});
 
 			++i;
 			++count;
 		}
+
+		recommendation_table.update_column_sizes();
+		recommendation_table.print();
 
 		return true;
 	}
