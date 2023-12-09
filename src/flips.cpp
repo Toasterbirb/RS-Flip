@@ -191,7 +191,7 @@ namespace Flips
 		Table flips_by_roi({"Item", "ROI-%", "Average profit"});
 
 		for (int i = 0; i < FlipUtils::Clamp(topROI.size(), 0, topValueCount); i++)
-			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), std::to_string(topROI[i].AvgProfit())});
+			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), FlipUtils::RoundBigNumbers(topROI[i].AvgProfit())});
 
 		flips_by_roi.update_column_sizes();
 		flips_by_roi.print();
