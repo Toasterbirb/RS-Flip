@@ -118,7 +118,6 @@ namespace Flips
 
 		/* Print top performing flips */
 		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
-		int name_length = 0;
 
 		FlipUtils::PrintTitle("Stats");
 		std::cout << "Total profit: " << FlipUtils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
