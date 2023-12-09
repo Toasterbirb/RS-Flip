@@ -14,7 +14,7 @@ namespace Flips
 	{
 		Flip();
 		Flip(nlohmann::json j);
-		Flip(const std::string& item, const int& buy_price, const int& sell_price, const int& buy_amount);
+		Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name);
 		void Sell(const int& sell_price);
 		nlohmann::json ToJson();
 
@@ -25,6 +25,7 @@ namespace Flips
 		int buylimit;
 		bool cancelled;
 		bool done; /* Is the flip completed */
+		std::string account; /* The runescape account that has the flip active */
 	};
 
 	void Init();

@@ -123,6 +123,7 @@ int main(int argc, char** argv)
 
 	/* Calc mode */
 	std::string item_name = "";
+	std::string account_name = "";
 	int buyValue = 0;
 	int sellValue = 0;
 	int buyLimit = 0;
@@ -144,7 +145,7 @@ int main(int argc, char** argv)
 				continue;
 			}
 
-			if (!strcmp(argv[processed_args], "add") && argc == 10)
+			if (!strcmp(argv[processed_args], "add") && (argc == 10 || argc == 12))
 			{
 				mode = Mode::Flip;
 				processed_args++;
@@ -185,6 +186,12 @@ int main(int argc, char** argv)
 			processed_args += 2;
 			continue;
 		}
+		else if (!strcmp(argv[processed_args], "-a") && AcceptedModes({Flip, Sold}, mode))
+		{
+			account_name = argv[processed_args + 1];
+			processed_args += 2;
+			continue;
+		}
 		else if (!strcmp(argv[processed_args], "-i") && AcceptedModes({Flip, Sold, Filtering}, mode))
 		{
 			if (mode == Mode::Flip || mode == Mode::Filtering)
@@ -203,7 +210,7 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			std::cout << "Invalid argument! Quitting..." << std::endl;
+			std::cout << "Invalid argument: " << argv[processed_args] << "! Quitting..." << std::endl;
 			return 0;
 		}
 
@@ -220,7 +227,7 @@ int main(int argc, char** argv)
 
 		case (Mode::Flip):
 		{
-			Flips::Flip flip(item_name, buyValue, sellValue, buyLimit);
+			Flips::Flip flip(item_name, buyValue, sellValue, buyLimit, account_name);
 
 			std::cout << "Adding item: " << item_name << std::endl;
 			std::cout << "Buy price: " << FlipUtils::RoundBigNumbers(buyValue) << std::endl;

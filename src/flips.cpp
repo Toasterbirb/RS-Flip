@@ -29,15 +29,22 @@ namespace Flips
 		buylimit 	= j["limit"];
 		cancelled 	= j["cancelled"];
 		done 		= j["done"];
+
+		/* Assume "main" as the account if its not specified */
+		if (!j.contains("account"))
+			account = "main";
+		else
+			account = j["account"];
 	}
 
-	Flip::Flip(const std::string& item, const int& buy_price, const int& sell_price, const int& buy_amount)
+	Flip::Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name)
 	{
 		this->item 			= item;
 		this->buy_price 	= buy_price;
 		this->sell_price 	= sell_price;
 		this->sold_price 	= 0;
 		this->buylimit 		= buy_amount;
+		this->account 		= account_name;
 		this->cancelled 	= false;
 		this->done 			= false;
 	}
@@ -59,6 +66,7 @@ namespace Flips
 		j["limit"] 		= buylimit;
 		j["cancelled"] 	= cancelled;
 		j["done"] 		= done;
+		j["account"] 	= account;
 
 		return j;
 	}
@@ -214,7 +222,7 @@ namespace Flips
 			undone_flips.push_back(flips[i]);
 		}
 
-		Table ongoing_flips({"ID", "Item", "Count", "Buy", "Sell"});
+		Table ongoing_flips({"ID", "Item", "Count", "Buy", "Sell", "Account"});
 
 		FlipUtils::PrintTitle("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
@@ -224,7 +232,13 @@ namespace Flips
 			int flip_buy 			= undone_flips[i]["buy"];
 			int flip_sell 			= undone_flips[i]["sell"];
 
-			ongoing_flips.add_row({std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell)});
+			std::string account;
+			if (undone_flips[i].contains("account"))
+				account = undone_flips[i]["account"];
+			else
+				account = "main";
+
+			ongoing_flips.add_row({std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell), account});
 		}
 
 		ongoing_flips.print();

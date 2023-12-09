@@ -1,7 +1,7 @@
 #include "Table.hpp"
 #include "pch.hpp"
 
-constexpr int COLUMN_PADDING = 4;
+constexpr int COLUMN_PADDING = 6;
 
 Table::Table(std::vector<std::string> column_names)
 :column_names(column_names)
