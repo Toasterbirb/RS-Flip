@@ -66,6 +66,11 @@ namespace Flips
 		j["limit"] 		= buylimit;
 		j["cancelled"] 	= cancelled;
 		j["done"] 		= done;
+
+		/* If the account value is empty, default it to "main" */
+		if (account.empty())
+			account = "main";
+
 		j["account"] 	= account;
 
 		return j;
