@@ -15,6 +15,7 @@ namespace FlipUtils
 	void WriteJsonFile(nlohmann::json json_data, std::string file_path);
 
 	// Function that approaches a given value but never really reaches it
-	// The slope defines how quickly are we approaching the approach value
-	double Limes(const double approach_value, const double slope, const double value);
+	// After the point of diminishing_returns, the value starts incresing slower
+	// By lowering the slope value, you can make the value increase faster
+	double Limes(const double approach_value, const double diminishing_returns, const double slope, const double value);
 }

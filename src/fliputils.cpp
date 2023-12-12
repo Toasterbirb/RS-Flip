@@ -125,15 +125,15 @@ namespace FlipUtils
 		file << std::setw(4) << json_data << std::endl;
 	}
 
-	double Limes(const double approach_value, const double slope, const double value)
+	double Limes(const double approach_value, const double diminishing_returns, const double slope, const double value)
 	{
-		return approach_value - slope / value;
+		return approach_value - diminishing_returns / value * slope;
 	}
 
 	TEST_CASE("Limes")
 	{
-		CHECK(Limes(2, 1, 1) == 1.0);
-		CHECK(Limes(2, 2, 1) == 0);
-		CHECK(Limes(2, 2, 2) == 1);
+		CHECK(Limes(2, 1, 1, 1) == 1.0);
+		CHECK(Limes(2, 2, 1, 1) == 0);
+		CHECK(Limes(2, 2, 1, 2) == 1);
 	}
 }
