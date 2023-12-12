@@ -124,4 +124,16 @@ namespace FlipUtils
 		std::ofstream file(file_path);
 		file << std::setw(4) << json_data << std::endl;
 	}
+
+	double Limes(const double approach_value, const double slope, const double value)
+	{
+		return approach_value - slope / value;
+	}
+
+	TEST_CASE("Limes")
+	{
+		CHECK(Limes(2, 1, 1) == 1.0);
+		CHECK(Limes(2, 2, 1) == 0);
+		CHECK(Limes(2, 2, 2) == 1);
+	}
 }

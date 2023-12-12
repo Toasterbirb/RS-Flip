@@ -13,4 +13,8 @@ namespace FlipUtils
 	std::unordered_set<std::string> ReadFileItems(const std::string& filepath); /* Read unique item lines from a file */
 	void WriteFile(const std::string& filepath, const std::string& text);
 	void WriteJsonFile(nlohmann::json json_data, std::string file_path);
+
+	// Function that approaches a given value but never really reaches it
+	// The slope defines how quickly are we approaching the approach value
+	double Limes(const double approach_value, const double slope, const double value);
 }

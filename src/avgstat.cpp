@@ -1,3 +1,4 @@
+#include "FlipUtils.hpp"
 #include "AvgStat.hpp"
 #include "Stats.hpp"
 #include "Flips.hpp"
@@ -87,7 +88,7 @@ namespace Stats
 	double AvgStat::FlipRecommendation() const
 	{
 		if (FlipCount() > 0)
-			return std::round((AvgProfit() * AvgROI() * (1 - 1.0f / FlipCount()) + 0.1) / 10000.0f);
+			return std::round((RollingAvgProfit() * FlipUtils::Limes(2, 1.5, AvgROI()) *  FlipUtils::Limes(1.1, 1, FlipCount())) / 10000.0f);
 		else
 			return 0;
 	}

@@ -14,7 +14,7 @@ namespace Flips
 	{
 		Flip();
 		Flip(nlohmann::json j);
-		Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name);
+		Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name = "main");
 		void Sell(const int& sell_price);
 		nlohmann::json ToJson();
 
