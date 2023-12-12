@@ -127,6 +127,8 @@ namespace FlipUtils
 
 	double Limes(const double approach_value, const double diminishing_returns, const double slope, const double value)
 	{
+		if (value < 0.001)
+			return -300;
 		return approach_value - diminishing_returns / value * slope;
 	}
 
