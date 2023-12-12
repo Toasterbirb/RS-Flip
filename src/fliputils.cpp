@@ -51,6 +51,19 @@ namespace FlipUtils
 		CHECK(RoundBigNumbers(-3000000) == "-3m");
 	}
 
+	std::string Round(const double value, const int decimals)
+	{
+		return CleanDecimals(std::round(value * std::pow(10, decimals)) / std::pow(10, decimals));
+	}
+
+	TEST_CASE("Round to accuracy")
+	{
+		CHECK(Round(0.0001, 1) == "0");
+		CHECK(Round(0.5, 0) == "1");
+		CHECK(Round(0.1234, 2) == "0.12");
+		CHECK(Round(-5.05, 1) == "-5.1");
+	}
+
 	void PrintTitle(const std::string& text)
 	{
 		std::cout << "\e[1m\e[32m#####| " << text << " |#####\e[0m\n";

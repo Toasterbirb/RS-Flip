@@ -1,5 +1,6 @@
 #include "Margin.hpp"
 #include "FlipUtils.hpp"
+#include "Table.hpp"
 
 namespace Margin
 {
@@ -69,29 +70,14 @@ namespace Margin
 		CHECK(CalcProfit(yewLogs) == -162993);
 	}
 
-	void PrintLine()
-	{
-		std::cout << "-------------------------------\n";
-	}
-
 	void PrintFlipEstimation(int instaBuy, int instaSell, int buylimit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
-		int margin = CalcMargin(instaBuy * 0.98f, instaSell);
+		int margin = CalcMargin((instaBuy - 1) * 0.98f, instaSell + 1);
 		int profit = CalcProfitWithCut(margin, buylimit, 0);
-		int cut_profit = CalcProfitWithCut(margin, buylimit - 1, 1);
-		int big_cut_profit = CalcProfitWithCut(margin, buylimit - 1, 5);
-
-		std::cout << "Margin: " << margin << std::endl;
-		std::cout << "Required capital: " << FlipUtils::RoundBigNumbers(instaSell * (buylimit - 1)) << std::endl;
-		std::cout << "ROI: " << ((double)margin / instaSell) * 100 << "%\n";
-
-		PrintLine();
-
-		std::cout << "Profit: " << profit << " (" << FlipUtils::RoundBigNumbers(profit) << ")" << std::endl;
-		std::cout << "Profit (after price check): " << profit - margin << " (" << FlipUtils::RoundBigNumbers(profit - margin) << ")" << std::endl;
-
-		PrintLine();
+		int cut_profit = CalcProfitWithCut(margin, buylimit, 1);
+		std::string roi = FlipUtils::Round(((double)margin / instaSell) * 100, 2) + "%";
+		std::string required_capital = FlipUtils::RoundBigNumbers(instaSell * buylimit);
 
 		/* Green color by default */
 		int color_code = 32;
@@ -100,12 +86,18 @@ namespace Margin
 		if (cut_profit < 0)
 			color_code = 31;
 
-		std::cout << "\e[" << color_code << "mProfit (1 cut): " << cut_profit << " (" << FlipUtils::RoundBigNumbers(cut_profit) << ")\e[0m" << std::endl;
-		std::cout << "Profit (5 cut): " << big_cut_profit << " (" << FlipUtils::RoundBigNumbers(big_cut_profit) << ")" << std::endl;
+		/* Color coded string for the profit text */
+		std::string profit_str = "\e[" + std::to_string(color_code) + "m" + FlipUtils::RoundBigNumbers(cut_profit) + "\e[0m";
 
-		PrintLine();
+		Table calc_table({"Stat", "Value"});
 
-		std::cout << "Buy for " << instaSell + 1 << std::endl;
-		std::cout << "Sell for " << instaBuy - 1 << std::endl;
+		calc_table.add_row({"Margin", std::to_string(margin)});
+		calc_table.add_row({"ROI-%", roi});
+		calc_table.add_row({"Cost", required_capital});
+		calc_table.add_row({"Profit", profit_str});
+		calc_table.add_row({"Buy", std::to_string(instaSell + 1)});
+		calc_table.add_row({"Sell", std::to_string(instaBuy - 1)});
+
+		calc_table.print();
 	}
 }

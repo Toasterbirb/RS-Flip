@@ -7,6 +7,7 @@ namespace FlipUtils
 
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
 	std::string RoundBigNumbers(const int& number);
+	std::string Round(const double value, const int decimals); /* Round a value with given accuracy */
 	void PrintTitle(const std::string& text); /* #### Prints like this #### */
 	int Clamp(const int& value, const int& min, const int& max);
 	std::string ReadFile(const std::string& filepath);
