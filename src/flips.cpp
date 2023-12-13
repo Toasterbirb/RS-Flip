@@ -7,6 +7,7 @@
 #include "Dailygoal.hpp"
 
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
+constexpr int RECOMMENDATION_THRESHOLD = 750000;
 
 namespace Flips
 {
@@ -462,8 +463,8 @@ namespace Flips
 				continue;
 			}
 
-			/* Skip items with average profit below 1m */
-			if (recommendedFlips[i].AvgProfit() < 1000000)
+			/* Skip items with average profit below a certain threshold */
+			if (recommendedFlips[i].AvgProfit() < RECOMMENDATION_THRESHOLD)
 			{
 				++i;
 				continue;
