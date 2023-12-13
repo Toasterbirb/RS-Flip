@@ -90,15 +90,18 @@ namespace Margin
 		/* Color coded string for the profit text */
 		std::string profit_str = "\e[" + std::to_string(color_code) + "m" + FlipUtils::RoundBigNumbers(cut_profit) + "\e[0m";
 
-		Table calc_table({"Stat", "Value"});
+		Table stat_table({"Stat", "Value"});
+		stat_table.add_row({"Margin", std::to_string(margin)});
+		stat_table.add_row({"ROI-%", roi});
+		stat_table.add_row({"Cost", required_capital});
+		stat_table.add_row({"Profit", profit_str});
 
-		calc_table.add_row({"Margin", std::to_string(margin)});
-		calc_table.add_row({"ROI-%", roi});
-		calc_table.add_row({"Cost", required_capital});
-		calc_table.add_row({"Profit", profit_str});
-		calc_table.add_row({"Buy", std::to_string(instaSell + 1)});
-		calc_table.add_row({"Sell", std::to_string(instaBuy - 1)});
+		Table price_table({"Offer", "Price"});
+		price_table.add_row({"Buy", std::to_string(instaSell + 1)});
+		price_table.add_row({"Sell", std::to_string(instaBuy - 1)});
 
-		calc_table.print();
+		stat_table.print();
+		std::cout << '\n';
+		price_table.print();
 	}
 }
