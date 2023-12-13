@@ -74,8 +74,9 @@ namespace Margin
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
 		int margin = CalcMargin((instaBuy - 1) * 0.98f, instaSell + 1);
-		int profit = CalcProfitWithCut(margin, buylimit, 0);
-		int cut_profit = CalcProfitWithCut(margin, buylimit, 1);
+		int cut_profit = CalcProfitWithCut(margin, buylimit, 0); /* The cut has already been taken into account in margin */
+																 /* We can't use CalcProfit here though because it also */
+																 /* calculates the taxes */
 		std::string roi = FlipUtils::Round(((double)margin / instaSell) * 100, 2) + "%";
 		std::string required_capital = FlipUtils::RoundBigNumbers(instaSell * buylimit);
 
