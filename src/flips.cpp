@@ -228,6 +228,13 @@ namespace Flips
 			undone_flips.push_back(flips[i]);
 		}
 
+		if (undone_flips.empty())
+		{
+			std::cout 	<< "No active flips were found...\n"
+						<< "You might wanna go to the Grand Exchange and start some.\n";
+			return;
+		}
+
 		Table ongoing_flips({"ID", "Item", "Count", "Buy", "Sell", "Account"});
 
 		FlipUtils::PrintTitle("On-going flips");
