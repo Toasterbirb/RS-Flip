@@ -9,6 +9,11 @@ enum Mode
 	Calc, Flip, Sold, Filtering, None
 };
 
+/* Function declarations */
+bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode);
+void PrintHelp();
+
+
 bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode)
 {
 	for (size_t i = 0; i < acceptedModes.size(); i++)

@@ -11,6 +11,14 @@ constexpr int RECOMMENDATION_THRESHOLD = 750000;
 
 namespace Flips
 {
+	/* Declare some functions */
+	int FindRealIDWithUndoneID(const int& undone_ID);
+	void ApplyFlipArray();
+	void CreateDefaultDataFile();
+	void LoadFlipArray();
+	void WriteJson();
+
+
 	Flip::Flip()
 	{
 		item 		= "null";
@@ -394,7 +402,7 @@ namespace Flips
 			return;
 
 		std::vector<nlohmann::json> found_flips;
-		for (int i = 0; i < Flips::json_data["flips"].size(); i++)
+		for (size_t i = 0; i < Flips::json_data["flips"].size(); i++)
 		{
 			std::string flip_name = flips[i]["item"];
 			if (flip_name == name && flips[i]["done"])
@@ -432,8 +440,8 @@ namespace Flips
 		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
 
 		/* Calculate average profit */
-		std::cout << "\n\e[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\e[0m" << std::endl;
-		std::cout << "\e[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\e[0m" << std::endl;
+		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
+		std::cout << "\033[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\033[0m" << std::endl;
 	}
 
 	void FilterCount(const int& flip_count)
@@ -481,7 +489,7 @@ namespace Flips
 		/* How many items to recommend in total */
 		int max = FlipUtils::Clamp(recommendedFlips.size(), 1, recommendation_count);
 
-		while (count < max && i < recommendedFlips.size())
+		while (count < max && i < static_cast<int>(recommendedFlips.size()))
 		{
 			/* Skip items that are blacklisted */
 			if (item_blacklist.contains(recommendedFlips[i].name))

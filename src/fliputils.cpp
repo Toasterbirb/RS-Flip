@@ -66,7 +66,7 @@ namespace FlipUtils
 
 	void PrintTitle(const std::string& text)
 	{
-		std::cout << "\e[1m\e[32m#####| " << text << " |#####\e[0m\n";
+		std::cout << "\033[1m\033[32m#####| " << text << " |#####\033[0m\n";
 	}
 
 	int Clamp(const int& value, const int& min, const int& max)

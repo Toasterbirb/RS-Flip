@@ -88,7 +88,7 @@ namespace Margin
 			color_code = 31;
 
 		/* Color coded string for the profit text */
-		std::string profit_str = "\e[" + std::to_string(color_code) + "m" + FlipUtils::RoundBigNumbers(cut_profit) + "\e[0m";
+		std::string profit_str = "\033[" + std::to_string(color_code) + "m" + FlipUtils::RoundBigNumbers(cut_profit) + "\033[0m";
 
 		Table stat_table({"Stat", "Value"});
 		stat_table.add_row({"Margin", std::to_string(margin)});

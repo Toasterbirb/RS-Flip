@@ -63,14 +63,14 @@ namespace Stats
 
 		if (profit_list.size() >= PROFIT_QUEUE_SIZE)
 		{
-			for (int i = profit_list.size() - PROFIT_QUEUE_SIZE; i < profit_list.size(); ++i)
+			for (size_t i = profit_list.size() - PROFIT_QUEUE_SIZE; i < profit_list.size(); ++i)
 				rolling_total_profit += profit_list.at(i);
 
 			rolling_profit_count = PROFIT_QUEUE_SIZE;
 		}
 		else
 		{
-			for (int i = 0; i < profit_list.size(); ++i)
+			for (size_t i = 0; i < profit_list.size(); ++i)
 				rolling_total_profit += profit_list.at(i);
 
 			rolling_profit_count = profit_list.size();
@@ -153,7 +153,7 @@ namespace Stats
 		/* Initialize the result list with the first flip */
 
 		/* Find the first item that has sold */
-		int i;
+		size_t i;
 		for (i = 0; i < flips.size(); i++)
 		{
 			if (flips[i]["done"] == true)

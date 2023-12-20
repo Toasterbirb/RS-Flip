@@ -103,5 +103,5 @@ void DailyProgress::PrintProgress()
 	int goal 		= Goal();
 	float progress_in_percent = ((float)progress / goal) * 100;
 
-	std::cout << "\e[1mDaily progress: " << FlipUtils::RoundBigNumbers(progress) << " / " << FlipUtils::RoundBigNumbers(goal) << " (" << std::round(progress_in_percent) << "%)\e[0m" << std::endl;
+	std::cout << "\033[1mDaily progress: " << FlipUtils::RoundBigNumbers(progress) << " / " << FlipUtils::RoundBigNumbers(goal) << " (" << std::round(progress_in_percent) << "%)\033[0m" << std::endl;
 }

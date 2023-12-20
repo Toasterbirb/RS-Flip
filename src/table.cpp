@@ -27,13 +27,13 @@ void Table::print() const
 
 	/* Print the column names */
 	std::cout << std::left;
-	for (int i = 0; i < column_names.size() - 1; ++i)
-		std::cout << "\e[1m" << std::setw(column_size.at(i) - i) << column_names.at(i) << "\e[0m";
+	for (size_t i = 0; i < column_names.size() - 1; ++i)
+		std::cout << "\033[1m" << std::setw(column_size.at(i) - i) << column_names.at(i) << "\033[0m";
 	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
 
 	/* Print a divider */
 	int divider_size = 0;
-	for (int i = 0; i < column_size.size(); ++i)
+	for (size_t i = 0; i < column_size.size(); ++i)
 		divider_size += column_size.at(i);
 
 	std::string divider(divider_size - (COLUMN_PADDING * (column_names.size() - 2)) + 1, '-');
@@ -42,9 +42,9 @@ void Table::print() const
 
 	/* Print the data */
 	std::cout << std::left;
-	for (int i = 0; i < data.size(); ++i)
+	for (size_t i = 0; i < data.size(); ++i)
 	{
-		for (int j = 0; j < data.at(i).size() - 1; ++j)
+		for (size_t j = 0; j < data.at(i).size() - 1; ++j)
 			std::cout << std::setw(column_size.at(j) - j) << data.at(i).at(j);
 		std::cout << std::left << std::setw(column_size.at(data.at(i).size() - 1)) << data.at(i).at(data.at(i).size() - 1) << std::left;
 
@@ -75,13 +75,13 @@ std::vector<size_t> Table::get_column_sizes() const
 	std::vector<size_t> column_size(column_names.size());
 
 	/* Reset the table sizes */
-	for (int i = 0; i < column_size.size(); ++i)
+	for (size_t i = 0; i < column_size.size(); ++i)
 		column_size[i] = 0;
 
 	/* Go through the data linearly and find the longest lines */
-	for (int i = 0; i < data.size(); ++i)
+	for (size_t i = 0; i < data.size(); ++i)
 	{
-		for (int j = 0; j < data.at(i).size(); ++j)
+		for (size_t j = 0; j < data.at(i).size(); ++j)
 		{
 			if (column_size[j] < data[i][j].size())
 				column_size[j] = data[i][j].size();
@@ -89,12 +89,12 @@ std::vector<size_t> Table::get_column_sizes() const
 	}
 
 	/* Also check the column names */
-	for (int i = 0; i < column_names.size(); ++i)
+	for (size_t i = 0; i < column_names.size(); ++i)
 		if (column_size[i] < column_names[i].size())
 			column_size[i] = column_names[i].size();
 
 	/* Pad all of the columns a little bit */
-	for (int i = 0; i < column_size.size(); ++i)
+	for (size_t i = 0; i < column_size.size(); ++i)
 		column_size[i] += COLUMN_PADDING;
 
 	return column_size;

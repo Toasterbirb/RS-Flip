@@ -3,6 +3,10 @@
 
 namespace Stats
 {
+	/* Internal function declarations */
+	double CalcFlipROI(const nlohmann::json& flip);
+
+
 	double CalcFlipROI(const nlohmann::json& flip)
 	{
 		return CalcROI(flip["buy"], flip["sold"]);
