@@ -15,6 +15,11 @@ namespace Stats
 
 	double CalcROI(const int& buy_price, const int& sell_price)
 	{
+		/* Avoid division by zero
+		 * If the item cost nothing, return ROI-% of 100% */
+		if (buy_price == 0)
+			return 100;
+
 		return ((sell_price - buy_price) / (double)buy_price) * 100;
 	}
 
