@@ -188,7 +188,6 @@ namespace Stats
 
 			/* Highly doubt someone is going to flip the same item
 			 * more than 10 000 000 times */
-			std::cout << "Flip: " << stat.FlipCount() << std::endl;
 			assert(stat.FlipCount() < 10000000);
 		}
 

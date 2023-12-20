@@ -31,15 +31,15 @@ namespace Stats
 	private:
 		std::vector<int> profit_list;
 
-		int total_profit;
-		double total_roi;
-		int total_item_count;
-		int value_count;
+		int total_profit = 0;
+		double total_roi = 0;
+		int total_item_count = 0;
+		int value_count = 0;
 
-		int lowest_item_count;
-		int highest_item_count;
+		int lowest_item_count = 0;
+		int highest_item_count = 0;
 
-		int total_sell_sold_distance;
+		int total_sell_sold_distance = 0;
 	};
 
 	std::vector<AvgStat> FlipsToAvgstats(const std::vector<nlohmann::json>& flips);
