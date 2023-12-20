@@ -263,7 +263,34 @@ namespace Flips
 			return;
 		}
 
-		Table ongoing_flips({"ID", "Item", "Count", "Buy", "Sell", "Account"});
+		/* Set the account variable for the undone flips
+		 * This is because the variable might be missing due to backwards compat reasons
+		 *
+		 * Also keep track of the accounts listed. If only main account was used, we can
+		 * skip printing the Account column in the flip list command */
+		bool flips_only_with_main = true;
+		for (size_t i = 0; i < undone_flips.size(); ++i)
+		{
+			/* Check if the account variable was set */
+			if (!undone_flips[i].contains("account"))
+			{
+				undone_flips[i]["account"] = "main";
+				continue;
+			}
+
+			/* If account other than main was used, print the account
+			 * column to the table */
+			if (undone_flips[i]["account"] != "main")
+				flips_only_with_main = false;
+		}
+
+		std::vector<std::string> table_column_names = {"ID", "Item", "Count", "Buy", "Sell"};
+
+		/* Only add the "Account" column if other than the main account was used in any of the flips */
+		if (flips_only_with_main == false)
+			table_column_names.push_back("Account");
+
+		Table ongoing_flips(table_column_names);
 
 		FlipUtils::PrintTitle("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
@@ -272,14 +299,15 @@ namespace Flips
 			int flip_item_count 	= undone_flips[i]["limit"];
 			int flip_buy 			= undone_flips[i]["buy"];
 			int flip_sell 			= undone_flips[i]["sell"];
+			std::string account 	= undone_flips[i]["account"];
 
-			std::string account;
-			if (undone_flips[i].contains("account"))
-				account = undone_flips[i]["account"];
-			else
-				account = "main";
+			std::vector<std::string> data_row = {std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell)};
 
-			ongoing_flips.add_row({std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell), account});
+			/* Add Account column if other accounts than main were also used */
+			if (flips_only_with_main == false)
+				data_row.push_back(account);
+
+			ongoing_flips.add_row(data_row);
 		}
 
 		ongoing_flips.print();
