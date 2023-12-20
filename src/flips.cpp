@@ -23,6 +23,15 @@ namespace Flips
 
 	Flip::Flip(nlohmann::json j)
 	{
+		/* Asserts for checking if the json object has all of the required keys */
+		assert(j.contains("item"));
+		assert(j.contains("buy"));
+		assert(j.contains("sell"));
+		assert(j.contains("sold"));
+		assert(j.contains("limit"));
+		assert(j.contains("cancelled"));
+		assert(j.contains("done"));
+
 		item 		= j["item"];
 		buy_price 	= j["buy"];
 		sell_price 	= j["sell"];
@@ -84,6 +93,8 @@ namespace Flips
 
 	void WriteJson()
 	{
+		assert(data_file.empty() == false);
+
 		/* Backup the file before writing anything */
 		std::filesystem::copy_file(data_file, data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
 
@@ -107,6 +118,9 @@ namespace Flips
 
 	void Init()
 	{
+		assert(data_path.empty() == false);
+		assert(data_file.empty() == false);
+
 		if (!std::filesystem::exists(data_path))
 			std::filesystem::create_directories(data_path);
 
@@ -132,6 +146,12 @@ namespace Flips
 
 		/* Print top performing flips */
 		std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
+
+		if (stats.empty())
+		{
+			std::cout << "There are no flips to print any statistics about yet!\n";
+			return;
+		}
 
 		FlipUtils::PrintTitle("Stats");
 		std::cout << "Total profit: " << FlipUtils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;

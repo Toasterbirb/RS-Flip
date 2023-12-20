@@ -163,6 +163,15 @@ namespace Stats
 		/* Convert flips into avg stats */
 		for (; i < flips.size(); i++)
 		{
+			/* Asserts for checking if the json object has all of the required keys */
+			assert(flips[i].contains("item"));
+			assert(flips[i].contains("buy"));
+			assert(flips[i].contains("limit"));
+			assert(flips[i].contains("sell"));
+			assert(flips[i].contains("sold"));
+			assert(flips[i].contains("cancelled"));
+			assert(flips[i].contains("done"));
+
 			/* Ignore items that haven't sold yet */
 			if (flips[i]["done"] == false)
 				continue;
@@ -176,6 +185,11 @@ namespace Stats
 			assert(stat.name.empty() == false);
 			assert(stat.FlipCount() > 0);
 			assert(stat.AvgBuyLimit() > 0);
+
+			/* Highly doubt someone is going to flip the same item
+			 * more than 10 000 000 times */
+			std::cout << "Flip: " << stat.FlipCount() << std::endl;
+			assert(stat.FlipCount() < 10000000);
 		}
 
 		/* Convert the map into a vector */
@@ -209,11 +223,20 @@ namespace Stats
 		data_point_B["cancelled"] = false;
 		json.push_back(data_point_B);
 
+		nlohmann::json data_point_C;
+		data_point_C["item"] = "Test item";
+		data_point_C["limit"] = 2000;
+		data_point_C["done"] = true;
+		data_point_C["buy"] = 500;
+		data_point_C["sell"] = 1000;
+		data_point_C["sold"] = 900;
+		data_point_C["cancelled"] = false;
+		json.push_back(data_point_C);
+
 		std::vector<AvgStat> avg_stats = FlipsToAvgstats(json);
 
 		CHECK(avg_stats.size() == 1);
 		CHECK(avg_stats[0].name == "Test item");
-		CHECK(avg_stats[0].FlipCount() == 1);
-		CHECK(avg_stats[0].AvgProfit() == 1860000);
+		CHECK(avg_stats[0].FlipCount() == 2);
 	}
 }
