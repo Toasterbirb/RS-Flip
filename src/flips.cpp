@@ -483,6 +483,12 @@ namespace Flips
 			++count;
 		}
 
+		if (count == 0)
+		{
+			std::cout << "Couldn't find any flips to recommend...\n";
+			return true;
+		}
+
 		recommendation_table.print();
 
 		return true;
