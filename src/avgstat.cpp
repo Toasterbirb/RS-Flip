@@ -46,6 +46,8 @@ namespace Stats
 
 	double AvgStat::AvgProfit() const
 	{
+		assert(value_count > 0);
+
 		/* Avoid division by zero */
 		if (value_count == 0)
 			return 0;
@@ -81,11 +83,23 @@ namespace Stats
 
 	double AvgStat::AvgROI() const
 	{
+		assert(value_count > 0);
+
+		/* Avoid division by zero */
+		if (value_count == 0)
+			return 0;
+
 		return (double)total_roi / value_count;
 	}
 
 	double AvgStat::AvgBuyLimit() const
 	{
+		assert(value_count > 0);
+
+		/* Avoid division by zero */
+		if (value_count == 0)
+			return 0;
+
 		return (double)total_item_count / value_count;
 	}
 
