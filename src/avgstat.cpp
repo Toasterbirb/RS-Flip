@@ -169,8 +169,13 @@ namespace Stats
 
 			int profit = Margin::CalcProfit(flips[i]);
 
-			avg_stats[flips[i]["item"]].name = flips[i]["item"];
-			avg_stats[flips[i]["item"]].AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
+			AvgStat& stat = avg_stats[flips[i]["item"]];
+			stat.name = flips[i]["item"];
+			stat.AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
+
+			assert(stat.name.empty() == false);
+			assert(stat.FlipCount() > 0);
+			assert(stat.AvgBuyLimit() > 0);
 		}
 
 		/* Convert the map into a vector */
@@ -178,5 +183,37 @@ namespace Stats
 		std::transform(avg_stats.begin(), avg_stats.end(), std::back_inserter(result), [](const auto& element) { return element.second; });
 
 		return result;
+	}
+
+	TEST_CASE("Convert flips to avgstats")
+	{
+		std::vector<nlohmann::json> json;
+
+		nlohmann::json data_point_A;
+		data_point_A["item"] = "Test item";
+		data_point_A["limit"] = 5000;
+		data_point_A["done"] = true;
+		data_point_A["buy"] = 1000;
+		data_point_A["sell"] = 1500;
+		data_point_A["sold"] = 1400;
+		data_point_A["cancelled"] = false;
+		json.push_back(data_point_A);
+
+		nlohmann::json data_point_B;
+		data_point_B["item"] = "Another test item";
+		data_point_B["limit"] = 2000;
+		data_point_B["done"] = false;
+		data_point_B["buy"] = 500;
+		data_point_B["sell"] = 1000;
+		data_point_B["sold"] = 900;
+		data_point_B["cancelled"] = false;
+		json.push_back(data_point_B);
+
+		std::vector<AvgStat> avg_stats = FlipsToAvgstats(json);
+
+		CHECK(avg_stats.size() == 1);
+		CHECK(avg_stats[0].name == "Test item");
+		CHECK(avg_stats[0].FlipCount() == 1);
+		CHECK(avg_stats[0].AvgProfit() == 1860000);
 	}
 }
