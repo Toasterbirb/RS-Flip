@@ -46,6 +46,10 @@ namespace Stats
 
 	double AvgStat::AvgProfit() const
 	{
+		/* Avoid division by zero */
+		if (value_count == 0)
+			return 0;
+
 		return (double)total_profit / value_count;
 	}
 
