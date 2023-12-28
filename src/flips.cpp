@@ -470,6 +470,23 @@ namespace Flips
 		/* Calculate average profit */
 		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
 		std::cout << "\033[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\033[0m" << std::endl;
+
+		/** Calculate median buy and sell prices **/
+		int middle_index = std::floor(found_flips.size() / 2.0);
+		std::vector<nlohmann::json> sorted_list = found_flips;
+
+		/* Sort by buying price */
+		std::sort(sorted_list.begin(), sorted_list.end(), [](nlohmann::json a, nlohmann::json b) {
+			return a["buy"] < b["buy"];
+		});
+		std::cout << "Median buy price:  " << sorted_list.at(middle_index)["buy"] << "\n";
+
+		/* Sort by selling price */
+		std::sort(sorted_list.begin(), sorted_list.end(), [](nlohmann::json a, nlohmann::json b) {
+			return a["sold"] < b["sold"];
+		});
+
+		std::cout << "Median sell price: " << sorted_list.at(middle_index)["sold"] << "\n";
 	}
 
 	void FilterCount(const int& flip_count)
