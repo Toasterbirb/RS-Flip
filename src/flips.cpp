@@ -487,6 +487,10 @@ namespace Flips
 		});
 
 		std::cout << "Median sell price: " << sorted_list.at(middle_index)["sold"] << "\n";
+
+		/** Calculate average buying and selling prices **/
+		std::cout << "\033[37mAverage buy price:  " << FlipUtils::JsonAverage(found_flips, "buy") << "\033[0m\n";
+		std::cout << "\033[37mAverage sell price: " << FlipUtils::JsonAverage(found_flips, "sold") << "\033[0m\n";
 	}
 
 	void FilterCount(const int& flip_count)

@@ -5,6 +5,15 @@ namespace FlipUtils
 {
 	std::string CleanDecimals(const double& value);
 
+	constexpr double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key)
+	{
+		double total = 0;
+		for (const nlohmann::json& value : data)
+			total = total + static_cast<double>(value[key]);
+
+		return total / data.size();
+	}
+
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
 	std::string RoundBigNumbers(const int& number);
 	std::string Round(const double value, const int decimals); /* Round a value with given accuracy */
