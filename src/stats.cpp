@@ -37,7 +37,7 @@ namespace Stats
 	std::vector<AvgStat> SortFlipsByROI(std::vector<AvgStat> flips)
 	{
 		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
-			return a.AvgROI() < b.AvgROI();
+			return a.AvgROI() > b.AvgROI();
 		});
 
 		return flips;
@@ -46,7 +46,7 @@ namespace Stats
 	std::vector<AvgStat> SortFlipsByProfit(std::vector<AvgStat> flips)
 	{
 		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
-			return a.AvgProfit() < b.AvgProfit();
+			return a.AvgProfit() > b.AvgProfit();
 		});
 
 		return flips;
