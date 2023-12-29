@@ -3,13 +3,13 @@
 
 constexpr int COLUMN_PADDING = 6;
 
-Table::Table(std::vector<std::string> column_names)
+Table::Table(const std::vector<std::string>& column_names)
 :column_names(column_names)
 {
 	assert(column_names.size() > 1);
 }
 
-void Table::add_row(std::vector<std::string> data)
+void Table::add_row(const std::vector<std::string>& data)
 {
 	assert(data.size() == column_names.size());
 	this->data.push_back(data);

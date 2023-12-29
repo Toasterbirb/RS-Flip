@@ -3,7 +3,7 @@
 
 namespace FlipUtils
 {
-	std::string CleanDecimals(const double& value);
+	std::string CleanDecimals(const double value);
 
 	constexpr double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key)
 	{
@@ -15,14 +15,14 @@ namespace FlipUtils
 	}
 
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
-	std::string RoundBigNumbers(const int& number);
+	std::string RoundBigNumbers(const int number);
 	std::string Round(const double value, const int decimals); /* Round a value with given accuracy */
 	void PrintTitle(const std::string& text); /* #### Prints like this #### */
-	int Clamp(const int& value, const int& min, const int& max);
+	int Clamp(const int value, const int min, const int max);
 	std::string ReadFile(const std::string& filepath);
 	std::unordered_set<std::string> ReadFileItems(const std::string& filepath); /* Read unique item lines from a file */
 	void WriteFile(const std::string& filepath, const std::string& text);
-	void WriteJsonFile(nlohmann::json json_data, std::string file_path);
+	void WriteJsonFile(const nlohmann::json& json_data, const std::string& file_path);
 
 	// Function that approaches a given value but never really reaches it
 	// After the point of diminishing_returns, the value starts incresing slower

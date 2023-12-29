@@ -10,11 +10,11 @@ enum Mode
 };
 
 /* Function declarations */
-bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode);
+bool AcceptedModes(const std::vector<Mode>& acceptedModes, Mode mode);
 void PrintHelp();
 
 
-bool AcceptedModes(std::vector<Mode> acceptedModes, Mode mode)
+bool AcceptedModes(const std::vector<Mode>& acceptedModes, Mode mode)
 {
 	for (size_t i = 0; i < acceptedModes.size(); i++)
 		if (acceptedModes[i] == mode)

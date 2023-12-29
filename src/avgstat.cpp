@@ -26,7 +26,7 @@ namespace Stats
 		total_sell_sold_distance 	= 0;
 	}
 
-	void AvgStat::AddData(const int& profit, const double& ROI, const int& item_count, const int& sell, const int& sold)
+	void AvgStat::AddData(const int profit, const double ROI, const int item_count, const int sell, const int sold)
 	{
 		profit_list.push_back(profit);
 

@@ -78,7 +78,7 @@ DailyProgress::DailyProgress()
 	valid_data = true;
 }
 
-void DailyProgress::AddProgress(const int& amount)
+void DailyProgress::AddProgress(const int amount)
 {
 	int progress = json_data["progress"];
 	progress += amount;
@@ -87,17 +87,17 @@ void DailyProgress::AddProgress(const int& amount)
 	FlipUtils::WriteJsonFile(this->json_data, this->file_path);
 }
 
-int DailyProgress::CurrentProgress()
+int DailyProgress::CurrentProgress() const
 {
 	return json_data["progress"];
 }
 
-int DailyProgress::Goal()
+int DailyProgress::Goal() const
 {
 	return json_data["goal"];
 }
 
-void DailyProgress::PrintProgress()
+void DailyProgress::PrintProgress() const
 {
 	int progress 	= CurrentProgress();
 	int goal 		= Goal();

@@ -4,7 +4,7 @@
 
 namespace Margin
 {
-	int CalcMargin(int instaBuy, int instaSell)
+	int CalcMargin(const int instaBuy, const int instaSell)
 	{
 		return instaBuy - instaSell;
 	}
@@ -15,7 +15,7 @@ namespace Margin
 		CHECK(CalcMargin(4000, 5000) == -1000);
 	}
 
-	int CalcProfitWithCut(int margin, int buylimit, int pricecut)
+	int CalcProfitWithCut(const int margin, const int buylimit, const int pricecut)
 	{
 		return buylimit * (margin - (pricecut * 2));
 	}
@@ -28,7 +28,7 @@ namespace Margin
 		CHECK(CalcProfitWithCut(-5, 10, 0) == -50);
 	}
 
-	int CalcProfit(const int& buy_price, const int& sell_price, const int& buy_limit)
+	int CalcProfit(const int buy_price, const int sell_price, const int buy_limit)
 	{
 		if (sell_price <= 50)
 			return (sell_price - buy_price) * buy_limit;
@@ -36,7 +36,7 @@ namespace Margin
 			return ((sell_price * 0.98f) - buy_price) * buy_limit;
 	}
 
-	int CalcProfit(Flips::Flip flip)
+	int CalcProfit(const Flips::Flip& flip)
 	{
 		if (flip.done)
 			if (flip.sold_price <= 50)
@@ -50,7 +50,7 @@ namespace Margin
 				return ((flip.sell_price * 0.98) - flip.buy_price) * flip.buylimit;
 	}
 
-	int CalcProfitTaxFree(Flips::Flip flip)
+	int CalcProfitTaxFree(const Flips::Flip& flip)
 	{
 		if (flip.done)
 			return (flip.sold_price - flip.buy_price) * flip.buylimit;
@@ -70,7 +70,7 @@ namespace Margin
 		CHECK(CalcProfit(yewLogs) == -162993);
 	}
 
-	void PrintFlipEstimation(int instaBuy, int instaSell, int buylimit)
+	void PrintFlipEstimation(const int instaBuy, const int instaSell, const int buylimit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
 		int margin = CalcMargin((instaBuy - 1) * 0.98f, instaSell + 1);

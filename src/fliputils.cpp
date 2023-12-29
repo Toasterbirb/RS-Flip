@@ -2,7 +2,7 @@
 
 namespace FlipUtils
 {
-	std::string CleanDecimals(const double& value)
+	std::string CleanDecimals(const double value)
 	{
 		std::string result = std::to_string(value);
 		int size = (int)result.size();
@@ -23,7 +23,7 @@ namespace FlipUtils
 	}
 
 
-	std::string RoundBigNumbers(const int& number)
+	std::string RoundBigNumbers(const int number)
 	{
 		if (number > 1000000 || number < -1000000)
 			return CleanDecimals((double)number / 1000000) + "m";
@@ -69,7 +69,7 @@ namespace FlipUtils
 		std::cout << "\033[1m\033[32m#####| " << text << " |#####\033[0m\n";
 	}
 
-	int Clamp(const int& value, const int& min, const int& max)
+	int Clamp(const int value, const int min, const int max)
 	{
 		if (value < min)
 			return min;
@@ -132,7 +132,7 @@ namespace FlipUtils
 		file.close();
 	}
 
-	void WriteJsonFile(nlohmann::json json_data, std::string file_path)
+	void WriteJsonFile(const nlohmann::json& json_data, const std::string& file_path)
 	{
 		std::ofstream file(file_path);
 		file << std::setw(4) << json_data << std::endl;

@@ -8,14 +8,14 @@ struct Date
 	void SetDate(nlohmann::json& json_object); /* Changes the date of the json_object */
 	int day, month, year;
 
-	bool operator==(const Date& other)
+	bool operator==(const Date& other) const
 	{
 		return (day == other.day
 				&& month == other.month
 				&& year == other.year);
 	}
 
-	bool operator!=(const Date& other)
+	bool operator!=(const Date& other) const
 	{
 		return (day != other.day
 				|| month != other.month
@@ -27,10 +27,10 @@ class DailyProgress
 {
 public:
 	DailyProgress();
-	void AddProgress(const int& amount);
-	int CurrentProgress();
-	int Goal();
-	void PrintProgress();
+	void AddProgress(const int amount);
+	int CurrentProgress() const;
+	int Goal() const;
+	void PrintProgress() const;
 
 private:
 	std::string file_path;

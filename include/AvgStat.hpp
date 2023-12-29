@@ -18,7 +18,7 @@ namespace Stats
 	public:
 		AvgStat();
 		AvgStat(const std::string& item_name);
-		void AddData(const int& profit, const double& ROI, const int& item_count, const int& sell = 0, const int& sold = 0);
+		void AddData(const int profit, const double ROI, const int item_count, const int sell = 0, const int sold = 0);
 		double AvgProfit() const;
 		double RollingAvgProfit() const; /* Get the avg. profit of the latest flips */
 		double AvgROI() const;

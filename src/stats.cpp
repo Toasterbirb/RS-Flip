@@ -17,7 +17,7 @@ namespace Stats
 		return CalcROI(flip["buy"], flip["sold"]);
 	}
 
-	double CalcROI(const int& buy_price, const int& sell_price)
+	double CalcROI(const int buy_price, const int sell_price)
 	{
 		/* Avoid division by zero
 		 * If the item cost nothing, return ROI-% of 100% */

@@ -4,8 +4,8 @@
 class Table
 {
 public:
-	Table(std::vector<std::string> column_names);
-	void add_row(std::vector<std::string> data);
+	Table(const std::vector<std::string>& column_names);
+	void add_row(const std::vector<std::string>& data);
 	void print() const;
 
 private:

@@ -13,10 +13,10 @@ namespace Flips
 	struct Flip
 	{
 		Flip();
-		Flip(nlohmann::json j);
+		Flip(const nlohmann::json& j);
 		Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name = "main");
-		void Sell(const int& sell_price);
-		nlohmann::json ToJson();
+		void Sell(const int sell_price);
+		nlohmann::json ToJson() const;
 
 		std::string item;
 		int buy_price;
@@ -29,20 +29,20 @@ namespace Flips
 	};
 
 	void Init();
-	void PrintStats(const int& topValueCount = 10);
+	void PrintStats(const int topValueCount = 10);
 	void FixStats();
 	void RestoreBackup();
 	void List(); /* List on-going flips */
-	void Add(Flip flip); /* Add a new flip */
-	void Cancel(const int& ID); /* Cancel an existing flip */
-	void Sell(const int& index, int sell_value, int sell_amount);
+	void Add(const Flip& flip); /* Add a new flip */
+	void Cancel(const int ID); /* Cancel an existing flip */
+	void Sell(const int index, int sell_value, int sell_amount);
 
 	static nlohmann::json json_data;
 	static std::vector<nlohmann::json> flips;
 
 	/* Filtering */
 	void FilterName(const std::string& name);
-	void FilterCount(const int& flip_count);
+	void FilterCount(const int flip_count);
 
 	/* Flip recommendations */
 	bool FlipRecommendations();

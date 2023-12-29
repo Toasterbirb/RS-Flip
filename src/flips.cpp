@@ -12,7 +12,7 @@ constexpr int RECOMMENDATION_THRESHOLD = 750000;
 namespace Flips
 {
 	/* Declare some functions */
-	int FindRealIDWithUndoneID(const int& undone_ID);
+	int FindRealIDWithUndoneID(const int undone_ID);
 	void ApplyFlipArray();
 	void CreateDefaultDataFile();
 	void LoadFlipArray();
@@ -29,7 +29,7 @@ namespace Flips
 		done 		= false;
 	}
 
-	Flip::Flip(nlohmann::json j)
+	Flip::Flip(const nlohmann::json& j)
 	{
 		/* Asserts for checking if the json object has all of the required keys */
 		assert(j.contains("item"));
@@ -67,13 +67,13 @@ namespace Flips
 		this->done 			= false;
 	}
 
-	void Flip::Sell(const int& sell_price)
+	void Flip::Sell(const int sell_price)
 	{
 		this->sell_price 	= sell_price;
 		this->done 			= true;
 	}
 
-	nlohmann::json Flip::ToJson()
+	nlohmann::json Flip::ToJson() const
 	{
 		nlohmann::json j;
 
@@ -87,9 +87,9 @@ namespace Flips
 
 		/* If the account value is empty, default it to "main" */
 		if (account.empty())
-			account = "main";
-
-		j["account"] 	= account;
+			j["account"] = "main";
+		else
+			j["account"] = account;
 
 		return j;
 	}
@@ -148,7 +148,7 @@ namespace Flips
 		WriteJson();
 	}
 
-	void PrintStats(const int& topValueCount)
+	void PrintStats(const int topValueCount)
 	{
 		Init();
 
@@ -318,7 +318,7 @@ namespace Flips
 		daily_progress.PrintProgress();
 	}
 
-	int FindRealIDWithUndoneID(const int& undone_ID)
+	int FindRealIDWithUndoneID(const int undone_ID)
 	{
 		int undone_index = 0;
 		int result;
@@ -350,14 +350,14 @@ namespace Flips
 		}
 	}
 
-	void Add(Flip flip)
+	void Add(const Flip& flip)
 	{
 		Init();
 		flips.push_back(flip.ToJson());
 		ApplyFlipArray();
 	}
 
-	void Cancel(const int& ID)
+	void Cancel(const int ID)
 	{
 		Init();
 
@@ -371,7 +371,7 @@ namespace Flips
 		ApplyFlipArray();
 	}
 
-	void Sell(const int& index, int sell_value, int sell_amount)
+	void Sell(const int index, int sell_value, int sell_amount)
 	{
 		Init();
 		int result = FindRealIDWithUndoneID(index);
@@ -493,7 +493,7 @@ namespace Flips
 		std::cout << "\033[37mAverage sell price: " << FlipUtils::JsonAverage(found_flips, "sold") << "\033[0m\n";
 	}
 
-	void FilterCount(const int& flip_count)
+	void FilterCount(const int flip_count)
 	{
 		Init();
 
