@@ -40,10 +40,21 @@ namespace Flips
 	static nlohmann::json json_data;
 	static std::vector<nlohmann::json> flips;
 
-	/* Filtering */
+	/** Filtering **/
+
+	/* Find finished flips with item name */
+	std::vector<nlohmann::json> FindFlipsByName(const std::string& item_name);
+
+	/* Print filtered data */
 	void FilterName(const std::string& name);
 	void FilterCount(const int flip_count);
 
 	/* Flip recommendations */
 	bool FlipRecommendations();
+
+	/** Predicting the future **/
+
+	/* Attempt to extrapolate the next flip for the given item
+	 * based on past performance */
+	Flip ExtrapolateFlipData(const std::string& item_name);
 }
