@@ -572,7 +572,7 @@ namespace Flips
 		const std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
 		const std::vector<Stats::AvgStat> recommendedFlips = Stats::SortFlipsByRecommendation(avgStats);
 
-		Table recommendation_table({"Item name", "Recent avg. profit", "Avg. profit", "Flip count"});
+		Table recommendation_table({"Item name", "Rolling profit", "Avg. profit", "Forecast", "Count"});
 
 		/* Print recommendations until the recommendation_count has been reached */
 		int i = 0; 		/* The current recommended item */
@@ -597,7 +597,11 @@ namespace Flips
 				continue;
 			}
 
-			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), FlipUtils::RoundBigNumbers(recommendedFlips[i].AvgProfit()), std::to_string(recommendedFlips[i].FlipCount())});
+			/* Calculate extrapolated profit for the item */
+			const Flip extrapolated_flip = ExtrapolateFlipData(recommendedFlips[i].name);
+			const std::string extrapolated_profit = FlipUtils::RoundBigNumbers(Margin::CalcProfit(extrapolated_flip.buy_price, extrapolated_flip.sold_price, extrapolated_flip.buylimit));
+
+			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), FlipUtils::RoundBigNumbers(recommendedFlips[i].AvgProfit()), extrapolated_profit, std::to_string(recommendedFlips[i].FlipCount())});
 
 			++i;
 			++count;
