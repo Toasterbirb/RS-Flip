@@ -20,7 +20,7 @@ void Table::print() const
 	assert(data.size() > 0);
 
 	/* Get the column sizes */
-	std::vector<size_t> column_size = get_column_sizes();
+	const std::vector<size_t> column_size = get_column_sizes();
 
 	assert(column_size.size() == column_names.size());
 	assert(column_size.size() == data.at(0).size());
@@ -36,7 +36,7 @@ void Table::print() const
 	for (size_t i = 0; i < column_size.size(); ++i)
 		divider_size += column_size.at(i);
 
-	std::string divider(divider_size - (COLUMN_PADDING * (column_names.size() - 2)) + 1, '-');
+	const std::string divider(divider_size - (COLUMN_PADDING * (column_names.size() - 2)) + 1, '-');
 	std::cout << divider << '\n';
 
 

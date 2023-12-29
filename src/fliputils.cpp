@@ -5,7 +5,7 @@ namespace FlipUtils
 	std::string CleanDecimals(const double value)
 	{
 		std::string result = std::to_string(value);
-		int size = (int)result.size();
+		const int size = (int)result.size();
 		for (int i = size - 1; i > 0; i--)
 		{
 			if (result[i] != '0' && i < size - 1)

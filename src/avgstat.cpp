@@ -176,7 +176,7 @@ namespace Stats
 			if (flips[i]["done"] == false)
 				continue;
 
-			int profit = Margin::CalcProfit(flips[i]);
+			const int profit = Margin::CalcProfit(flips[i]);
 
 			AvgStat& stat = avg_stats[flips[i]["item"]];
 			stat.name = flips[i]["item"];

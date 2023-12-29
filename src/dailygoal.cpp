@@ -50,12 +50,12 @@ DailyProgress::DailyProgress()
 	}
 	else if (std::filesystem::is_regular_file(file_path))
 	{
-		std::string json_string = FlipUtils::ReadFile(file_path);
+		const std::string json_string = FlipUtils::ReadFile(file_path);
 		this->json_data = nlohmann::json::parse(json_string);
 
 		/* Check if the date is different.
 		 * If so, reset the progress */
-		Date old_date = Date(this->json_data);
+		const Date old_date = Date(this->json_data);
 
 		if (old_date != today)
 		{
@@ -99,9 +99,9 @@ int DailyProgress::Goal() const
 
 void DailyProgress::PrintProgress() const
 {
-	int progress 	= CurrentProgress();
-	int goal 		= Goal();
-	float progress_in_percent = ((float)progress / goal) * 100;
+	const int progress 	= CurrentProgress();
+	const int goal 		= Goal();
+	const float progress_in_percent = ((float)progress / goal) * 100;
 
 	std::cout << "\033[1mDaily progress: " << FlipUtils::RoundBigNumbers(progress) << " / " << FlipUtils::RoundBigNumbers(goal) << " (" << std::round(progress_in_percent) << "%)\033[0m" << std::endl;
 }
