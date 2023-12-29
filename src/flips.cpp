@@ -442,9 +442,9 @@ namespace Flips
 			return;
 
 		/* List out the flips */
-		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
-		std::cout << "| Buy         | Sell        | Count   | Profit      |" << std::endl;
-		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
+		std::cout << "+-------------+-------------+---------+-------------+\n";
+		std::cout << "| Buy         | Sell        | Count   | Profit      |\n";
+		std::cout << "+-------------+-------------+---------+-------------+\n";
 
 		int total_profit = 0;
 		for (size_t i = 0; i < found_flips.size(); i++)
@@ -460,17 +460,17 @@ namespace Flips
 			const std::string item_count = std::to_string(flip.buylimit);
 
 			std::cout << "| " << buy_price << std::setw(14 - buy_price.length()) << " | " <<
-				sell_price << std::setw(14 - sell_price.length()) << " | " <<
-				item_count << std::setw(10 - item_count.length()) << " | " <<
-				profit_text << std::setw(13 - profit_text.length()) << "|" << std::endl;
+				sell_price << std::setw(14 - sell_price.length())	<< " | " <<
+				item_count << std::setw(10 - item_count.length()) 	<< " | " <<
+				profit_text << std::setw(14 - profit_text.length()) << " |\n";
 		}
 
-		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
+		std::cout << "+-------------+-------------+---------+-------------+\n";
 
 		/* Extrapolate one point further with the previous points of data */
 		if (found_flips.size() > 1)
 		{
-			std::cout << "+                   extrapolated                    +\n";
+			std::cout << "|                   extrapolated                    |\n";
 			std::cout << "+-------------+-------------+---------+-------------+\n";
 
 			const int extrapolated_buy = FlipUtils::LinearExtrapolation(found_flips[found_flips.size() - 2]["buy"], found_flips[found_flips.size() - 1]["buy"]);
