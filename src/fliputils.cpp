@@ -217,7 +217,7 @@ namespace FlipUtils
 
 	double LinearExtrapolation(const int point_a, const int point_b)
 	{
-		return point_a + 2 * (point_b - point_a);
+		return std::lerp(point_a, point_b, 2);
 	}
 
 	TEST_CASE("Linear extrapolation")
