@@ -34,89 +34,30 @@ namespace Stats
 		CHECK(CalcROI(20, 10) == -50);
 	}
 
-	std::vector<AvgStat> SortFlipsByROI(const std::vector<AvgStat>& flips)
+	std::vector<AvgStat> SortFlipsByROI(std::vector<AvgStat> flips)
 	{
-		std::vector<AvgStat> result = flips;
+		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
+			return a.AvgROI() < b.AvgROI();
+		});
 
-		/* TODO: Switch to some other algorithm than bubblesort */
-
-		bool had_swap = true;
-		AvgStat placeholder;
-		while (had_swap)
-		{
-			had_swap = false;
-			for (size_t i = 0; i < flips.size() - 1; i++)
-			{
-				if (result[i].AvgROI() < result[i + 1].AvgROI())
-				{
-					placeholder = result[i];
-					result[i] = result[i + 1];
-					result[i + 1] = placeholder;
-					had_swap = true;
-				}
-			}
-		}
-
-		return result;
+		return flips;
 	}
 
-	std::vector<AvgStat> SortFlipsByProfit(const std::vector<AvgStat>& flips)
+	std::vector<AvgStat> SortFlipsByProfit(std::vector<AvgStat> flips)
 	{
-		std::vector<AvgStat> result = flips;
+		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
+			return a.AvgProfit() < b.AvgProfit();
+		});
 
-		/* TODO: Switch to some other algorithm than bubblesort */
-
-		bool had_swap = true;
-		AvgStat placeholder;
-		while (had_swap)
-		{
-			had_swap = false;
-			for (size_t i = 0; i < flips.size() - 1; i++)
-			{
-				if (result[i].AvgProfit() < result[i + 1].AvgProfit())
-				{
-					placeholder = result[i];
-					result[i] = result[i + 1];
-					result[i + 1] = placeholder;
-					had_swap = true;
-				}
-			}
-		}
-
-		return result;
+		return flips;
 	}
 
-	std::vector<AvgStat> SortFlipsByRecommendation(const std::vector<AvgStat>& flips)
+	std::vector<AvgStat> SortFlipsByRecommendation(std::vector<AvgStat> flips)
 	{
-		std::vector<AvgStat> result = flips;
+		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
+			return a.FlipRecommendation() > b.FlipRecommendation();
+		});
 
-		/* TODO: Switch to some other algorithm than bubblesort */
-
-		bool had_swap = true;
-		AvgStat placeholder;
-		while (had_swap)
-		{
-			had_swap = false;
-			for (size_t i = 0; i < result.size() - 1; i++)
-			{
-				/* Skip flips with only one trade done */
-				if (result[i].FlipCount() == 1)
-				{
-					result.erase(result.begin() + i);
-					i--;
-					continue;
-				}
-
-				if (result[i].FlipRecommendation() < result[i + 1].FlipRecommendation())
-				{
-					placeholder = result[i];
-					result[i] = result[i + 1];
-					result[i + 1] = placeholder;
-					had_swap = true;
-				}
-			}
-		}
-
-		return result;
+		return flips;
 	}
 }

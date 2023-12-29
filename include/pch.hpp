@@ -1,5 +1,6 @@
 #pragma once
 #include "nlohmann/json.hpp"
+#include <algorithm>
 #include <cassert>
 #include <ctime>
 #include <doctest/doctest.h>
