@@ -29,7 +29,7 @@ namespace Flips
 	};
 
 	void Init();
-	void PrintStats(const int topValueCount = 10);
+	void PrintStats(const int top_value_count = 10);
 	void FixStats();
 	void RestoreBackup();
 	void List(); /* List on-going flips */

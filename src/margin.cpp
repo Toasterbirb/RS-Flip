@@ -4,9 +4,9 @@
 
 namespace Margin
 {
-	int CalcMargin(const int instaBuy, const int instaSell)
+	int CalcMargin(const int insta_buy, const int insta_sell)
 	{
-		return instaBuy - instaSell;
+		return insta_buy - insta_sell;
 	}
 
 	TEST_CASE("Calculate margin")
@@ -15,9 +15,9 @@ namespace Margin
 		CHECK(CalcMargin(4000, 5000) == -1000);
 	}
 
-	int CalcProfitWithCut(const int margin, const int buylimit, const int pricecut)
+	int CalcProfitWithCut(const int margin, const int buy_limit, const int price_cut)
 	{
-		return buylimit * (margin - (pricecut * 2));
+		return buy_limit * (margin - (price_cut * 2));
 	}
 
 	TEST_CASE("Calculate profit")
@@ -70,15 +70,15 @@ namespace Margin
 		CHECK(CalcProfit(yewLogs) == -162993);
 	}
 
-	void PrintFlipEstimation(const int instaBuy, const int instaSell, const int buylimit)
+	void PrintFlipEstimation(const int insta_buy, const int insta_sell, const int buy_limit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
-		int margin = CalcMargin((instaBuy - 1) * 0.98f, instaSell + 1);
-		int cut_profit = CalcProfitWithCut(margin, buylimit, 0); /* The cut has already been taken into account in margin */
+		int margin = CalcMargin((insta_buy - 1) * 0.98f, insta_sell + 1);
+		int cut_profit = CalcProfitWithCut(margin, buy_limit, 0); /* The cut has already been taken into account in margin */
 																 /* We can't use CalcProfit here though because it also */
 																 /* calculates the taxes */
-		std::string roi = FlipUtils::Round(((double)margin / instaSell) * 100, 2) + "%";
-		std::string required_capital = FlipUtils::RoundBigNumbers(instaSell * buylimit);
+		std::string roi = FlipUtils::Round(((double)margin / insta_sell) * 100, 2) + "%";
+		std::string required_capital = FlipUtils::RoundBigNumbers(insta_sell * buy_limit);
 
 		/* Green color by default */
 		int color_code = 32;
@@ -97,8 +97,8 @@ namespace Margin
 		stat_table.add_row({"Profit", profit_str});
 
 		Table price_table({"Offer", "Price"});
-		price_table.add_row({"Buy", std::to_string(instaSell + 1)});
-		price_table.add_row({"Sell", std::to_string(instaBuy - 1)});
+		price_table.add_row({"Buy", std::to_string(insta_sell + 1)});
+		price_table.add_row({"Sell", std::to_string(insta_buy - 1)});
 
 		stat_table.print();
 		std::cout << '\n';

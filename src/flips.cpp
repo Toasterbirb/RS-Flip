@@ -148,7 +148,7 @@ namespace Flips
 		WriteJson();
 	}
 
-	void PrintStats(const int topValueCount)
+	void PrintStats(const int top_value_count)
 	{
 		Init();
 
@@ -175,7 +175,7 @@ namespace Flips
 
 		Table flips_by_roi({"Item", "ROI-%", "Average profit"});
 
-		for (int i = 0; i < FlipUtils::Clamp(topROI.size(), 0, topValueCount); i++)
+		for (int i = 0; i < FlipUtils::Clamp(topROI.size(), 0, top_value_count); i++)
 			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), FlipUtils::RoundBigNumbers(topROI[i].AvgProfit())});
 
 		flips_by_roi.print();
@@ -187,7 +187,7 @@ namespace Flips
 
 		Table flips_by_profit({"Item", "Average profit", "ROI-%"});
 
-		for (int i = 0; i < FlipUtils::Clamp(topProfit.size(), 0, topValueCount); i++)
+		for (int i = 0; i < FlipUtils::Clamp(topProfit.size(), 0, top_value_count); i++)
 		{
 			std::string avgprofit_string = FlipUtils::RoundBigNumbers(topProfit[i].AvgProfit());
 			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].AvgROI())});
