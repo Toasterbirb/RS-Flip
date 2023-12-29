@@ -1,4 +1,3 @@
-#include "Flips.hpp"
 #include "Stats.hpp"
 
 namespace Stats
