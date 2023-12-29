@@ -23,6 +23,69 @@ namespace FlipUtils
 	}
 
 
+	double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key)
+	{
+		double total = 0;
+		for (const nlohmann::json& value : data)
+			total = total + static_cast<double>(value[key]);
+
+		return total / data.size();
+	}
+
+	void JsonSort(std::vector<nlohmann::json>& data, const std::string& key)
+	{
+		std::sort(data.begin(), data.end(), [key](const nlohmann::json& a, const nlohmann::json& b) {
+			return a[key] < b[key];
+		});
+	}
+
+	int JsonMinInt(const std::vector<nlohmann::json>& data, const std::string& key)
+	{
+		int lowest_value = INT32_MAX;
+		for (const nlohmann::json& j : data)
+			if (j[key] < lowest_value)
+				lowest_value = j[key];
+
+		return lowest_value;
+	}
+
+	TEST_CASE("JsonMin")
+	{
+		std::vector<nlohmann::json> json_data;
+		for (int i = -5; i < 5; ++i)
+		{
+			nlohmann::json j;
+			j["test"] = i;
+			json_data.push_back(j);
+		}
+
+		CHECK(JsonMinInt(json_data, "test") == -5);
+	}
+
+	int JsonMaxInt(const std::vector<nlohmann::json>& data, const std::string& key)
+	{
+		int highest_value = INT32_MIN;
+		for (const nlohmann::json& j : data)
+			if (j[key] > highest_value)
+				highest_value = j[key];
+
+		return highest_value;
+	}
+
+	TEST_CASE("JsonMin")
+	{
+		std::vector<nlohmann::json> json_data;
+		for (int i = -5; i < 5; ++i)
+		{
+			nlohmann::json j;
+			j["test"] = i;
+			json_data.push_back(j);
+		}
+
+		CHECK(JsonMaxInt(json_data, "test") == 4);
+	}
+
+
 	std::string RoundBigNumbers(const int number)
 	{
 		if (number > 1000000 || number < -1000000)

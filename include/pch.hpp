@@ -2,6 +2,7 @@
 #include "nlohmann/json.hpp"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <ctime>
 #include <doctest/doctest.h>
 #include <fstream>

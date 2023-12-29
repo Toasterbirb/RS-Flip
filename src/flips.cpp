@@ -442,9 +442,9 @@ namespace Flips
 			return;
 
 		/* List out the flips */
-		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
 		std::cout << "| Buy         | Sell        | Count   | Profit      |" << std::endl;
-		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
 
 		int total_profit = 0;
 		for (size_t i = 0; i < found_flips.size(); i++)
@@ -465,7 +465,7 @@ namespace Flips
 				profit_text << std::setw(13 - profit_text.length()) << "|" << std::endl;
 		}
 
-		std::cout << "|-------------|-------------|---------|-------------|" << std::endl;
+		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
 
 		/* Calculate average profit */
 		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
@@ -475,22 +475,32 @@ namespace Flips
 		const int middle_index = std::floor(found_flips.size() / 2.0);
 		std::vector<nlohmann::json> sorted_list = found_flips;
 
+		std::cout << "\n";
+
 		/* Sort by buying price */
-		std::sort(sorted_list.begin(), sorted_list.end(), [](nlohmann::json a, nlohmann::json b) {
-			return a["buy"] < b["buy"];
-		});
+		FlipUtils::JsonSort(sorted_list, "buy");
 		std::cout << "Median buy price:  " << sorted_list.at(middle_index)["buy"] << "\n";
 
 		/* Sort by selling price */
-		std::sort(sorted_list.begin(), sorted_list.end(), [](nlohmann::json a, nlohmann::json b) {
-			return a["sold"] < b["sold"];
-		});
-
+		FlipUtils::JsonSort(sorted_list, "sold");
 		std::cout << "Median sell price: " << sorted_list.at(middle_index)["sold"] << "\n";
+
+		std::cout << "\n";
 
 		/** Calculate average buying and selling prices **/
 		std::cout << "\033[37mAverage buy price:  " << FlipUtils::JsonAverage(found_flips, "buy") << "\033[0m\n";
 		std::cout << "\033[37mAverage sell price: " << FlipUtils::JsonAverage(found_flips, "sold") << "\033[0m\n";
+
+		std::cout << "\n";
+
+		/** Find min and max buy/sell prices **/
+		std::cout << "\033[34mMin buy price: " << FlipUtils::JsonMinInt(sorted_list, "buy") << "\033[0m\n";
+		std::cout << "\033[34mMax buy price: " << FlipUtils::JsonMaxInt(sorted_list, "buy") << "\033[0m\n";
+
+		std::cout << "\n";
+
+		std::cout << "\033[35mMin sell price: " << FlipUtils::JsonMinInt(sorted_list, "sold") << "\033[0m\n";
+		std::cout << "\033[35mMax sell price: " << FlipUtils::JsonMaxInt(sorted_list, "sold") << "\033[0m\n";
 	}
 
 	void FilterCount(const int flip_count)

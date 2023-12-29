@@ -5,14 +5,16 @@ namespace FlipUtils
 {
 	std::string CleanDecimals(const double value);
 
-	constexpr double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key)
-	{
-		double total = 0;
-		for (const nlohmann::json& value : data)
-			total = total + static_cast<double>(value[key]);
+	double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key);
 
-		return total / data.size();
-	}
+	/* Sort the given json vector in-place based on the values gotten with the key */
+	void JsonSort(std::vector<nlohmann::json>& data, const std::string& key);
+
+	/* Find the lowest value from the json array with the given key */
+	int JsonMinInt(const std::vector<nlohmann::json>& data, const std::string& key);
+
+	/* Find the highest value from the json array with the given key */
+	int JsonMaxInt(const std::vector<nlohmann::json>& data, const std::string& key);
 
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
 	std::string RoundBigNumbers(const int number);
