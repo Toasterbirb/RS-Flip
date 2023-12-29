@@ -467,6 +467,32 @@ namespace Flips
 
 		std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
 
+		/* Extrapolate one point further with the previous points of data */
+		if (found_flips.size() > 1)
+		{
+			std::cout << "+                   extrapolated                    +\n";
+			std::cout << "+-------------+-------------+---------+-------------+\n";
+
+			const int extrapolated_buy = FlipUtils::LinearExtrapolation(found_flips[found_flips.size() - 2]["buy"], found_flips[found_flips.size() - 1]["buy"]);
+			const int extrapolated_sell = FlipUtils::LinearExtrapolation(found_flips[found_flips.size() - 2]["sold"], found_flips[found_flips.size() - 1]["sold"]);
+
+			/* Calculate the extrapolated buy limit as the average of all buy limits */
+			const int extrapolated_buy_limit = FlipUtils::JsonAverage(found_flips, "limit");
+
+			const int extrapolated_profit = Margin::CalcProfit(extrapolated_buy, extrapolated_sell, extrapolated_buy_limit);
+
+			const std::string extrapolated_buy_str = FlipUtils::RoundBigNumbers(extrapolated_buy);
+			const std::string extrapolated_sell_str = FlipUtils::RoundBigNumbers(extrapolated_sell);
+			const std::string extrapolated_buy_limit_str = std::to_string(extrapolated_buy_limit);
+			const std::string extrapolated_profit_str = FlipUtils::RoundBigNumbers(extrapolated_profit);
+
+			std::cout << "\033[3m| " << extrapolated_buy_str << std::setw(14 - extrapolated_buy_str.length())	<< " | " <<
+						extrapolated_sell_str	<< std::setw(14 - extrapolated_sell_str.length())		<< " | " <<
+						extrapolated_buy_limit	<< std::setw(10 - extrapolated_buy_limit_str.length())	<< " | " <<
+						extrapolated_profit_str << std::setw(19 - extrapolated_profit_str.length())		<< " | \033[0m\n";
+			std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
+		}
+
 		/* Calculate average profit */
 		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
 		std::cout << "\033[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\033[0m" << std::endl;

@@ -214,4 +214,14 @@ namespace FlipUtils
 		CHECK(Limes(2, 2, 1, 1) == 0);
 		CHECK(Limes(2, 2, 1, 2) == 1);
 	}
+
+	double LinearExtrapolation(const int point_a, const int point_b)
+	{
+		return point_a + 2 * (point_b - point_a);
+	}
+
+	TEST_CASE("Linear extrapolation")
+	{
+		CHECK(std::round(LinearExtrapolation(3555, 2878)) == 2201);
+	}
 }

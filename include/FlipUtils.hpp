@@ -30,4 +30,8 @@ namespace FlipUtils
 	// After the point of diminishing_returns, the value starts incresing slower
 	// By lowering the slope value, you can make the value increase faster
 	double Limes(const double approach_value, const double diminishing_returns, const double slope, const double value);
+
+	/* Extrapolate one point forward with the information gotten from
+	 * two previous points */
+	double LinearExtrapolation(const int point_a, const int point_b);
 }
