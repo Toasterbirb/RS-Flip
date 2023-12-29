@@ -489,7 +489,7 @@ namespace Flips
 			const int extrapolated_profit = Margin::CalcProfit(extrapolated_flip.buy_price, extrapolated_flip.sold_price, extrapolated_flip.buylimit);
 
 			const std::string extrapolated_buy_str = FlipUtils::RoundBigNumbers(extrapolated_flip.buy_price);
-			const std::string extrapolated_sell_str = FlipUtils::RoundBigNumbers(extrapolated_flip.sell_price);
+			const std::string extrapolated_sell_str = FlipUtils::RoundBigNumbers(extrapolated_flip.sold_price);
 			const std::string extrapolated_buy_limit_str = std::to_string(extrapolated_flip.buylimit);
 			const std::string extrapolated_profit_str = FlipUtils::RoundBigNumbers(extrapolated_profit);
 
