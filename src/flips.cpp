@@ -201,7 +201,7 @@ namespace Flips
 		Init();
 		std::cout << "Recalculating statistics..." << std::endl;
 
-		int total_profit = 0;
+		long total_profit = 0;
 		int flip_count = 0;
 
 		for (size_t i = 0; i < json_data["flips"].size(); i++)
@@ -396,7 +396,7 @@ namespace Flips
 		flips_done++;
 		json_data["stats"]["flips_done"] = flips_done;
 
-		int total_profit = json_data["stats"]["profit"];
+		long total_profit = json_data["stats"]["profit"];
 		int buy_price = flips[result]["buy"];
 		const int profit = Margin::CalcProfit(buy_price, sell_value, sell_amount);
 		//int profit = ((sell_value - buy_price) * sell_amount);
