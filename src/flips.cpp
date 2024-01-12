@@ -241,7 +241,7 @@ namespace Flips
 			std::filesystem::rename(data_file + "_backup", data_file);
 	}
 
-	void List()
+	void List(const std::string& account_filter)
 	{
 		Init();
 
@@ -295,11 +295,15 @@ namespace Flips
 		FlipUtils::PrintTitle("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
 		{
-			std::string flip_name 	= undone_flips[i]["item"];
-			int flip_item_count 	= undone_flips[i]["limit"];
-			int flip_buy 			= undone_flips[i]["buy"];
-			int flip_sell 			= undone_flips[i]["sell"];
-			std::string account 	= undone_flips[i]["account"];
+			const std::string& flip_name	= undone_flips[i]["item"];
+			const int flip_item_count		= undone_flips[i]["limit"];
+			const int flip_buy				= undone_flips[i]["buy"];
+			const int flip_sell				= undone_flips[i]["sell"];
+			const std::string& account		= undone_flips[i]["account"];
+
+			/* If using account filtering, skip rows with non-matching accounts */
+			if (!account_filter.empty() && account != account_filter)
+				continue;
 
 			std::vector<std::string> data_row = {std::to_string(i), flip_name, std::to_string(flip_item_count), std::to_string(flip_buy), std::to_string(flip_sell)};
 

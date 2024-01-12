@@ -32,7 +32,7 @@ namespace Flips
 	void PrintStats(const int top_value_count = 10);
 	void FixStats();
 	void RestoreBackup();
-	void List(); /* List on-going flips */
+	void List(const std::string& account_filter = ""); /* List on-going flips */
 	void Add(const Flip& flip); /* Add a new flip */
 	void Cancel(const int ID); /* Cancel an existing flip */
 	void Sell(const int index, int sell_value, int sell_amount);

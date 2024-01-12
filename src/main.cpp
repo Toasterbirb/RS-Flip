@@ -48,10 +48,11 @@ void PrintHelp()
 		"\t-i [Item name] 		Find stats for a specific item\n" <<
 		"\t-c [Flip count] 	Find flips that have been done count <= times\n" <<
 	"\n" <<
-	"  cancel [ID]\tCancels an on-going flip and removes it from the database\n" <<
-	"  list\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
+	"  cancel [ID]\t\tCancels an on-going flip and removes it from the database\n" <<
+	"  list\t\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
+	"  list [account]\tLists all on-going flips for the given account with their IDs, buy and sell values\n" <<
 	"  stats [--stability] [count]\tPrints out profit statistics. Count sets the length of top-lists\n" <<
-	"  repair\tAttempts to repair the statistics from the flip data in-case of some bug.\n";
+	"  repair\t\tAttempts to repair the statistics from the flip data in-case of some bug.\n";
 }
 
 int main(int argc, char** argv)
@@ -104,6 +105,11 @@ int main(int argc, char** argv)
 		if (!strcmp(argv[1], "cancel"))
 		{
 			Flips::Cancel(std::atoi(argv[2]));
+			return 0;
+		}
+		if (!strcmp(argv[1], "list"))
+		{
+			Flips::List(argv[2]);
 			return 0;
 		}
 		if (!strcmp(argv[1], "stats"))
