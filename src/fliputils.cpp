@@ -86,7 +86,7 @@ namespace FlipUtils
 	}
 
 
-	std::string RoundBigNumbers(const int number)
+	std::string RoundBigNumbers(const long number)
 	{
 		if (number > 1000000 || number < -1000000)
 			return CleanDecimals((double)number / 1000000) + "m";
