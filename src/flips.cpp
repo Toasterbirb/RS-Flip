@@ -1,10 +1,12 @@
+#include "AvgStat.hpp"
+#include "Dailygoal.hpp"
+#include "FlipUtils.hpp"
+#include "Flips.hpp"
+#include "Margin.hpp"
+#include "Random.hpp"
 #include "Stats.hpp"
 #include "Table.hpp"
-#include "Margin.hpp"
-#include "AvgStat.hpp"
-#include "Flips.hpp"
-#include "FlipUtils.hpp"
-#include "Dailygoal.hpp"
+#include <algorithm>
 
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
 constexpr int RECOMMENDATION_THRESHOLD = 750000;
@@ -592,6 +594,26 @@ namespace Flips
 		}
 
 		recommendation_table.print();
+
+		// Pick some random flips
+		const int max_random_count = std::clamp(random_flip_count, 0, static_cast<int>(recommendedFlips.size()) - max);
+
+		if (max_random_count > 0)
+		{
+			std::cout << "\n";
+			recommendation_table.clear();
+			FlipUtils::PrintTitle("Random flips");
+			class random rng;
+
+			for (int j = 0; j < max_random_count; ++j)
+			{
+				const int index = rng.range(max, static_cast<int>(recommendedFlips.size()));
+				recommendation_table.add_row({recommendedFlips[index].name, FlipUtils::RoundBigNumbers(recommendedFlips[index].RollingAvgProfit()), std::to_string(recommendedFlips[index].FlipCount())});
+			}
+
+			recommendation_table.print();
+		}
+
 
 		return true;
 	}

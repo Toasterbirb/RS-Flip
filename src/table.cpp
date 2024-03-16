@@ -68,6 +68,11 @@ TEST_CASE("Print a table")
 	table.print();
 }
 
+void Table::clear()
+{
+	data.clear();
+}
+
 std::vector<size_t> Table::get_column_sizes() const
 {
 	assert(data.empty() == false);
