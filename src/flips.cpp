@@ -482,28 +482,6 @@ namespace Flips
 
 		std::cout << "+-------------+-------------+---------+-------------+\n";
 
-		/* Extrapolate one point further with the previous points of data */
-		if (found_flips.size() > 1)
-		{
-			std::cout << "|                   extrapolated                    |\n";
-			std::cout << "+-------------+-------------+---------+-------------+\n";
-
-			const Flip extrapolated_flip = ExtrapolateFlipData(name);
-
-			const int extrapolated_profit = Margin::CalcProfit(extrapolated_flip.buy_price, extrapolated_flip.sold_price, extrapolated_flip.buylimit);
-
-			const std::string extrapolated_buy_str = FlipUtils::RoundBigNumbers(extrapolated_flip.buy_price);
-			const std::string extrapolated_sell_str = FlipUtils::RoundBigNumbers(extrapolated_flip.sold_price);
-			const std::string extrapolated_buy_limit_str = std::to_string(extrapolated_flip.buylimit);
-			const std::string extrapolated_profit_str = FlipUtils::RoundBigNumbers(extrapolated_profit);
-
-			std::cout << "\033[3m| " << extrapolated_buy_str << std::setw(14 - extrapolated_buy_str.length())	<< " | " <<
-						extrapolated_sell_str		<< std::setw(14 - extrapolated_sell_str.length())		<< " | " <<
-						extrapolated_buy_limit_str	<< std::setw(10 - extrapolated_buy_limit_str.length())	<< " | " <<
-						extrapolated_profit_str 	<< std::setw(19 - extrapolated_profit_str.length())		<< " | \033[0m\n";
-			std::cout << "+-------------+-------------+---------+-------------+" << std::endl;
-		}
-
 		/* Calculate average profit */
 		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
 		std::cout << "\033[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\033[0m" << std::endl;
@@ -576,7 +554,7 @@ namespace Flips
 		const std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
 		const std::vector<Stats::AvgStat> recommendedFlips = Stats::SortFlipsByRecommendation(avgStats);
 
-		Table recommendation_table({"Item name", "Average profit", "Forecast", "Count"});
+		Table recommendation_table({"Item name", "Average profit", "Count"});
 
 		/* Print recommendations until the recommendation_count has been reached */
 		int i = 0; 		/* The current recommended item */
@@ -601,11 +579,7 @@ namespace Flips
 				continue;
 			}
 
-			/* Calculate extrapolated profit for the item */
-			const Flip extrapolated_flip = ExtrapolateFlipData(recommendedFlips[i].name);
-			const std::string extrapolated_profit = FlipUtils::RoundBigNumbers(Margin::CalcProfit(extrapolated_flip.buy_price, extrapolated_flip.sold_price, extrapolated_flip.buylimit));
-
-			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), extrapolated_profit, std::to_string(recommendedFlips[i].FlipCount())});
+			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), std::to_string(recommendedFlips[i].FlipCount())});
 
 			++i;
 			++count;
@@ -620,29 +594,5 @@ namespace Flips
 		recommendation_table.print();
 
 		return true;
-	}
-
-	Flip ExtrapolateFlipData(const std::string& item_name)
-	{
-		Flip extrapolated_flip;
-
-		/* Find all finished flips for the item */
-		const std::vector<nlohmann::json> item_data = FindFlipsByName(item_name);
-
-		/* If less than two flips were found, return an empty result */
-		if (item_data.size() < 2)
-			return extrapolated_flip;
-
-		const nlohmann::json& second_last_flip	= item_data[item_data.size() - 2];
-		const nlohmann::json& last_flip			= item_data[item_data.size() - 1];
-
-		extrapolated_flip.buy_price		= FlipUtils::LinearExtrapolation(second_last_flip["buy"], last_flip["buy"]);
-		extrapolated_flip.sell_price 	= FlipUtils::LinearExtrapolation(second_last_flip["sell"], last_flip["sell"]);
-		extrapolated_flip.sold_price 	= FlipUtils::LinearExtrapolation(second_last_flip["sold"], last_flip["sold"]);
-
-		/* Calculate the extrapolated buy limit as the average of all buy limits */
-		extrapolated_flip.buylimit = FlipUtils::JsonAverage(item_data, "limit");
-
-		return extrapolated_flip;
 	}
 }

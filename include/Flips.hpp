@@ -51,10 +51,4 @@ namespace Flips
 
 	/* Flip recommendations */
 	bool FlipRecommendations();
-
-	/** Predicting the future **/
-
-	/* Attempt to extrapolate the next flip for the given item
-	 * based on past performance */
-	Flip ExtrapolateFlipData(const std::string& item_name);
 }
