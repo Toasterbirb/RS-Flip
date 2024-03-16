@@ -20,7 +20,6 @@ namespace FlipUtils
 	std::string RoundBigNumbers(const long number);
 	std::string Round(const double value, const int decimals); /* Round a value with given accuracy */
 	void PrintTitle(const std::string& text); /* #### Prints like this #### */
-	int Clamp(const int value, const int min, const int max);
 	std::string ReadFile(const std::string& filepath);
 	std::unordered_set<std::string> ReadFileItems(const std::string& filepath); /* Read unique item lines from a file */
 	void WriteFile(const std::string& filepath, const std::string& text);

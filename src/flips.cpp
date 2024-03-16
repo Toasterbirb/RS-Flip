@@ -177,7 +177,7 @@ namespace Flips
 
 		Table flips_by_roi({"Item", "ROI-%", "Average profit"});
 
-		for (int i = 0; i < FlipUtils::Clamp(topROI.size(), 0, top_value_count); i++)
+		for (int i = 0; i < std::clamp(static_cast<int>(topROI.size()), 0, top_value_count); i++)
 			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), FlipUtils::RoundBigNumbers(topROI[i].AvgProfit())});
 
 		flips_by_roi.print();
@@ -189,7 +189,7 @@ namespace Flips
 
 		Table flips_by_profit({"Item", "Average profit", "ROI-%"});
 
-		for (int i = 0; i < FlipUtils::Clamp(topProfit.size(), 0, top_value_count); i++)
+		for (int i = 0; i < std::clamp(static_cast<int>(topProfit.size()), 0, top_value_count); i++)
 		{
 			std::string avgprofit_string = FlipUtils::RoundBigNumbers(topProfit[i].AvgProfit());
 			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].AvgROI())});
@@ -563,7 +563,7 @@ namespace Flips
 		int count = 0; 	/* How many recommendations have been shown */
 
 		/* How many items to recommend in total */
-		const int max = FlipUtils::Clamp(recommendedFlips.size(), 1, recommendation_count);
+		const int max = std::clamp(static_cast<int>(recommendedFlips.size()), 1, recommendation_count);
 
 		while (count < max && i < static_cast<int>(recommendedFlips.size()))
 		{
