@@ -33,6 +33,7 @@ add_executable(flip
 	src/avgstat.cpp
 	src/stats.cpp
 	src/table.cpp
+	src/random.cpp
 )
 
 set(WARNINGS
