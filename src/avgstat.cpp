@@ -26,7 +26,7 @@ namespace Stats
 		total_sell_sold_distance 	= 0;
 	}
 
-	void AvgStat::AddData(const int profit, const double ROI, const int item_count, const int sell, const int sold)
+	void AvgStat::AddData(const int profit, const double ROI, const int item_count, const int sell, const int sold, const int latest_trade_index)
 	{
 		profit_list.push_back(profit);
 
@@ -34,6 +34,15 @@ namespace Stats
 		total_roi 			+= ROI;
 		total_item_count 	+= item_count;
 		value_count++;
+
+		if (this->latest_trade_index < latest_trade_index)
+		{
+			this->latest_trade_index = latest_trade_index;
+
+			// Attempt to keep the total flip amount up-to-date
+			if (latest_trade_index > total_flip_count)
+				total_flip_count = latest_trade_index;
+		}
 
 		if (lowest_item_count == 0 || lowest_item_count > item_count)
 			lowest_item_count = item_count;
@@ -106,14 +115,35 @@ namespace Stats
 	double AvgStat::FlipRecommendation() const
 	{
 		if (FlipCount() > 0)
-			return std::round((RollingAvgProfit() * FlipUtils::Limes(2, 1.5, 1, AvgROI()) *  FlipUtils::Limes(1.1, 1, 1, FlipCount())) / 10000.0f);
+		{
+			assert(total_flip_count > 0);
+			assert(total_flip_count - latest_trade_index >= 0);
+
+			constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
+			constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
+			double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - latest_trade_index, flip_index_age_exponent));
+
+			// Set limits to the age penalty
+			constexpr double min_penalty = 0.001;
+			constexpr double max_penalty = 1.0;
+			flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
+
+			return std::round((flip_age_debuff * RollingAvgProfit() * FlipUtils::Limes(2, 1.5, 1, AvgROI()) *  FlipUtils::Limes(1.1, 1, 1, FlipCount())) / 10000.0);
+		}
 		else
+		{
 			return 0;
+		}
 	}
 
 	int AvgStat::FlipCount() const
 	{
 		return value_count;
+	}
+
+	int AvgStat::LatestTradeIndex() const
+	{
+		return latest_trade_index;
 	}
 
 	TEST_CASE("Average stats per item")
@@ -180,7 +210,7 @@ namespace Stats
 
 			AvgStat& stat = avg_stats[flips[i]["item"]];
 			stat.name = flips[i]["item"];
-			stat.AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"]);
+			stat.AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"], i);
 
 			assert(stat.name.empty() == false);
 			assert(stat.FlipCount() > 0);
