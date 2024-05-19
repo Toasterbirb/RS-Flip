@@ -607,7 +607,7 @@ namespace Flips
 
 			for (int j = 0; j < max_random_count; ++j)
 			{
-				const int index = rng.range(max, static_cast<int>(recommendedFlips.size()));
+				const int index = rng.range(max, static_cast<int>(recommendedFlips.size() - 1));
 				recommendation_table.add_row({recommendedFlips[index].name, FlipUtils::RoundBigNumbers(recommendedFlips[index].RollingAvgProfit()), std::to_string(recommendedFlips[index].FlipCount())});
 			}
 
