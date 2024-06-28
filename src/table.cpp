@@ -19,6 +19,11 @@ void table::add_row(const std::vector<std::string>& data)
 	this->data.push_back(data);
 }
 
+u64 table::row_count() const
+{
+	return data.size();
+}
+
 void table::print() const
 {
 	assert(data.size() > 0);

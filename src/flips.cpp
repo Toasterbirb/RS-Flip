@@ -318,7 +318,11 @@ namespace flips
 			ongoing_flips.add_row(data_row);
 		}
 
-		ongoing_flips.print();
+		// Only print the table if there are flips to print
+		if (ongoing_flips.row_count() > 0)
+			ongoing_flips.print();
+		else
+			std::cout << "There are no on-going flips on account '" << account_filter << "'\n";
 
 		/* Print out daily goal */
 		const daily_progress daily_progress;
