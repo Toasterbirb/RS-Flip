@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#define PROFIT_FILTER 500000
-#define BAD_PROFIT_MODIFIER 100
+constexpr int PROFIT_FILTER = 500000;
+constexpr int BAD_PROFIT_MODIFIER = 100;
 
 namespace stats
 {

@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <iostream>
 
-#define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
-constexpr int RECOMMENDATION_THRESHOLD = 750000;
+constexpr char DEFAULT_DATA_FILE[] = "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n";
+constexpr int RECOMMENDATION_THRESHOLD = 750'000;
 
 namespace flips
 {
