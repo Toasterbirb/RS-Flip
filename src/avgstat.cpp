@@ -4,6 +4,8 @@
 #include "Margin.hpp"
 #include "Stats.hpp"
 
+#include <doctest/doctest.h>
+
 namespace stats
 {
 	constexpr int PROFIT_QUEUE_SIZE = 10;

@@ -1,6 +1,10 @@
-#include "Margin.hpp"
 #include "FlipUtils.hpp"
+#include "Flips.hpp"
+#include "Margin.hpp"
 #include "Table.hpp"
+
+#include <doctest/doctest.h>
+#include <iostream>
 
 namespace margin
 {

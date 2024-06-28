@@ -2,6 +2,8 @@
 #include "Flips.hpp"
 #include "FlipUtils.hpp"
 
+#include <iostream>
+
 date::date()
 {
 	time_t now = time(0);

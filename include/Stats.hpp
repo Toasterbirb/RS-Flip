@@ -1,7 +1,9 @@
 #pragma once
 
 #include "AvgStat.hpp"
-#include "pch.hpp"
+
+#include <nlohmann/json_fwd.hpp>
+#include <vector>
 
 namespace stats
 {

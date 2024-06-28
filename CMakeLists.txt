@@ -48,6 +48,3 @@ if (DEBUG)
 else()
 	target_compile_options(flip PRIVATE -std=c++20 ${WARNINGS})
 endif()
-
-target_precompile_headers(flip
-    PRIVATE include/pch.hpp)

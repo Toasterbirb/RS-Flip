@@ -1,5 +1,8 @@
 #include "Stats.hpp"
 
+#include <doctest/doctest.h>
+#include <nlohmann/json.hpp>
+
 namespace stats
 {
 	/* Internal function declarations */

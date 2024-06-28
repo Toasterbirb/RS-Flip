@@ -1,5 +1,8 @@
 #pragma once
-#include "pch.hpp"
+
+#include <nlohmann/json_fwd.hpp>
+#include <string>
+#include <vector>
 
 #define PROFIT_FILTER 500000
 #define BAD_PROFIT_MODIFIER 100

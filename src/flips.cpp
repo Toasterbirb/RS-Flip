@@ -6,7 +6,9 @@
 #include "Random.hpp"
 #include "Stats.hpp"
 #include "Table.hpp"
+
 #include <algorithm>
+#include <iostream>
 
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
 constexpr int RECOMMENDATION_THRESHOLD = 750000;

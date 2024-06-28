@@ -1,5 +1,9 @@
 #pragma once
-#include "Flips.hpp"
+
+namespace flips
+{
+	struct flip;
+}
 
 namespace margin
 {

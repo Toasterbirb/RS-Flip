@@ -1,5 +1,11 @@
 #include "FlipUtils.hpp"
 
+#include <algorithm>
+#include <doctest/doctest.h>
+#include <fstream>
+#include <iostream>
+#include <nlohmann/json.hpp>
+
 namespace flip_utils
 {
 	std::string clean_decimals(const double value)

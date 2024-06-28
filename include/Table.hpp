@@ -1,5 +1,7 @@
 #pragma once
-#include "pch.hpp"
+
+#include <string>
+#include <vector>
 
 class table
 {

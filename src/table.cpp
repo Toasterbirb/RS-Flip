@@ -1,5 +1,9 @@
 #include "Table.hpp"
-#include "pch.hpp"
+
+#include <assert.h>
+#include <doctest/doctest.h>
+#include <iomanip>
+#include <iostream>
 
 constexpr int COLUMN_PADDING = 6;
 
