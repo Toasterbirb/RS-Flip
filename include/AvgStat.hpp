@@ -13,7 +13,7 @@ namespace stats
 	{
 	public:
 		avg_stat();
-		avg_stat(const std::string& item_name);
+		explicit avg_stat(const std::string& item_name);
 		void add_data(const int profit, const double ROI, const int item_count, const int sell = 0, const int sold = 0, const int latest_trade_index = 0);
 		double avg_profit() const;
 		double rolling_avg_profit() const; /* Get the avg. profit of the latest flips */
