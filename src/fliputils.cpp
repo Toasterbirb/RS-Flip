@@ -149,7 +149,6 @@ namespace flip_utils
 
 		std::string contents( 	(std::istreambuf_iterator<char>(file)),
 								(std::istreambuf_iterator<char>()));
-		file.close();
 		return contents;
 	}
 
@@ -167,7 +166,6 @@ namespace flip_utils
 		while (std::getline(file, line))
 			contents.insert(line);
 
-		file.close();
 		return contents;
 	}
 
@@ -181,7 +179,6 @@ namespace flip_utils
 		}
 
 		file << text;
-		file.close();
 	}
 
 	void write_json_file(const nlohmann::json& json_data, const std::string& file_path)
