@@ -386,41 +386,46 @@ namespace flips
 		if (result == -1)
 			return;
 
+		nlohmann::json& result_flip = flips[result];
+
 		/* Update the flip values */
 		if (sell_amount == 0)
-			sell_amount = flips[result]["limit"];
+			sell_amount = result_flip["limit"];
 		else
-			flips[result]["limit"] = sell_amount;
+			result_flip["limit"] = sell_amount;
 
-		flips[result]["done"] = true;
+		result_flip["done"] = true;
 
 		if (sell_value == 0)
-			sell_value = flips[result]["sell"];
+			sell_value = result_flip["sell"];
 
-		flips[result]["sold"] = sell_value;
+		result_flip["sold"] = sell_value;
 
-		/* Update the stats */
-		int flips_done = json_data["stats"]["flips_done"];
-		flips_done++;
-		json_data["stats"]["flips_done"] = flips_done;
+		{
+			int flips_done = json_data["stats"]["flips_done"];
+			++flips_done;
+			json_data["stats"]["flips_done"] = flips_done;
+		}
+
+		const int buy_price = result_flip["buy"];
+		const int profit = margin::calc_profit(buy_price, sell_value, sell_amount);
 
 		long total_profit = json_data["stats"]["profit"];
-		int buy_price = flips[result]["buy"];
-		const int profit = margin::calc_profit(buy_price, sell_value, sell_amount);
-		//int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = total_profit;
 
 		flip_utils::print_title("Flip complete");
-		std::cout << "Item: " << flips[result]["item"] << std::endl;
+		std::cout << "Item: " << result_flip["item"] << std::endl;
 		std::cout << "Profit: " << profit << " (" << flip_utils::round_big_numbers(profit) << ")" << std::endl;
 		std::cout << "Total profit so far: " << total_profit << " (" << flip_utils::round_big_numbers(total_profit) << ")" << std::endl;
 
 		/* Handle daily progress */
-		daily_progress daily_progress;
-		daily_progress.add_progress(profit);
-		std::cout << "\n";
-		daily_progress.print_progress();
+		{
+			daily_progress daily_progress;
+			daily_progress.add_progress(profit);
+			std::cout << "\n";
+			daily_progress.print_progress();
+		}
 
 		/* Update the json file */
 		apply_flip_array();

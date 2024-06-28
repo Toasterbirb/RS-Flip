@@ -1,283 +1,181 @@
 #define DOCTEST_CONFIG_IMPLEMENT
-#include <doctest/doctest.h>
-#include "Margin.hpp"
-#include "Flips.hpp"
+
 #include "FlipUtils.hpp"
+#include "Flips.hpp"
+#include "Margin.hpp"
+#include "Types.hpp"
+
+#include <clipp.h>
+#include <doctest/doctest.h>
 
 enum class mode
 {
-	calc, flip, sold, filtering, none
+	tips, calc, flip, sold, cancel, list, filtering, stats, repair, help, test
 };
 
-/* Function declarations */
-bool accepted_modes(const std::vector<mode>& acceptedModes, mode mode);
-void print_help();
-
-
-bool accepted_modes(const std::vector<mode>& acceptedModes, mode mode)
+struct options
 {
-	for (size_t i = 0; i < acceptedModes.size(); i++)
-		if (acceptedModes[i] == mode)
-			return true;
+	u64 buy_price{};
+	u64 sell_price{};
+	u32 item_count{};
 
-	return false;
-}
+	u16 id{};
+	std::string item_name;
+	std::string account;
 
-void print_help()
-{
-	flip_utils::print_title("Help");
-	std::cout <<
-	"  calc 	Calculate the margin for an item and possible profits\n" <<
-	"\t-b [Insta buy price]\n" <<
-	"\t-s [Insta sell price]\n" <<
-	"\t-l [Buy limit for the item]\n" <<
-	"\n" <<
-	"  add 	Add a flip to the database\n" <<
-		"\t-i [Item name]\n" <<
-		"\t-b [Buying price]\n" <<
-		"\t-s [Assumed future selling price]\n" <<
-		"\t-l [Buy limit for the item]\n" <<
-	"\n" <<
-	"  sold  Finish an on-going flip\n" <<
-		"\t-i [ID] 		The ID number can be found with the `--list` command\n" <<
-		"\t-s [Selling price] 	Optional. This arg is for cases where final sell value changed\n" <<
-		"\t-l [Amount sold] 	Optional. This arg is for cases where the full buy limit didn't\n" <<
-		"\t\t\t\tbuy or the amount sold was partial.\n" <<
-	"\n" <<
-	"  filter  Look for items with filters\n" <<
-		"\t-i [Item name] 		Find stats for a specific item\n" <<
-		"\t-c [Flip count] 	Find flips that have been done count <= times\n" <<
-	"\n" <<
-	"  cancel [ID]\t\tCancels an on-going flip and removes it from the database\n" <<
-	"  list\t\t\tLists all on-going flips with their IDs, buy and sell values\n" <<
-	"  list [account]\tLists all on-going flips for the given account with their IDs, buy and sell values\n" <<
-	"  stats [--stability] [count]\tPrints out profit statistics. Count sets the length of top-lists\n" <<
-	"  repair\t\tAttempts to repair the statistics from the flip data in-case of some bug.\n";
-}
+	u32 flip_count{};
+	u32 result_count = 10;
+};
 
 int main(int argc, char** argv)
 {
-	doctest::Context context;
+	mode selected_mode = mode::tips;
+	options options;
 
-	bool run_tests = false;
+	auto tips = (
+		clipp::command("tips").set(selected_mode, mode::tips) % "recommend flips based on past flipping data"
+	);
 
-	/* No arguments were given */
-	if (argc == 1)
+	auto calc = (
+		clipp::command("calc").set(selected_mode, mode::calc) % "calculate the margin for an item and possible profits",
+		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "insta buy price",
+		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "insta sell price",
+		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item"
+	);
+
+	auto flip = (
+		clipp::command("add").set(selected_mode, mode::flip) % "add a flip to the database",
+		(clipp::option("-i").required(true) & clipp::value("name").set(options.item_name)) % "item name",
+		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "buying price",
+		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "assumed future selling price",
+		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item",
+		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "account used for the flip"
+	);
+
+	auto sold = (
+		clipp::command("sold").set(selected_mode, mode::sold) % "finish an on-going flip",
+		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id number can be found with the 'list' command",
+		(clipp::option("-s").required(false) & clipp::value("price").set(options.sell_price)) % "final selling price",
+		(clipp::option("-l").required(false) & clipp::value("count").set(options.item_count)) % "final amount of items sold"
+	);
+
+	auto cancel = (
+		clipp::command("cancel").set(selected_mode, mode::cancel) % "cancels an on-going flip and removes it from the database",
+		clipp::value("id").set(options.id) % "the id of the flip to cancel"
+	);
+
+	auto list = (
+		clipp::command("list").set(selected_mode, mode::list) % "list all on-going flips with their ids, buy and sell values",
+		clipp::value("account").set(options.account).required(false) % "list only flips made with this account"
+	);
+
+	auto filtering = (
+		clipp::command("filter").set(selected_mode, mode::filtering) % "look for items with filters",
+		clipp::one_of(
+			clipp::option("-i") & clipp::value("name").set(options.item_name) % "find stats for a specific item",
+			clipp::option("-c") & clipp::option("count").set(options.flip_count) % "find flips that have been done count <= times"
+		)
+	);
+
+	auto stats = (
+		clipp::command("stats").set(selected_mode, mode::stats) % "print out profit statistics",
+		(clipp::option("-c") & clipp::value("count").set(options.result_count)) % "set the amount of values to show"
+	);
+
+	auto repair = (
+		clipp::command("repair").set(selected_mode, mode::repair) % "attempts to repair the statistics from the flip data in-case of some bug"
+	);
+
+	auto help = (
+		clipp::command("help").set(selected_mode, mode::help) % "show help"
+	);
+
+	auto test (
+		clipp::command("test").set(selected_mode, mode::test) % "run unit tests"
+	);
+
+	auto cli = (
+		( tips | calc | flip | sold | cancel | list | filtering | stats | repair | help | test ) % "modes"
+	);
+
+	if (!clipp::parse(argc, argv, cli))
 	{
-		if (!flips::flip_recommendations())
-			print_help();
-		return 0;
+		std::cout << "Invalid arguments were provided. Please check 'rs-flip --help'\n";
+		return 1;
 	}
 
-	/* Single arg commands */
-	if (argc == 2)
+	switch (selected_mode)
 	{
-		if (!strcmp(argv[1], "test")) run_tests = true;
-		if (!strcmp(argv[1], "stats"))
-		{
-			flips::print_stats();
-			return 0;
-		}
-		if (!strcmp(argv[1], "list"))
-		{
-			flips::list();
-			return 0;
-		}
-		if (!strcmp(argv[1], "repair"))
-		{
-			/* Restore backup */
-			//Flips::RestoreBackup();
-
-			/* Attempt to repair issues in the json data */
-			flips::fix_stats();
-			return 0;
-		}
-		if (!strcmp(argv[1], "help"))
-		{
-			print_help();
-			return 0;
-		}
-	}
-
-	/* 2 arg commands */
-	if (argc == 3)
-	{
-		if (!strcmp(argv[1], "cancel"))
-		{
-			flips::cancel(std::atoi(argv[2]));
-			return 0;
-		}
-		if (!strcmp(argv[1], "list"))
-		{
-			flips::list(argv[2]);
-			return 0;
-		}
-		if (!strcmp(argv[1], "stats"))
-		{
-			int result_count = std::atoi(argv[2]);
-			if (result_count < 1)
-				result_count = 10;
-
-			flips::print_stats(result_count);
-		}
-	}
-
-	if (run_tests)
-	{
-		int res = context.run();
-		return res;
-	}
-
-	/* Go trough all of the arguments */
-
-	mode mode = mode::none;
-
-	/* Calc mode */
-	std::string item_name = "";
-	std::string account_name = "";
-	int buyValue = 0;
-	int sellValue = 0;
-	int buyLimit = 0;
-	int sel_index = -1;
-
-	/* Filtering values */
-	int flip_count = 0;
-
-	int processed_args = 1;
-	while (processed_args < argc)
-	{
-		/* Modes */
-		if (mode == mode::none)
-		{
-			if (!strcmp(argv[processed_args], "calc") && argc == 8)
-			{
-				mode = mode::calc;
-				processed_args++;
-				continue;
-			}
-
-			if (!strcmp(argv[processed_args], "add") && (argc == 10 || argc == 12))
-			{
-				mode = mode::flip;
-				processed_args++;
-				continue;
-			}
-
-			if (!strcmp(argv[processed_args], "sold") && (argc == 4 || argc == 6 || argc == 8))
-			{
-				mode = mode::sold;
-				processed_args++;
-				continue;
-			}
-
-			if (!strcmp(argv[processed_args], "filter") && argc == 4)
-			{
-				mode = mode::filtering;
-				processed_args++;
-				continue;
-			}
-		}
-
-		/* Mode sub values */
-		if (!strcmp(argv[processed_args], "-b") && accepted_modes({mode::calc, mode::flip}, mode))
-		{
-			buyValue = atoi(argv[processed_args + 1]);
-			processed_args += 2;
-			continue;
-		}
-		else if (!strcmp(argv[processed_args], "-s") && accepted_modes({mode::calc, mode::flip, mode::sold}, mode))
-		{
-			sellValue = atoi(argv[processed_args + 1]);
-			processed_args += 2;
-			continue;
-		}
-		else if (!strcmp(argv[processed_args], "-l") && accepted_modes({mode::calc, mode::flip, mode::sold}, mode))
-		{
-			buyLimit = atoi(argv[processed_args + 1]);
-			processed_args += 2;
-			continue;
-		}
-		else if (!strcmp(argv[processed_args], "-a") && accepted_modes({mode::flip, mode::sold}, mode))
-		{
-			account_name = argv[processed_args + 1];
-			processed_args += 2;
-			continue;
-		}
-		else if (!strcmp(argv[processed_args], "-i") && accepted_modes({mode::flip, mode::sold, mode::filtering}, mode))
-		{
-			if (mode == mode::flip || mode == mode::filtering)
-				item_name = argv[processed_args + 1];
-			else
-				sel_index = atoi(argv[processed_args + 1]);
-
-			processed_args += 2;
-			continue;
-		}
-		else if (!strcmp(argv[processed_args], "-c") && accepted_modes({mode::filtering}, mode))
-		{
-			flip_count = atoi(argv[processed_args + 1]);
-			processed_args += 2;
-			continue;
-		}
-		else
-		{
-			std::cout << "Invalid argument: " << argv[processed_args] << "! Quitting..." << std::endl;
-			return 0;
-		}
-
-		std::cout << "Missing args! Quitting..." << std::endl;
-		break;
-	}
-
-	/* Do the maths */
-	switch (mode)
-	{
-		case (mode::calc):
-			margin::print_flip_estimation(buyValue, sellValue, buyLimit);
+		case mode::tips:
+			flips::flip_recommendations();
 			break;
 
-		case (mode::flip):
+		case mode::calc:
+			margin::print_flip_estimation(options.buy_price, options.sell_price, options.item_count);
+			break;
+
+		case mode::flip:
 		{
-			flips::flip flip(item_name, buyValue, sellValue, buyLimit, account_name);
+			flips::flip flip(options.item_name,
+					options.buy_price,
+					options.sell_price,
+					options.item_count,
+					options.account);
 
-			std::cout << "Adding item: " << item_name << std::endl;
-			std::cout << "Buy price: " << flip_utils::round_big_numbers(buyValue) << std::endl;
-			std::cout << "Sell price: " << flip_utils::round_big_numbers(sellValue) << std::endl;
-			std::cout << "Buy count: " << buyLimit << "\n\n";
+			std::cout << "Adding item: " << options.item_name << '\n'
+					<< "Buy price: " << flip_utils::round_big_numbers(options.buy_price) << '\n'
+					<< "Sell price: " << flip_utils::round_big_numbers(options.sell_price) << '\n'
+					<< "Buy count: " << options.item_count << "\n\n";
 
-			int profit = margin::calc_profit(flip);
-			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << std::endl;
+			i32 profit = margin::calc_profit(flip);
+			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << '\n';
 
 			flips::add(flip);
 			break;
 		}
 
-		case (mode::sold):
-		{
-			if (sel_index < 0)
-			{
-				std::cout << "No valid item ID was given" << std::endl;
-				break;
-			}
+		case mode::sold:
+			flips::sell(options.id, options.sell_price, options.item_count);
+			break;
 
-			flips::sell(sel_index, sellValue, buyLimit);
+		case mode::cancel:
+			flips::cancel(options.id);
+			break;
+
+		case mode::list:
+			flips::list(options.account);
+			break;
+
+		case mode::filtering:
+		{
+			if (!options.item_name.empty())
+				flips::filter_name(options.item_name);
+			else if (options.flip_count > 0)
+				flips::filter_count(options.flip_count);
+			else
+				std::cout << "Not really sure how to filter because no filters were defined\n";
 			break;
 		}
 
-		case (mode::filtering):
-		{
-			/* Filter by name */
-			if (item_name != "")
-				flips::filter_name(item_name);
-			else if (flip_count != 0)
-				flips::filter_count(flip_count);
+		case mode::stats:
+			flips::print_stats(options.result_count);
+			break;
 
+		case mode::repair:
+			flips::fix_stats();
+			break;
+
+		case mode::help:
+		{
+			auto fmt = clipp::doc_formatting{}.doc_column(30);
+			std::cout << clipp::make_man_page(cli, "rs-flip", fmt);
 			break;
 		}
 
-		case (mode::none):
-			break;
+		case mode::test:
+		{
+			doctest::Context context;
+			return context.run();
+		}
 	}
-
-	return 0;
 }
