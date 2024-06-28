@@ -94,8 +94,8 @@ namespace flip_utils
 
 	std::string round_big_numbers(const long number)
 	{
-		if (number > 1000000 || number < -1000000)
-			return clean_decimals((double)number / 1000000) + "m";
+		if (number > 1'000'000 || number < -1'000'000)
+			return clean_decimals((double)number / 1'000'000) + "m";
 		else if (number > 1000 || number < -1000)
 			return clean_decimals((double)number / 1000) + "k";
 
@@ -106,18 +106,18 @@ namespace flip_utils
 	TEST_CASE("Rounding big numbers into text format")
 	{
 		/* Positive numbers */
-		CHECK(round_big_numbers(20000) == "20k");
+		CHECK(round_big_numbers(20'000) == "20k");
 		CHECK(round_big_numbers(9500) == "9.5k");
 		CHECK(round_big_numbers(150) == "150");
-		CHECK(round_big_numbers(1250000) == "1.25m");
-		CHECK(round_big_numbers(3000000) == "3m");
+		CHECK(round_big_numbers(1'250'000) == "1.25m");
+		CHECK(round_big_numbers(3'000'000) == "3m");
 
 		/* Negative numbers */
-		CHECK(round_big_numbers(-20000) == "-20k");
+		CHECK(round_big_numbers(-20'000) == "-20k");
 		CHECK(round_big_numbers(-9500) == "-9.5k");
 		CHECK(round_big_numbers(-150) == "-150");
-		CHECK(round_big_numbers(-1250000) == "-1.25m");
-		CHECK(round_big_numbers(-3000000) == "-3m");
+		CHECK(round_big_numbers(-1'250'000) == "-1.25m");
+		CHECK(round_big_numbers(-3'000'000) == "-3m");
 	}
 
 	std::string round(const double value, const int decimals)

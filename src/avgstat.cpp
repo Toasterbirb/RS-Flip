@@ -220,7 +220,7 @@ namespace stats
 
 			/* Highly doubt someone is going to flip the same item
 			 * more than 10 000 000 times */
-			assert(stat.flip_count() < 10000000);
+			assert(stat.flip_count() < 10'000'000);
 		}
 
 		/* Convert the map into a vector */
