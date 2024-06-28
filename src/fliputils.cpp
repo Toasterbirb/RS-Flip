@@ -1,8 +1,8 @@
 #include "FlipUtils.hpp"
 
-namespace FlipUtils
+namespace flip_utils
 {
-	std::string CleanDecimals(const double value)
+	std::string clean_decimals(const double value)
 	{
 		std::string result = std::to_string(value);
 		const int size = (int)result.size();
@@ -23,7 +23,7 @@ namespace FlipUtils
 	}
 
 
-	double JsonAverage(const std::vector<nlohmann::json>& data, const std::string& key)
+	double json_average(const std::vector<nlohmann::json>& data, const std::string& key)
 	{
 		double total = 0;
 		for (const nlohmann::json& value : data)
@@ -32,14 +32,14 @@ namespace FlipUtils
 		return total / data.size();
 	}
 
-	void JsonSort(std::vector<nlohmann::json>& data, const std::string& key)
+	void json_sort(std::vector<nlohmann::json>& data, const std::string& key)
 	{
 		std::sort(data.begin(), data.end(), [key](const nlohmann::json& a, const nlohmann::json& b) {
 			return a[key] < b[key];
 		});
 	}
 
-	int JsonMinInt(const std::vector<nlohmann::json>& data, const std::string& key)
+	int json_min_int(const std::vector<nlohmann::json>& data, const std::string& key)
 	{
 		int lowest_value = INT32_MAX;
 		for (const nlohmann::json& j : data)
@@ -59,10 +59,10 @@ namespace FlipUtils
 			json_data.push_back(j);
 		}
 
-		CHECK(JsonMinInt(json_data, "test") == -5);
+		CHECK(json_min_int(json_data, "test") == -5);
 	}
 
-	int JsonMaxInt(const std::vector<nlohmann::json>& data, const std::string& key)
+	int json_max_int(const std::vector<nlohmann::json>& data, const std::string& key)
 	{
 		int highest_value = INT32_MIN;
 		for (const nlohmann::json& j : data)
@@ -82,16 +82,16 @@ namespace FlipUtils
 			json_data.push_back(j);
 		}
 
-		CHECK(JsonMaxInt(json_data, "test") == 4);
+		CHECK(json_max_int(json_data, "test") == 4);
 	}
 
 
-	std::string RoundBigNumbers(const long number)
+	std::string round_big_numbers(const long number)
 	{
 		if (number > 1000000 || number < -1000000)
-			return CleanDecimals((double)number / 1000000) + "m";
+			return clean_decimals((double)number / 1000000) + "m";
 		else if (number > 1000 || number < -1000)
-			return CleanDecimals((double)number / 1000) + "k";
+			return clean_decimals((double)number / 1000) + "k";
 
 		/* Small enough number to not need rounding */
 		return std::to_string(number);
@@ -100,39 +100,39 @@ namespace FlipUtils
 	TEST_CASE("Rounding big numbers into text format")
 	{
 		/* Positive numbers */
-		CHECK(RoundBigNumbers(20000) == "20k");
-		CHECK(RoundBigNumbers(9500) == "9.5k");
-		CHECK(RoundBigNumbers(150) == "150");
-		CHECK(RoundBigNumbers(1250000) == "1.25m");
-		CHECK(RoundBigNumbers(3000000) == "3m");
+		CHECK(round_big_numbers(20000) == "20k");
+		CHECK(round_big_numbers(9500) == "9.5k");
+		CHECK(round_big_numbers(150) == "150");
+		CHECK(round_big_numbers(1250000) == "1.25m");
+		CHECK(round_big_numbers(3000000) == "3m");
 
 		/* Negative numbers */
-		CHECK(RoundBigNumbers(-20000) == "-20k");
-		CHECK(RoundBigNumbers(-9500) == "-9.5k");
-		CHECK(RoundBigNumbers(-150) == "-150");
-		CHECK(RoundBigNumbers(-1250000) == "-1.25m");
-		CHECK(RoundBigNumbers(-3000000) == "-3m");
+		CHECK(round_big_numbers(-20000) == "-20k");
+		CHECK(round_big_numbers(-9500) == "-9.5k");
+		CHECK(round_big_numbers(-150) == "-150");
+		CHECK(round_big_numbers(-1250000) == "-1.25m");
+		CHECK(round_big_numbers(-3000000) == "-3m");
 	}
 
-	std::string Round(const double value, const int decimals)
+	std::string round(const double value, const int decimals)
 	{
-		return CleanDecimals(std::round(value * std::pow(10, decimals)) / std::pow(10, decimals));
+		return clean_decimals(std::round(value * std::pow(10, decimals)) / std::pow(10, decimals));
 	}
 
 	TEST_CASE("Round to accuracy")
 	{
-		CHECK(Round(0.0001, 1) == "0");
-		CHECK(Round(0.5, 0) == "1");
-		CHECK(Round(0.1234, 2) == "0.12");
-		CHECK(Round(-5.05, 1) == "-5.1");
+		CHECK(round(0.0001, 1) == "0");
+		CHECK(round(0.5, 0) == "1");
+		CHECK(round(0.1234, 2) == "0.12");
+		CHECK(round(-5.05, 1) == "-5.1");
 	}
 
-	void PrintTitle(const std::string& text)
+	void print_title(const std::string& text)
 	{
 		std::cout << "\033[1m\033[32m#####| " << text << " |#####\033[0m\n";
 	}
 
-	std::string ReadFile(const std::string& filepath)
+	std::string read_file(const std::string& filepath)
 	{
 		std::ifstream file(filepath);
 		if (!file.is_open())
@@ -147,7 +147,7 @@ namespace FlipUtils
 		return contents;
 	}
 
-	std::unordered_set<std::string> ReadFileItems(const std::string& filepath)
+	std::unordered_set<std::string> read_file_items(const std::string& filepath)
 	{
 		std::unordered_set<std::string> contents;
 
@@ -165,7 +165,7 @@ namespace FlipUtils
 		return contents;
 	}
 
-	void WriteFile(const std::string& filepath, const std::string& text)
+	void write_file(const std::string& filepath, const std::string& text)
 	{
 		std::ofstream file(filepath);
 		if (!file.is_open())
@@ -178,13 +178,13 @@ namespace FlipUtils
 		file.close();
 	}
 
-	void WriteJsonFile(const nlohmann::json& json_data, const std::string& file_path)
+	void write_json_file(const nlohmann::json& json_data, const std::string& file_path)
 	{
 		std::ofstream file(file_path);
 		file << std::setw(4) << json_data << std::endl;
 	}
 
-	double Limes(const double approach_value, const double diminishing_returns, const double slope, const double value)
+	double limes(const double approach_value, const double diminishing_returns, const double slope, const double value)
 	{
 		if (value < 0.001)
 			return -300;
@@ -193,8 +193,8 @@ namespace FlipUtils
 
 	TEST_CASE("Limes")
 	{
-		CHECK(Limes(2, 1, 1, 1) == 1.0);
-		CHECK(Limes(2, 2, 1, 1) == 0);
-		CHECK(Limes(2, 2, 1, 2) == 1);
+		CHECK(limes(2, 1, 1, 1) == 1.0);
+		CHECK(limes(2, 2, 1, 1) == 0);
+		CHECK(limes(2, 2, 1, 2) == 1);
 	}
 }

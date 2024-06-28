@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.hpp"
 
-namespace Flips
+namespace flips
 {
 	static const std::string user_home = (std::string)getenv("HOME");
 	static const std::string data_path = user_home + "/.local/share/rs-flip";
@@ -11,13 +11,13 @@ namespace Flips
 	static constexpr int recommendation_count = 35;
 	static constexpr int random_flip_count = 5;
 
-	struct Flip
+	struct flip
 	{
-		Flip();
-		Flip(const nlohmann::json& j);
-		Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name = "main");
-		void Sell(const int sell_price);
-		nlohmann::json ToJson() const;
+		flip();
+		flip(const nlohmann::json& j);
+		flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name = "main");
+		void sell(const int sell_price);
+		nlohmann::json to_json() const;
 
 		std::string item;
 		int buy_price;
@@ -29,14 +29,14 @@ namespace Flips
 		std::string account; /* The runescape account that has the flip active */
 	};
 
-	void Init();
-	void PrintStats(const int top_value_count = 10);
-	void FixStats();
-	void RestoreBackup();
-	void List(const std::string& account_filter = ""); /* List on-going flips */
-	void Add(const Flip& flip); /* Add a new flip */
-	void Cancel(const int ID); /* Cancel an existing flip */
-	void Sell(const int index, int sell_value, int sell_amount);
+	void init();
+	void print_stats(const int top_value_count = 10);
+	void fix_stats();
+	void restore_backup();
+	void list(const std::string& account_filter = ""); /* List on-going flips */
+	void add(const flip& flip); /* Add a new flip */
+	void cancel(const int ID); /* Cancel an existing flip */
+	void sell(const int index, int sell_value, int sell_amount);
 
 	static nlohmann::json json_data;
 	static std::vector<nlohmann::json> flips;
@@ -44,12 +44,12 @@ namespace Flips
 	/** Filtering **/
 
 	/* Find finished flips with item name */
-	std::vector<nlohmann::json> FindFlipsByName(const std::string& item_name);
+	std::vector<nlohmann::json> find_flips_by_name(const std::string& item_name);
 
 	/* Print filtered data */
-	void FilterName(const std::string& name);
-	void FilterCount(const int flip_count);
+	void filter_name(const std::string& name);
+	void filter_count(const int flip_count);
 
 	/* Flip recommendations */
-	bool FlipRecommendations();
+	bool flip_recommendations();
 }

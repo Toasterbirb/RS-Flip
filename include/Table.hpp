@@ -1,10 +1,10 @@
 #pragma once
 #include "pch.hpp"
 
-class Table
+class table
 {
 public:
-	Table(const std::vector<std::string>& column_names);
+	table(const std::vector<std::string>& column_names);
 	void add_row(const std::vector<std::string>& data);
 	void print() const;
 	void clear();

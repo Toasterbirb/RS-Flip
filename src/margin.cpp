@@ -2,33 +2,33 @@
 #include "FlipUtils.hpp"
 #include "Table.hpp"
 
-namespace Margin
+namespace margin
 {
-	int CalcMargin(const int insta_buy, const int insta_sell)
+	int calc_margin(const int insta_buy, const int insta_sell)
 	{
 		return insta_buy - insta_sell;
 	}
 
 	TEST_CASE("Calculate margin")
 	{
-		CHECK(CalcMargin(2000, 1000) == 1000);
-		CHECK(CalcMargin(4000, 5000) == -1000);
+		CHECK(calc_margin(2000, 1000) == 1000);
+		CHECK(calc_margin(4000, 5000) == -1000);
 	}
 
-	int CalcProfitWithCut(const int margin, const int buy_limit, const int price_cut)
+	int calc_profit_with_cut(const int margin, const int buy_limit, const int price_cut)
 	{
 		return buy_limit * (margin - (price_cut * 2));
 	}
 
 	TEST_CASE("Calculate profit")
 	{
-		CHECK(CalcProfitWithCut(20, 500, 0) == 10000);
-		CHECK(CalcProfitWithCut(20, 500, 1) == 9000);
-		CHECK(CalcProfitWithCut(20, 500, 2) == 8000);
-		CHECK(CalcProfitWithCut(-5, 10, 0) == -50);
+		CHECK(calc_profit_with_cut(20, 500, 0) == 10000);
+		CHECK(calc_profit_with_cut(20, 500, 1) == 9000);
+		CHECK(calc_profit_with_cut(20, 500, 2) == 8000);
+		CHECK(calc_profit_with_cut(-5, 10, 0) == -50);
 	}
 
-	int CalcProfit(const int buy_price, const int sell_price, const int buy_limit)
+	int calc_profit(const int buy_price, const int sell_price, const int buy_limit)
 	{
 		if (sell_price <= 50)
 			return (sell_price - buy_price) * buy_limit;
@@ -36,7 +36,7 @@ namespace Margin
 			return ((sell_price * 0.98f) - buy_price) * buy_limit;
 	}
 
-	int CalcProfit(const Flips::Flip& flip)
+	int calc_profit(const flips::flip& flip)
 	{
 		if (flip.done)
 			if (flip.sold_price <= 50)
@@ -50,7 +50,7 @@ namespace Margin
 				return ((flip.sell_price * 0.98) - flip.buy_price) * flip.buylimit;
 	}
 
-	int CalcProfitTaxFree(const Flips::Flip& flip)
+	int calc_profit_tax_free(const flips::flip& flip)
 	{
 		if (flip.done)
 			return (flip.sold_price - flip.buy_price) * flip.buylimit;
@@ -60,25 +60,25 @@ namespace Margin
 
 	TEST_CASE("Calculate profit from a flip")
 	{
-		Flips::Flip flipA("Some item", 10, 20, 50);
-		CHECK(CalcProfit(flipA) == 500);
+		flips::flip flip_a("Some item", 10, 20, 50);
+		CHECK(calc_profit(flip_a) == 500);
 
-		Flips::Flip flipB("Another item", 30, 15, 90);
-		CHECK(CalcProfit(flipB) == -1350);
+		flips::flip flip_b("Another item", 30, 15, 90);
+		CHECK(calc_profit(flip_b) == -1350);
 
-		Flips::Flip yewLogs("Yew logs", 277, 276, 24999);
-		CHECK(CalcProfit(yewLogs) == -162993);
+		flips::flip yew_logs("Yew logs", 277, 276, 24999);
+		CHECK(calc_profit(yew_logs) == -162993);
 	}
 
-	void PrintFlipEstimation(const int insta_buy, const int insta_sell, const int buy_limit)
+	void print_flip_estimation(const int insta_buy, const int insta_sell, const int buy_limit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
-		int margin = CalcMargin((insta_buy - 1) * 0.98f, insta_sell + 1);
-		int cut_profit = CalcProfitWithCut(margin, buy_limit, 0); /* The cut has already been taken into account in margin */
+		int margin = calc_margin((insta_buy - 1) * 0.98f, insta_sell + 1);
+		int cut_profit = calc_profit_with_cut(margin, buy_limit, 0); /* The cut has already been taken into account in margin */
 																 /* We can't use CalcProfit here though because it also */
 																 /* calculates the taxes */
-		std::string roi = FlipUtils::Round(((double)margin / insta_sell) * 100, 2) + "%";
-		std::string required_capital = FlipUtils::RoundBigNumbers(insta_sell * buy_limit);
+		std::string roi = flip_utils::round(((double)margin / insta_sell) * 100, 2) + "%";
+		std::string required_capital = flip_utils::round_big_numbers(insta_sell * buy_limit);
 
 		/* Green color by default */
 		int color_code = 32;
@@ -88,15 +88,15 @@ namespace Margin
 			color_code = 31;
 
 		/* Color coded string for the profit text */
-		std::string profit_str = "\033[" + std::to_string(color_code) + "m" + FlipUtils::RoundBigNumbers(cut_profit) + "\033[0m";
+		std::string profit_str = "\033[" + std::to_string(color_code) + "m" + flip_utils::round_big_numbers(cut_profit) + "\033[0m";
 
-		Table stat_table({"Stat", "Value"});
+		table stat_table({"Stat", "Value"});
 		stat_table.add_row({"Margin", std::to_string(margin)});
 		stat_table.add_row({"ROI-%", roi});
 		stat_table.add_row({"Cost", required_capital});
 		stat_table.add_row({"Profit", profit_str});
 
-		Table price_table({"Offer", "Price"});
+		table price_table({"Offer", "Price"});
 		price_table.add_row({"Buy", std::to_string(insta_sell + 1)});
 		price_table.add_row({"Sell", std::to_string(insta_buy - 1)});
 

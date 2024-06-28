@@ -4,17 +4,17 @@
 #include "Flips.hpp"
 #include "FlipUtils.hpp"
 
-enum Mode
+enum class mode
 {
-	Calc, Flip, Sold, Filtering, None
+	calc, flip, sold, filtering, none
 };
 
 /* Function declarations */
-bool AcceptedModes(const std::vector<Mode>& acceptedModes, Mode mode);
-void PrintHelp();
+bool accepted_modes(const std::vector<mode>& acceptedModes, mode mode);
+void print_help();
 
 
-bool AcceptedModes(const std::vector<Mode>& acceptedModes, Mode mode)
+bool accepted_modes(const std::vector<mode>& acceptedModes, mode mode)
 {
 	for (size_t i = 0; i < acceptedModes.size(); i++)
 		if (acceptedModes[i] == mode)
@@ -23,9 +23,9 @@ bool AcceptedModes(const std::vector<Mode>& acceptedModes, Mode mode)
 	return false;
 }
 
-void PrintHelp()
+void print_help()
 {
-	FlipUtils::PrintTitle("Help");
+	flip_utils::print_title("Help");
 	std::cout <<
 	"  calc 	Calculate the margin for an item and possible profits\n" <<
 	"\t-b [Insta buy price]\n" <<
@@ -64,8 +64,8 @@ int main(int argc, char** argv)
 	/* No arguments were given */
 	if (argc == 1)
 	{
-		if (!Flips::FlipRecommendations())
-			PrintHelp();
+		if (!flips::flip_recommendations())
+			print_help();
 		return 0;
 	}
 
@@ -75,12 +75,12 @@ int main(int argc, char** argv)
 		if (!strcmp(argv[1], "test")) run_tests = true;
 		if (!strcmp(argv[1], "stats"))
 		{
-			Flips::PrintStats();
+			flips::print_stats();
 			return 0;
 		}
 		if (!strcmp(argv[1], "list"))
 		{
-			Flips::List();
+			flips::list();
 			return 0;
 		}
 		if (!strcmp(argv[1], "repair"))
@@ -89,12 +89,12 @@ int main(int argc, char** argv)
 			//Flips::RestoreBackup();
 
 			/* Attempt to repair issues in the json data */
-			Flips::FixStats();
+			flips::fix_stats();
 			return 0;
 		}
 		if (!strcmp(argv[1], "help"))
 		{
-			PrintHelp();
+			print_help();
 			return 0;
 		}
 	}
@@ -104,12 +104,12 @@ int main(int argc, char** argv)
 	{
 		if (!strcmp(argv[1], "cancel"))
 		{
-			Flips::Cancel(std::atoi(argv[2]));
+			flips::cancel(std::atoi(argv[2]));
 			return 0;
 		}
 		if (!strcmp(argv[1], "list"))
 		{
-			Flips::List(argv[2]);
+			flips::list(argv[2]);
 			return 0;
 		}
 		if (!strcmp(argv[1], "stats"))
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 			if (result_count < 1)
 				result_count = 10;
 
-			Flips::PrintStats(result_count);
+			flips::print_stats(result_count);
 		}
 	}
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 
 	/* Go trough all of the arguments */
 
-	Mode mode = Mode::None;
+	mode mode = mode::none;
 
 	/* Calc mode */
 	std::string item_name = "";
@@ -147,65 +147,65 @@ int main(int argc, char** argv)
 	while (processed_args < argc)
 	{
 		/* Modes */
-		if (mode == Mode::None)
+		if (mode == mode::none)
 		{
 			if (!strcmp(argv[processed_args], "calc") && argc == 8)
 			{
-				mode = Mode::Calc;
+				mode = mode::calc;
 				processed_args++;
 				continue;
 			}
 
 			if (!strcmp(argv[processed_args], "add") && (argc == 10 || argc == 12))
 			{
-				mode = Mode::Flip;
+				mode = mode::flip;
 				processed_args++;
 				continue;
 			}
 
 			if (!strcmp(argv[processed_args], "sold") && (argc == 4 || argc == 6 || argc == 8))
 			{
-				mode = Mode::Sold;
+				mode = mode::sold;
 				processed_args++;
 				continue;
 			}
 
 			if (!strcmp(argv[processed_args], "filter") && argc == 4)
 			{
-				mode = Mode::Filtering;
+				mode = mode::filtering;
 				processed_args++;
 				continue;
 			}
 		}
 
 		/* Mode sub values */
-		if (!strcmp(argv[processed_args], "-b") && AcceptedModes({Calc, Flip}, mode))
+		if (!strcmp(argv[processed_args], "-b") && accepted_modes({mode::calc, mode::flip}, mode))
 		{
 			buyValue = atoi(argv[processed_args + 1]);
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-s") && AcceptedModes({Calc, Flip, Sold}, mode))
+		else if (!strcmp(argv[processed_args], "-s") && accepted_modes({mode::calc, mode::flip, mode::sold}, mode))
 		{
 			sellValue = atoi(argv[processed_args + 1]);
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-l") && AcceptedModes({Calc, Flip, Sold}, mode))
+		else if (!strcmp(argv[processed_args], "-l") && accepted_modes({mode::calc, mode::flip, mode::sold}, mode))
 		{
 			buyLimit = atoi(argv[processed_args + 1]);
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-a") && AcceptedModes({Flip, Sold}, mode))
+		else if (!strcmp(argv[processed_args], "-a") && accepted_modes({mode::flip, mode::sold}, mode))
 		{
 			account_name = argv[processed_args + 1];
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-i") && AcceptedModes({Flip, Sold, Filtering}, mode))
+		else if (!strcmp(argv[processed_args], "-i") && accepted_modes({mode::flip, mode::sold, mode::filtering}, mode))
 		{
-			if (mode == Mode::Flip || mode == Mode::Filtering)
+			if (mode == mode::flip || mode == mode::filtering)
 				item_name = argv[processed_args + 1];
 			else
 				sel_index = atoi(argv[processed_args + 1]);
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
 			processed_args += 2;
 			continue;
 		}
-		else if (!strcmp(argv[processed_args], "-c") && AcceptedModes({Filtering}, mode))
+		else if (!strcmp(argv[processed_args], "-c") && accepted_modes({mode::filtering}, mode))
 		{
 			flip_count = atoi(argv[processed_args + 1]);
 			processed_args += 2;
@@ -232,27 +232,27 @@ int main(int argc, char** argv)
 	/* Do the maths */
 	switch (mode)
 	{
-		case (Mode::Calc):
-			Margin::PrintFlipEstimation(buyValue, sellValue, buyLimit);
+		case (mode::calc):
+			margin::print_flip_estimation(buyValue, sellValue, buyLimit);
 			break;
 
-		case (Mode::Flip):
+		case (mode::flip):
 		{
-			Flips::Flip flip(item_name, buyValue, sellValue, buyLimit, account_name);
+			flips::flip flip(item_name, buyValue, sellValue, buyLimit, account_name);
 
 			std::cout << "Adding item: " << item_name << std::endl;
-			std::cout << "Buy price: " << FlipUtils::RoundBigNumbers(buyValue) << std::endl;
-			std::cout << "Sell price: " << FlipUtils::RoundBigNumbers(sellValue) << std::endl;
+			std::cout << "Buy price: " << flip_utils::round_big_numbers(buyValue) << std::endl;
+			std::cout << "Sell price: " << flip_utils::round_big_numbers(sellValue) << std::endl;
 			std::cout << "Buy count: " << buyLimit << "\n\n";
 
-			int profit = Margin::CalcProfit(flip);
-			std::cout << "Estimated profit: " << FlipUtils::RoundBigNumbers(profit) << std::endl;
+			int profit = margin::calc_profit(flip);
+			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << std::endl;
 
-			Flips::Add(flip);
+			flips::add(flip);
 			break;
 		}
 
-		case (Mode::Sold):
+		case (mode::sold):
 		{
 			if (sel_index < 0)
 			{
@@ -260,22 +260,22 @@ int main(int argc, char** argv)
 				break;
 			}
 
-			Flips::Sell(sel_index, sellValue, buyLimit);
+			flips::sell(sel_index, sellValue, buyLimit);
 			break;
 		}
 
-		case (Mode::Filtering):
+		case (mode::filtering):
 		{
 			/* Filter by name */
 			if (item_name != "")
-				Flips::FilterName(item_name);
+				flips::filter_name(item_name);
 			else if (flip_count != 0)
-				Flips::FilterCount(flip_count);
+				flips::filter_count(flip_count);
 
 			break;
 		}
 
-		case (Mode::None):
+		case (mode::none):
 			break;
 	}
 

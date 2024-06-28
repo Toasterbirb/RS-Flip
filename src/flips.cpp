@@ -11,17 +11,17 @@
 #define DEFAULT_DATA_FILE "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n"
 constexpr int RECOMMENDATION_THRESHOLD = 750000;
 
-namespace Flips
+namespace flips
 {
 	/* Declare some functions */
-	int FindRealIDWithUndoneID(const int undone_ID);
-	void ApplyFlipArray();
-	void CreateDefaultDataFile();
-	void LoadFlipArray();
-	void WriteJson();
+	int find_real_id_with_undone_id(const int undone_id);
+	void apply_flip_array();
+	void create_default_data_file();
+	void load_flip_array();
+	void write_json();
 
 
-	Flip::Flip()
+	flip::flip()
 	{
 		item 		= "null";
 		buy_price 	= 0;
@@ -31,7 +31,7 @@ namespace Flips
 		done 		= false;
 	}
 
-	Flip::Flip(const nlohmann::json& j)
+	flip::flip(const nlohmann::json& j)
 	{
 		/* Asserts for checking if the json object has all of the required keys */
 		assert(j.contains("item"));
@@ -57,7 +57,7 @@ namespace Flips
 			account = j["account"];
 	}
 
-	Flip::Flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name)
+	flip::flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name)
 	{
 		this->item 			= item;
 		this->buy_price 	= buy_price;
@@ -69,13 +69,13 @@ namespace Flips
 		this->done 			= false;
 	}
 
-	void Flip::Sell(const int sell_price)
+	void flip::sell(const int sell_price)
 	{
 		this->sell_price 	= sell_price;
 		this->done 			= true;
 	}
 
-	nlohmann::json Flip::ToJson() const
+	nlohmann::json flip::to_json() const
 	{
 		nlohmann::json j;
 
@@ -96,22 +96,22 @@ namespace Flips
 		return j;
 	}
 
-	void CreateDefaultDataFile()
+	void create_default_data_file()
 	{
-		FlipUtils::WriteFile(data_file, DEFAULT_DATA_FILE);
+		flip_utils::write_file(data_file, DEFAULT_DATA_FILE);
 	}
 
-	void WriteJson()
+	void write_json()
 	{
 		assert(data_file.empty() == false);
 
 		/* Backup the file before writing anything */
 		std::filesystem::copy_file(data_file, data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
 
-		FlipUtils::WriteJsonFile(json_data, data_file);
+		flip_utils::write_json_file(json_data, data_file);
 	}
 
-	void LoadFlipArray()
+	void load_flip_array()
 	{
 		flips.clear();
 
@@ -126,7 +126,7 @@ namespace Flips
 		}
 	}
 
-	void Init()
+	void init()
 	{
 		assert(data_path.empty() == false);
 		assert(data_file.empty() == false);
@@ -135,27 +135,27 @@ namespace Flips
 			std::filesystem::create_directories(data_path);
 
 		if (!std::filesystem::exists(data_file))
-			CreateDefaultDataFile();
+			create_default_data_file();
 
 		/* Read the json data file */
-		const std::string json_string = FlipUtils::ReadFile(data_file);
+		const std::string json_string = flip_utils::read_file(data_file);
 		json_data = nlohmann::json::parse(json_string);
 
-		LoadFlipArray();
+		load_flip_array();
 	}
 
-	void ApplyFlipArray()
+	void apply_flip_array()
 	{
 		json_data["flips"] = flips;
-		WriteJson();
+		write_json();
 	}
 
-	void PrintStats(const int top_value_count)
+	void print_stats(const int top_value_count)
 	{
-		Init();
+		init();
 
 		/* Print top performing flips */
-		const std::vector<Stats::AvgStat> stats = Stats::FlipsToAvgstats(flips);
+		const std::vector<stats::avg_stat> stats = stats::flips_to_avg_stats(flips);
 
 		if (stats.empty())
 		{
@@ -163,44 +163,44 @@ namespace Flips
 			return;
 		}
 
-		FlipUtils::PrintTitle("Stats");
-		std::cout << "Total profit: " << FlipUtils::RoundBigNumbers(json_data["stats"]["profit"]) << std::endl;
-		std::cout << "Flips done: " << FlipUtils::RoundBigNumbers(json_data["stats"]["flips_done"]) << std::endl;
+		flip_utils::print_title("Stats");
+		std::cout << "Total profit: " << flip_utils::round_big_numbers(json_data["stats"]["profit"]) << std::endl;
+		std::cout << "Flips done: " << flip_utils::round_big_numbers(json_data["stats"]["flips_done"]) << std::endl;
 		std::cout << "\n";
 
 		/* Quit if zero flips done */
 		if (json_data["stats"]["flips_done"] == 0)
 			return;
 
-		FlipUtils::PrintTitle("Top flips by ROI-%");
-		const std::vector<Stats::AvgStat> topROI = Stats::SortFlipsByROI(stats);
+		flip_utils::print_title("Top flips by ROI-%");
+		const std::vector<stats::avg_stat> topROI = stats::sort_flips_by_roi(stats);
 
-		Table flips_by_roi({"Item", "ROI-%", "Average profit"});
+		table flips_by_roi({"Item", "ROI-%", "Average profit"});
 
 		for (int i = 0; i < std::clamp(static_cast<int>(topROI.size()), 0, top_value_count); i++)
-			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].AvgROI()), FlipUtils::RoundBigNumbers(topROI[i].AvgProfit())});
+			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].avg_roi()), flip_utils::round_big_numbers(topROI[i].avg_profit())});
 
 		flips_by_roi.print();
 
 		std::cout << "\n";
 
-		FlipUtils::PrintTitle("Top flips by Profit");
-		const std::vector<Stats::AvgStat> topProfit = Stats::SortFlipsByProfit(stats);
+		flip_utils::print_title("Top flips by Profit");
+		const std::vector<stats::avg_stat> topProfit = stats::sort_flips_by_profit(stats);
 
-		Table flips_by_profit({"Item", "Average profit", "ROI-%"});
+		table flips_by_profit({"Item", "Average profit", "ROI-%"});
 
 		for (int i = 0; i < std::clamp(static_cast<int>(topProfit.size()), 0, top_value_count); i++)
 		{
-			std::string avgprofit_string = FlipUtils::RoundBigNumbers(topProfit[i].AvgProfit());
-			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].AvgROI())});
+			std::string avgprofit_string = flip_utils::round_big_numbers(topProfit[i].avg_profit());
+			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].avg_roi())});
 		}
 
 		flips_by_profit.print();
 	}
 
-	void FixStats()
+	void fix_stats()
 	{
-		Init();
+		init();
 		std::cout << "Recalculating statistics..." << std::endl;
 
 		long total_profit = 0;
@@ -221,7 +221,7 @@ namespace Flips
 				int buy_price 	= json_data["flips"][i]["buy"];
 				int sell_price 	= json_data["flips"][i]["sold"];
 				int limit 		= json_data["flips"][i]["limit"];
-				total_profit += Margin::CalcProfit(buy_price, sell_price, limit);
+				total_profit += margin::calc_profit(buy_price, sell_price, limit);
 				//total_profit += (sell_price - buy_price) * limit;
 			}
 		}
@@ -231,10 +231,10 @@ namespace Flips
 		json_data["stats"]["flips_done"] 	= flip_count;
 
 		/* Update the data file */
-		WriteJson();
+		write_json();
 	}
 
-	void RestoreBackup()
+	void restore_backup()
 	{
 		std::cout << "Restoring the backup. Make sure to create a new one if you want to keep it, because the old one is lost" << std::endl;
 
@@ -243,9 +243,9 @@ namespace Flips
 			std::filesystem::rename(data_file + "_backup", data_file);
 	}
 
-	void List(const std::string& account_filter)
+	void list(const std::string& account_filter)
 	{
-		Init();
+		init();
 
 		std::vector<nlohmann::json> undone_flips;
 
@@ -292,9 +292,9 @@ namespace Flips
 		if (flips_only_with_main == false)
 			table_column_names.push_back("Account");
 
-		Table ongoing_flips(table_column_names);
+		table ongoing_flips(table_column_names);
 
-		FlipUtils::PrintTitle("On-going flips");
+		flip_utils::print_title("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
 		{
 			const std::string& flip_name	= undone_flips[i]["item"];
@@ -319,12 +319,12 @@ namespace Flips
 		ongoing_flips.print();
 
 		/* Print out daily goal */
-		const DailyProgress daily_progress;
+		const daily_progress daily_progress;
 		std::cout << "\n";
-		daily_progress.PrintProgress();
+		daily_progress.print_progress();
 	}
 
-	int FindRealIDWithUndoneID(const int undone_ID)
+	int find_real_id_with_undone_id(const int undone_id)
 	{
 		int undone_index = 0;
 		int result;
@@ -335,7 +335,7 @@ namespace Flips
 			if (flips[i]["done"] == true)
 				continue;
 
-			if (undone_index != undone_ID)
+			if (undone_index != undone_id)
 				undone_index++;
 			else
 			{
@@ -347,7 +347,7 @@ namespace Flips
 
 		if (!result_found)
 		{
-			std::cout << "No items matching ID [" << undone_ID << "] were found!" << std::endl;
+			std::cout << "No items matching ID [" << undone_id << "] were found!" << std::endl;
 			return -1;
 		}
 		else
@@ -356,31 +356,31 @@ namespace Flips
 		}
 	}
 
-	void Add(const Flip& flip)
+	void add(const flip& flip)
 	{
-		Init();
-		flips.push_back(flip.ToJson());
-		ApplyFlipArray();
+		init();
+		flips.push_back(flip.to_json());
+		apply_flip_array();
 	}
 
-	void Cancel(const int ID)
+	void cancel(const int ID)
 	{
-		Init();
+		init();
 
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
-		const int flip_to_cancel = FindRealIDWithUndoneID(ID);
+		const int flip_to_cancel = find_real_id_with_undone_id(ID);
 		flips[flip_to_cancel]["cancelled"] = true;
 
 		std::cout << "Flip [" << flips[flip_to_cancel]["item"] << "] cancelled!\n";
 
-		ApplyFlipArray();
+		apply_flip_array();
 	}
 
-	void Sell(const int index, int sell_value, int sell_amount)
+	void sell(const int index, int sell_value, int sell_amount)
 	{
-		Init();
-		const int result = FindRealIDWithUndoneID(index);
+		init();
+		const int result = find_real_id_with_undone_id(index);
 		if (result == -1)
 			return;
 
@@ -404,36 +404,36 @@ namespace Flips
 
 		long total_profit = json_data["stats"]["profit"];
 		int buy_price = flips[result]["buy"];
-		const int profit = Margin::CalcProfit(buy_price, sell_value, sell_amount);
+		const int profit = margin::calc_profit(buy_price, sell_value, sell_amount);
 		//int profit = ((sell_value - buy_price) * sell_amount);
 		total_profit += profit;
 		json_data["stats"]["profit"] = total_profit;
 
-		FlipUtils::PrintTitle("Flip complete");
+		flip_utils::print_title("Flip complete");
 		std::cout << "Item: " << flips[result]["item"] << std::endl;
-		std::cout << "Profit: " << profit << " (" << FlipUtils::RoundBigNumbers(profit) << ")" << std::endl;
-		std::cout << "Total profit so far: " << total_profit << " (" << FlipUtils::RoundBigNumbers(total_profit) << ")" << std::endl;
+		std::cout << "Profit: " << profit << " (" << flip_utils::round_big_numbers(profit) << ")" << std::endl;
+		std::cout << "Total profit so far: " << total_profit << " (" << flip_utils::round_big_numbers(total_profit) << ")" << std::endl;
 
 		/* Handle daily progress */
-		DailyProgress daily_progress;
-		daily_progress.AddProgress(profit);
+		daily_progress daily_progress;
+		daily_progress.add_progress(profit);
 		std::cout << "\n";
-		daily_progress.PrintProgress();
+		daily_progress.print_progress();
 
 		/* Update the json file */
-		ApplyFlipArray();
+		apply_flip_array();
 	}
 
-	std::vector<nlohmann::json> FindFlipsByName(const std::string& item_name)
+	std::vector<nlohmann::json> find_flips_by_name(const std::string& item_name)
 	{
 		std::vector<nlohmann::json> result;
 
 		/* Quit if zero flips done */
-		const int flip_count = Flips::json_data["stats"]["flips_done"];
+		const int flip_count = flips::json_data["stats"]["flips_done"];
 		if (flip_count == 0)
 			return result;
 
-		std::copy_if(Flips::json_data["flips"].begin(), Flips::json_data["flips"].end(), std::back_inserter(result),
+		std::copy_if(flips::json_data["flips"].begin(), flips::json_data["flips"].end(), std::back_inserter(result),
 			[item_name](const nlohmann::json j) {
 				return j["item"] == item_name && j["done"] == true;
 			}
@@ -442,17 +442,17 @@ namespace Flips
 		return result;
 	}
 
-	void FilterName(const std::string& name)
+	void filter_name(const std::string& name)
 	{
-		Init();
+		init();
 		std::cout << "Filter: " << name << std::endl;
 
 		/* Quit if zero flips done */
-		const int flip_count = Flips::json_data["stats"]["flips_done"];
+		const int flip_count = flips::json_data["stats"]["flips_done"];
 		if (flip_count == 0)
 			return;
 
-		std::vector<nlohmann::json> found_flips = FindFlipsByName(name);
+		std::vector<nlohmann::json> found_flips = find_flips_by_name(name);
 
 		std::cout << "Results: " << found_flips.size() << std::endl;
 		if (found_flips.size() == 0)
@@ -466,14 +466,14 @@ namespace Flips
 		int total_profit = 0;
 		for (size_t i = 0; i < found_flips.size(); i++)
 		{
-			Flip flip(found_flips[i]);
+			flip flip(found_flips[i]);
 
-			const std::string buy_price = FlipUtils::RoundBigNumbers(flip.buy_price);
-			const std::string sell_price = FlipUtils::RoundBigNumbers(flip.sold_price);
+			const std::string buy_price = flip_utils::round_big_numbers(flip.buy_price);
+			const std::string sell_price = flip_utils::round_big_numbers(flip.sold_price);
 			//int profit = (flip.sold_price - flip.buy_price) * flip.buylimit;
-			const int profit = Margin::CalcProfit(flip.buy_price, flip.sold_price, flip.buylimit);
+			const int profit = margin::calc_profit(flip.buy_price, flip.sold_price, flip.buylimit);
 			total_profit += profit;
-			const std::string profit_text = FlipUtils::RoundBigNumbers(profit);
+			const std::string profit_text = flip_utils::round_big_numbers(profit);
 			const std::string item_count = std::to_string(flip.buylimit);
 
 			std::cout << "| " << buy_price << std::setw(14 - buy_price.length()) << " | " <<
@@ -485,8 +485,8 @@ namespace Flips
 		std::cout << "+-------------+-------------+---------+-------------+\n";
 
 		/* Calculate average profit */
-		std::cout << "\n\033[33mAverage profit: " << FlipUtils::RoundBigNumbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
-		std::cout << "\033[32mTotal profit:   " << FlipUtils::RoundBigNumbers((double)total_profit) << "\033[0m" << std::endl;
+		std::cout << "\n\033[33mAverage profit: " << flip_utils::round_big_numbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
+		std::cout << "\033[32mTotal profit:   " << flip_utils::round_big_numbers((double)total_profit) << "\033[0m" << std::endl;
 
 		/** Calculate median buy and sell prices **/
 		const int middle_index = std::floor(found_flips.size() / 2.0);
@@ -495,34 +495,34 @@ namespace Flips
 		std::cout << "\n";
 
 		/* Sort by buying price */
-		FlipUtils::JsonSort(sorted_list, "buy");
+		flip_utils::json_sort(sorted_list, "buy");
 		std::cout << "Median buy price:  " << sorted_list.at(middle_index)["buy"] << "\n";
 
 		/* Sort by selling price */
-		FlipUtils::JsonSort(sorted_list, "sold");
+		flip_utils::json_sort(sorted_list, "sold");
 		std::cout << "Median sell price: " << sorted_list.at(middle_index)["sold"] << "\n";
 
 		std::cout << "\n";
 
 		/** Calculate average buying and selling prices **/
-		std::cout << "\033[37mAverage buy price:  " << FlipUtils::JsonAverage(found_flips, "buy") << "\033[0m\n";
-		std::cout << "\033[37mAverage sell price: " << FlipUtils::JsonAverage(found_flips, "sold") << "\033[0m\n";
+		std::cout << "\033[37mAverage buy price:  " << flip_utils::json_average(found_flips, "buy") << "\033[0m\n";
+		std::cout << "\033[37mAverage sell price: " << flip_utils::json_average(found_flips, "sold") << "\033[0m\n";
 
 		std::cout << "\n";
 
 		/** Find min and max buy/sell prices **/
-		std::cout << "\033[34mMin buy price: " << FlipUtils::JsonMinInt(sorted_list, "buy") << "\033[0m\n";
-		std::cout << "\033[34mMax buy price: " << FlipUtils::JsonMaxInt(sorted_list, "buy") << "\033[0m\n";
+		std::cout << "\033[34mMin buy price: " << flip_utils::json_min_int(sorted_list, "buy") << "\033[0m\n";
+		std::cout << "\033[34mMax buy price: " << flip_utils::json_max_int(sorted_list, "buy") << "\033[0m\n";
 
 		std::cout << "\n";
 
-		std::cout << "\033[35mMin sell price: " << FlipUtils::JsonMinInt(sorted_list, "sold") << "\033[0m\n";
-		std::cout << "\033[35mMax sell price: " << FlipUtils::JsonMaxInt(sorted_list, "sold") << "\033[0m\n";
+		std::cout << "\033[35mMin sell price: " << flip_utils::json_min_int(sorted_list, "sold") << "\033[0m\n";
+		std::cout << "\033[35mMax sell price: " << flip_utils::json_max_int(sorted_list, "sold") << "\033[0m\n";
 	}
 
-	void FilterCount(const int flip_count)
+	void filter_count(const int flip_count)
 	{
-		Init();
+		init();
 
 		/* Don't do anything if there are no flips in the db */
 		if (flips.size() == 0)
@@ -532,31 +532,31 @@ namespace Flips
 		if (flip_count < 1)
 			return;
 
-		std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
+		std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(flips);
 
 		for (size_t i = 0; i < avgStats.size(); i++)
 		{
-			if (avgStats[i].FlipCount() <= flip_count)
+			if (avgStats[i].flip_count() <= flip_count)
 				std::cout << avgStats[i].name << std::endl;
 		}
 	}
 
-	bool FlipRecommendations()
+	bool flip_recommendations()
 	{
-		Init();
+		init();
 
 		if (flips.size() < 10)
 			return false;
 
 		/* Read in the item recommendation blacklist */
-		const std::unordered_set<std::string> item_blacklist = FlipUtils::ReadFileItems(item_blacklist_file);
+		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(item_blacklist_file);
 
-		FlipUtils::PrintTitle("Recommended flips");
+		flip_utils::print_title("Recommended flips");
 
-		const std::vector<Stats::AvgStat> avgStats = Stats::FlipsToAvgstats(flips);
-		const std::vector<Stats::AvgStat> recommendedFlips = Stats::SortFlipsByRecommendation(avgStats);
+		const std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(flips);
+		const std::vector<stats::avg_stat> recommendedFlips = stats::sort_flips_by_recommendation(avgStats);
 
-		Table recommendation_table({"Item name", "Average profit", "Count"});
+		table recommendation_table({"Item name", "Average profit", "Count"});
 
 		/* Print recommendations until the recommendation_count has been reached */
 		int i = 0; 		/* The current recommended item */
@@ -575,13 +575,13 @@ namespace Flips
 			}
 
 			/* Skip items with average profit below a certain threshold */
-			if (recommendedFlips[i].AvgProfit() < RECOMMENDATION_THRESHOLD)
+			if (recommendedFlips[i].avg_profit() < RECOMMENDATION_THRESHOLD)
 			{
 				++i;
 				continue;
 			}
 
-			recommendation_table.add_row({recommendedFlips[i].name, FlipUtils::RoundBigNumbers(recommendedFlips[i].RollingAvgProfit()), std::to_string(recommendedFlips[i].FlipCount())});
+			recommendation_table.add_row({recommendedFlips[i].name, flip_utils::round_big_numbers(recommendedFlips[i].rolling_avg_profit()), std::to_string(recommendedFlips[i].flip_count())});
 
 			++i;
 			++count;
@@ -602,13 +602,13 @@ namespace Flips
 		{
 			std::cout << "\n";
 			recommendation_table.clear();
-			FlipUtils::PrintTitle("Random flips");
+			flip_utils::print_title("Random flips");
 			class random rng;
 
 			for (int j = 0; j < max_random_count; ++j)
 			{
 				const int index = rng.range(max, static_cast<int>(recommendedFlips.size() - 1));
-				recommendation_table.add_row({recommendedFlips[index].name, FlipUtils::RoundBigNumbers(recommendedFlips[index].RollingAvgProfit()), std::to_string(recommendedFlips[index].FlipCount())});
+				recommendation_table.add_row({recommendedFlips[index].name, flip_utils::round_big_numbers(recommendedFlips[index].rolling_avg_profit()), std::to_string(recommendedFlips[index].flip_count())});
 			}
 
 			recommendation_table.print();

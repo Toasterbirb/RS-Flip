@@ -1,22 +1,22 @@
 #include "Stats.hpp"
 
-namespace Stats
+namespace stats
 {
 	/* Internal function declarations */
-	double CalcFlipROI(const nlohmann::json& flip);
+	double calc_flip_roi(const nlohmann::json& flip);
 
 
-	double CalcFlipROI(const nlohmann::json& flip)
+	double calc_flip_roi(const nlohmann::json& flip)
 	{
-		return CalcROI(flip["buy"], flip["sold"]);
+		return calc_roi(flip["buy"], flip["sold"]);
 	}
 
-	double CalcROI(const nlohmann::json& flip)
+	double calc_roi(const nlohmann::json& flip)
 	{
-		return CalcROI(flip["buy"], flip["sold"]);
+		return calc_roi(flip["buy"], flip["sold"]);
 	}
 
-	double CalcROI(const int buy_price, const int sell_price)
+	double calc_roi(const int buy_price, const int sell_price)
 	{
 		/* Avoid division by zero
 		 * If the item cost nothing, return ROI-% of 100% */
@@ -28,33 +28,33 @@ namespace Stats
 
 	TEST_CASE("Calculate the return of investment")
 	{
-		CHECK(CalcROI(20, 30) == 50);
-		CHECK(CalcROI(10, 20) == 100);
-		CHECK(CalcROI(20, 10) == -50);
+		CHECK(calc_roi(20, 30) == 50);
+		CHECK(calc_roi(10, 20) == 100);
+		CHECK(calc_roi(20, 10) == -50);
 	}
 
-	std::vector<AvgStat> SortFlipsByROI(std::vector<AvgStat> flips)
+	std::vector<avg_stat> sort_flips_by_roi(std::vector<avg_stat> flips)
 	{
-		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
-			return a.AvgROI() > b.AvgROI();
+		std::sort(flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
+			return a.avg_roi() > b.avg_roi();
 		});
 
 		return flips;
 	}
 
-	std::vector<AvgStat> SortFlipsByProfit(std::vector<AvgStat> flips)
+	std::vector<avg_stat> sort_flips_by_profit(std::vector<avg_stat> flips)
 	{
-		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
-			return a.AvgProfit() > b.AvgProfit();
+		std::sort(flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
+			return a.avg_profit() > b.avg_profit();
 		});
 
 		return flips;
 	}
 
-	std::vector<AvgStat> SortFlipsByRecommendation(std::vector<AvgStat> flips)
+	std::vector<avg_stat> sort_flips_by_recommendation(std::vector<avg_stat> flips)
 	{
-		std::sort(flips.begin(), flips.end(), [](const AvgStat& a, const AvgStat& b) {
-			return a.FlipRecommendation() > b.FlipRecommendation();
+		std::sort(flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
+			return a.flip_recommendation() > b.flip_recommendation();
 		});
 
 		return flips;

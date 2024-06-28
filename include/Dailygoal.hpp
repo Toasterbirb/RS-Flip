@@ -1,21 +1,21 @@
 #pragma once
 #include "pch.hpp"
 
-struct Date
+struct date
 {
-	Date();
-	Date(const nlohmann::json& json_object);
-	void SetDate(nlohmann::json& json_object); /* Changes the date of the json_object */
+	date();
+	explicit date(const nlohmann::json& json_object);
+	void set_date(nlohmann::json& json_object); /* Changes the date of the json_object */
 	int day, month, year;
 
-	bool operator==(const Date& other) const
+	bool operator==(const date& other) const
 	{
 		return (day == other.day
 				&& month == other.month
 				&& year == other.year);
 	}
 
-	bool operator!=(const Date& other) const
+	bool operator!=(const date& other) const
 	{
 		return (day != other.day
 				|| month != other.month
@@ -23,19 +23,19 @@ struct Date
 	}
 };
 
-class DailyProgress
+class daily_progress
 {
 public:
-	DailyProgress();
-	void AddProgress(const int amount);
-	int CurrentProgress() const;
-	int Goal() const;
-	void PrintProgress() const;
+	daily_progress();
+	void add_progress(const int amount);
+	int current_progress() const;
+	int goal() const;
+	void print_progress() const;
 
 private:
 	std::string file_path;
 	int default_goal = 15000000;
 	nlohmann::json json_data;
 	bool valid_data;
-	Date today;
+	date today;
 };

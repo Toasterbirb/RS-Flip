@@ -1,18 +1,18 @@
-#include "FlipUtils.hpp"
 #include "AvgStat.hpp"
-#include "Stats.hpp"
+#include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
+#include "Stats.hpp"
 
-namespace Stats
+namespace stats
 {
 	constexpr int PROFIT_QUEUE_SIZE = 10;
 
-	AvgStat::AvgStat()
+	avg_stat::avg_stat()
 	:name("null")
 	{}
 
-	AvgStat::AvgStat(const std::string& item_name)
+	avg_stat::avg_stat(const std::string& item_name)
 	:name(item_name)
 	{
 		total_profit 		= 0;
@@ -26,7 +26,7 @@ namespace Stats
 		total_sell_sold_distance 	= 0;
 	}
 
-	void AvgStat::AddData(const int profit, const double ROI, const int item_count, const int sell, const int sold, const int latest_trade_index)
+	void avg_stat::add_data(const int profit, const double ROI, const int item_count, const int sell, const int sold, const int latest_trade_index)
 	{
 		profit_list.push_back(profit);
 
@@ -35,9 +35,9 @@ namespace Stats
 		total_item_count 	+= item_count;
 		value_count++;
 
-		if (this->latest_trade_index < latest_trade_index)
+		if (this->_latest_trade_index < latest_trade_index)
 		{
-			this->latest_trade_index = latest_trade_index;
+			this->_latest_trade_index = latest_trade_index;
 
 			// Attempt to keep the total flip amount up-to-date
 			if (latest_trade_index > total_flip_count)
@@ -53,7 +53,7 @@ namespace Stats
 		total_sell_sold_distance += std::abs(sell - sold);
 	}
 
-	double AvgStat::AvgProfit() const
+	double avg_stat::avg_profit() const
 	{
 		assert(value_count > 0);
 
@@ -64,7 +64,7 @@ namespace Stats
 		return (double)total_profit / value_count;
 	}
 
-	double AvgStat::RollingAvgProfit() const
+	double avg_stat::rolling_avg_profit() const
 	{
 		/* Count the total "rolling" profit */
 		int rolling_total_profit = 0;
@@ -90,7 +90,7 @@ namespace Stats
 		return (double)rolling_total_profit / rolling_profit_count;
 	}
 
-	double AvgStat::AvgROI() const
+	double avg_stat::avg_roi() const
 	{
 		assert(value_count > 0);
 
@@ -101,7 +101,7 @@ namespace Stats
 		return (double)total_roi / value_count;
 	}
 
-	double AvgStat::AvgBuyLimit() const
+	double avg_stat::avg_buy_limit() const
 	{
 		assert(value_count > 0);
 
@@ -112,23 +112,23 @@ namespace Stats
 		return (double)total_item_count / value_count;
 	}
 
-	double AvgStat::FlipRecommendation() const
+	double avg_stat::flip_recommendation() const
 	{
-		if (FlipCount() > 0)
+		if (flip_count() > 0)
 		{
 			assert(total_flip_count > 0);
-			assert(total_flip_count - latest_trade_index >= 0);
+			assert(total_flip_count - _latest_trade_index >= 0);
 
 			constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
 			constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
-			double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - latest_trade_index, flip_index_age_exponent));
+			double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
 
 			// Set limits to the age penalty
 			constexpr double min_penalty = 0.001;
 			constexpr double max_penalty = 1.0;
 			flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
 
-			return std::round((flip_age_debuff * RollingAvgProfit() * FlipUtils::Limes(2, 1.5, 1, AvgROI()) *  FlipUtils::Limes(1.1, 1, 1, FlipCount())) / 10000.0);
+			return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) / 10000.0);
 		}
 		else
 		{
@@ -136,49 +136,49 @@ namespace Stats
 		}
 	}
 
-	int AvgStat::FlipCount() const
+	int avg_stat::flip_count() const
 	{
 		return value_count;
 	}
 
-	int AvgStat::LatestTradeIndex() const
+	int avg_stat::latest_trade_index() const
 	{
-		return latest_trade_index;
+		return _latest_trade_index;
 	}
 
 	TEST_CASE("Average stats per item")
 	{
-		AvgStat statA("Item A");
-		statA.AddData(100, 25, 1000);
-		statA.AddData(100, 25, 1000);
-		statA.AddData(100, 25, 1000);
-		CHECK(statA.AvgProfit() == 100);
-		CHECK(statA.AvgROI() == 25);
-		CHECK(statA.AvgBuyLimit() == 1000);
-		CHECK(statA.FlipCount() == 3);
+		avg_stat statA("Item A");
+		statA.add_data(100, 25, 1000);
+		statA.add_data(100, 25, 1000);
+		statA.add_data(100, 25, 1000);
+		CHECK(statA.avg_profit() == 100);
+		CHECK(statA.avg_roi() == 25);
+		CHECK(statA.avg_buy_limit() == 1000);
+		CHECK(statA.flip_count() == 3);
 
-		AvgStat statB("Item B");
-		statB.AddData(100, 25, 500);
-		statB.AddData(50, 50, 450);
-		statB.AddData(120, 75, 475);
+		avg_stat statB("Item B");
+		statB.add_data(100, 25, 500);
+		statB.add_data(50, 50, 450);
+		statB.add_data(120, 75, 475);
 
-		CHECK(statB.AvgProfit() == 90);
-		CHECK(statB.AvgROI() == 50);
-		CHECK(statB.AvgBuyLimit() == 475);
-		CHECK(statB.FlipCount() == 3);
+		CHECK(statB.avg_profit() == 90);
+		CHECK(statB.avg_roi() == 50);
+		CHECK(statB.avg_buy_limit() == 475);
+		CHECK(statB.flip_count() == 3);
 
-		AvgStat statC("Item C");
-		statC.AddData(10, 1, 1000);
-		statC.AddData(100000, 1, 20000);
+		avg_stat statC("Item C");
+		statC.add_data(10, 1, 1000);
+		statC.add_data(100000, 1, 20000);
 
-		CHECK(statC.AvgProfit() == 50005);
-		CHECK(statC.AvgBuyLimit() == 10500);
-		CHECK(statC.FlipCount() == 2);
+		CHECK(statC.avg_profit() == 50005);
+		CHECK(statC.avg_buy_limit() == 10500);
+		CHECK(statC.flip_count() == 2);
 	}
 
-	std::vector<AvgStat> FlipsToAvgstats(const std::vector<nlohmann::json>& flips)
+	std::vector<avg_stat> flips_to_avg_stats(const std::vector<nlohmann::json>& flips)
 	{
-		std::unordered_map<std::string, AvgStat> avg_stats;
+		std::unordered_map<std::string, avg_stat> avg_stats;
 
 		/* Initialize the result list with the first flip */
 
@@ -206,23 +206,23 @@ namespace Stats
 			if (flips[i]["done"] == false)
 				continue;
 
-			const int profit = Margin::CalcProfit(flips[i]);
+			const int profit = margin::calc_profit(flips[i]);
 
-			AvgStat& stat = avg_stats[flips[i]["item"]];
+			avg_stat& stat = avg_stats[flips[i]["item"]];
 			stat.name = flips[i]["item"];
-			stat.AddData(profit, Stats::CalcROI(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"], i);
+			stat.add_data(profit, stats::calc_roi(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"], i);
 
 			assert(stat.name.empty() == false);
-			assert(stat.FlipCount() > 0);
-			assert(stat.AvgBuyLimit() > 0);
+			assert(stat.flip_count() > 0);
+			assert(stat.avg_buy_limit() > 0);
 
 			/* Highly doubt someone is going to flip the same item
 			 * more than 10 000 000 times */
-			assert(stat.FlipCount() < 10000000);
+			assert(stat.flip_count() < 10000000);
 		}
 
 		/* Convert the map into a vector */
-		std::vector<AvgStat> result;
+		std::vector<avg_stat> result;
 		std::transform(avg_stats.begin(), avg_stats.end(), std::back_inserter(result), [](const auto& element) { return element.second; });
 
 		return result;
@@ -262,10 +262,10 @@ namespace Stats
 		data_point_C["cancelled"] = false;
 		json.push_back(data_point_C);
 
-		std::vector<AvgStat> avg_stats = FlipsToAvgstats(json);
+		std::vector<avg_stat> avg_stats = flips_to_avg_stats(json);
 
 		CHECK(avg_stats.size() == 1);
 		CHECK(avg_stats[0].name == "Test item");
-		CHECK(avg_stats[0].FlipCount() == 2);
+		CHECK(avg_stats[0].flip_count() == 2);
 	}
 }

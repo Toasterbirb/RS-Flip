@@ -3,19 +3,19 @@
 
 constexpr int COLUMN_PADDING = 6;
 
-Table::Table(const std::vector<std::string>& column_names)
+table::table(const std::vector<std::string>& column_names)
 :column_names(column_names)
 {
 	assert(column_names.size() > 1);
 }
 
-void Table::add_row(const std::vector<std::string>& data)
+void table::add_row(const std::vector<std::string>& data)
 {
 	assert(data.size() == column_names.size());
 	this->data.push_back(data);
 }
 
-void Table::print() const
+void table::print() const
 {
 	assert(data.size() > 0);
 
@@ -56,7 +56,7 @@ TEST_CASE("Print a table")
 {
 	/* Create a table */
 	std::vector<std::string> column_names{"Item", "Cost", "Count", "Account"};
-	Table table(column_names);
+	table table(column_names);
 
 	/* Add data to the table */
 	table.add_row({"Death rune", "900", "24950", "User 1"});
@@ -68,12 +68,12 @@ TEST_CASE("Print a table")
 	table.print();
 }
 
-void Table::clear()
+void table::clear()
 {
 	data.clear();
 }
 
-std::vector<size_t> Table::get_column_sizes() const
+std::vector<size_t> table::get_column_sizes() const
 {
 	assert(data.empty() == false);
 
