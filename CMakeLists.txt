@@ -24,17 +24,8 @@ endif(CCACHE_FOUND)
 # Headers
 include_directories(include/)
 
-add_executable(flip
-	src/main.cpp
-	src/dailygoal.cpp
-	src/flips.cpp
-	src/margin.cpp
-	src/fliputils.cpp
-	src/avgstat.cpp
-	src/stats.cpp
-	src/table.cpp
-	src/random.cpp
-)
+file(GLOB SRC ./src/*)
+add_executable(flip ${SRC})
 
 set(WARNINGS
 	-pedantic -Wall -Wextra -Wcast-align
