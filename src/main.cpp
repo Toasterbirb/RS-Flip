@@ -33,54 +33,54 @@ int main(int argc, char** argv)
 	options options;
 
 	auto tips = (
-		clipp::command("tips").set(selected_mode, mode::tips) % "recommend flips based on past flipping data"
-	);
+		clipp::command("tips").set(selected_mode, mode::tips) % "mode"
+	) % "recommend flips based on past flipping data";
 
 	auto calc = (
-		clipp::command("calc").set(selected_mode, mode::calc) % "calculate the margin for an item and possible profits",
+		clipp::command("calc").set(selected_mode, mode::calc) % "mode",
 		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "insta buy price",
 		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "insta sell price",
 		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item"
-	);
+	) % "calculate the margin for an item and possible profits";
 
 	auto flip = (
-		clipp::command("add").set(selected_mode, mode::flip) % "add a flip to the database",
+		clipp::command("add").set(selected_mode, mode::flip) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("name").set(options.item_name)) % "item name",
 		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "buying price",
 		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "assumed future selling price",
-		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item",
-		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "account used for the flip"
-	);
+		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "item count to buy (usually the buy limit or slightly below)",
+		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "the name of the account used for the flip"
+	) % "add a flip to the database";
 
 	auto sold = (
-		clipp::command("sold").set(selected_mode, mode::sold) % "finish an on-going flip",
+		clipp::command("sold").set(selected_mode, mode::sold) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id number can be found with the 'list' command",
 		(clipp::option("-s").required(false) & clipp::value("price").set(options.sell_price)) % "final selling price",
 		(clipp::option("-l").required(false) & clipp::value("count").set(options.item_count)) % "final amount of items sold"
-	);
+	) % "finish an on-going flip";
 
 	auto cancel = (
-		clipp::command("cancel").set(selected_mode, mode::cancel) % "cancels an on-going flip and removes it from the database",
+		clipp::command("cancel").set(selected_mode, mode::cancel) % "mode",
 		clipp::value("id").set(options.id) % "the id of the flip to cancel"
-	);
+	) % "cancels an on-going flip and removes it from the database";
 
 	auto list = (
-		clipp::command("list").set(selected_mode, mode::list) % "list all on-going flips with their ids, buy and sell values",
+		clipp::command("list").set(selected_mode, mode::list) % "mode",
 		clipp::value("account").set(options.account).required(false) % "list only flips made with this account"
-	);
+	) % "list all on-going flips with their ids, buy and sell values";
 
 	auto filtering = (
-		clipp::command("filter").set(selected_mode, mode::filtering) % "look for items with filters",
+		clipp::command("filter").set(selected_mode, mode::filtering) % "mode",
 		clipp::one_of(
 			clipp::option("-i") & clipp::value("name").set(options.item_name) % "find stats for a specific item",
 			clipp::option("-c") & clipp::option("count").set(options.flip_count) % "find flips that have been done count <= times"
 		)
-	);
+	) % "look for items with filters";
 
 	auto stats = (
-		clipp::command("stats").set(selected_mode, mode::stats) % "print out profit statistics",
+		clipp::command("stats").set(selected_mode, mode::stats) % "mode",
 		(clipp::option("-c") & clipp::value("count").set(options.result_count)) % "set the amount of values to show"
-	);
+	) % "print out profit statistics";
 
 	auto repair = (
 		clipp::command("repair").set(selected_mode, mode::repair) % "attempts to repair the statistics from the flip data in-case of some bug"
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 	);
 
 	auto cli = (
-		( tips | calc | flip | sold | cancel | list | filtering | stats | repair | help | test ) % "modes"
+		( tips | calc | flip | sold | cancel | list | filtering | stats | repair | help | test )
 	);
 
 	if (!clipp::parse(argc, argv, cli))
