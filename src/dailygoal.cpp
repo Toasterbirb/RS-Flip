@@ -1,5 +1,5 @@
 #include "Dailygoal.hpp"
-#include "Flips.hpp"
+#include "FilePaths.hpp"
 #include "FlipUtils.hpp"
 
 #include <iostream>
@@ -37,7 +37,7 @@ daily_progress::daily_progress()
 
 	/* Initialize the json data or create new data
 	 * if there isn't any existing data */
-	this->file_path = flips::data_path + "/daily_goal.json";
+	this->file_path = file_paths::data_path + "/daily_goal.json";
 
 	/* File doesn't exist */
 	if (!std::filesystem::exists(file_path))

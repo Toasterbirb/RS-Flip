@@ -1,15 +1,12 @@
 #pragma once
 
+#include "DB.hpp"
+
 #include <nlohmann/json.hpp>
 #include <string>
 
 namespace flips
 {
-	static const std::string user_home = (std::string)getenv("HOME");
-	static const std::string data_path = user_home + "/.local/share/rs-flip";
-	static const std::string data_file = data_path + "/flips.json";
-	static const std::string item_blacklist_file = data_path + "/item_blacklist.txt";
-
 	static constexpr int recommendation_count = 35;
 	static constexpr int random_flip_count = 5;
 
@@ -31,27 +28,22 @@ namespace flips
 		std::string account; /* The runescape account that has the flip active */
 	};
 
-	void init();
-	void print_stats(const int top_value_count = 10);
-	void fix_stats();
-	void restore_backup();
-	void list(const std::string& account_filter = ""); /* List on-going flips */
-	void add(const flip& flip); /* Add a new flip */
-	void cancel(const int ID); /* Cancel an existing flip */
-	void sell(const int index, int sell_value, int sell_amount);
-
-	static nlohmann::json json_data;
-	static std::vector<nlohmann::json> flips;
+	void print_stats(const db& db, const int top_value_count = 10);
+	void fix_stats(db& db);
+	void list(const db& db, const std::string& account_filter = ""); /* List on-going flips */
+	void add(db& db, const flip& flip); /* Add a new flip */
+	void cancel(db& db, const int ID); /* Cancel an existing flip */
+	void sell(db& db, const int index, int sell_value, int sell_amount);
 
 	/** Filtering **/
 
 	/* Find finished flips with item name */
-	std::vector<nlohmann::json> find_flips_by_name(const std::string& item_name);
+	std::vector<nlohmann::json> find_flips_by_name(const db& db, const std::string& item_name);
 
 	/* Print filtered data */
-	void filter_name(const std::string& name);
-	void filter_count(const int flip_count);
+	void filter_name(const db& db, const std::string& name);
+	void filter_count(const db& db, const int flip_count);
 
 	/* Flip recommendations */
-	bool flip_recommendations();
+	bool flip_recommendations(const db& db);
 }

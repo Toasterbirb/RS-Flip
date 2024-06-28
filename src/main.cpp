@@ -1,5 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 
+#include "DB.hpp"
 #include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
@@ -104,10 +105,13 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// Database
+	db db;
+
 	switch (selected_mode)
 	{
 		case mode::tips:
-			flips::flip_recommendations();
+			flips::flip_recommendations(db);
 			break;
 
 		case mode::calc:
@@ -130,39 +134,39 @@ int main(int argc, char** argv)
 			i32 profit = margin::calc_profit(flip);
 			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << '\n';
 
-			flips::add(flip);
+			flips::add(db, flip);
 			break;
 		}
 
 		case mode::sold:
-			flips::sell(options.id, options.sell_price, options.item_count);
+			flips::sell(db, options.id, options.sell_price, options.item_count);
 			break;
 
 		case mode::cancel:
-			flips::cancel(options.id);
+			flips::cancel(db, options.id);
 			break;
 
 		case mode::list:
-			flips::list(options.account);
+			flips::list(db, options.account);
 			break;
 
 		case mode::filtering:
 		{
 			if (!options.item_name.empty())
-				flips::filter_name(options.item_name);
+				flips::filter_name(db, options.item_name);
 			else if (options.flip_count > 0)
-				flips::filter_count(options.flip_count);
+				flips::filter_count(db, options.flip_count);
 			else
 				std::cout << "Not really sure how to filter because no filters were defined\n";
 			break;
 		}
 
 		case mode::stats:
-			flips::print_stats(options.result_count);
+			flips::print_stats(db, options.result_count);
 			break;
 
 		case mode::repair:
-			flips::fix_stats();
+			flips::fix_stats(db);
 			break;
 
 		case mode::help:

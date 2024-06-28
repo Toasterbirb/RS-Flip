@@ -1,5 +1,6 @@
 #include "AvgStat.hpp"
 #include "Dailygoal.hpp"
+#include "FilePaths.hpp"
 #include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
@@ -10,18 +11,12 @@
 #include <algorithm>
 #include <iostream>
 
-constexpr char DEFAULT_DATA_FILE[] = "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n";
 constexpr int RECOMMENDATION_THRESHOLD = 750'000;
 
 namespace flips
 {
 	/* Declare some functions */
-	int find_real_id_with_undone_id(const int undone_id);
-	void apply_flip_array();
-	void create_default_data_file();
-	void load_flip_array();
-	void write_json();
-
+	int find_real_id_with_undone_id(const db& db, const int undone_id);
 
 	flip::flip()
 	{
@@ -98,66 +93,10 @@ namespace flips
 		return j;
 	}
 
-	void create_default_data_file()
+	void print_stats(const db& db, const int top_value_count)
 	{
-		flip_utils::write_file(data_file, DEFAULT_DATA_FILE);
-	}
-
-	void write_json()
-	{
-		assert(data_file.empty() == false);
-
-		/* Backup the file before writing anything */
-		std::filesystem::copy_file(data_file, data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
-
-		flip_utils::write_json_file(json_data, data_file);
-	}
-
-	void load_flip_array()
-	{
-		flips.clear();
-
-		/* Add existing flips to the array */
-		for (size_t i = 0; i < json_data["flips"].size(); i++)
-		{
-			/* Don't load cancelled flips */
-			if (json_data["flips"][i]["cancelled"] == true)
-				continue;
-
-			flips.push_back(json_data["flips"][i]);
-		}
-	}
-
-	void init()
-	{
-		assert(data_path.empty() == false);
-		assert(data_file.empty() == false);
-
-		if (!std::filesystem::exists(data_path))
-			std::filesystem::create_directories(data_path);
-
-		if (!std::filesystem::exists(data_file))
-			create_default_data_file();
-
-		/* Read the json data file */
-		const std::string json_string = flip_utils::read_file(data_file);
-		json_data = nlohmann::json::parse(json_string);
-
-		load_flip_array();
-	}
-
-	void apply_flip_array()
-	{
-		json_data["flips"] = flips;
-		write_json();
-	}
-
-	void print_stats(const int top_value_count)
-	{
-		init();
-
 		/* Print top performing flips */
-		const std::vector<stats::avg_stat> stats = stats::flips_to_avg_stats(flips);
+		const std::vector<stats::avg_stat> stats = stats::flips_to_avg_stats(db.flips);
 
 		if (stats.empty())
 		{
@@ -166,12 +105,12 @@ namespace flips
 		}
 
 		flip_utils::print_title("Stats");
-		std::cout << "Total profit: " << flip_utils::round_big_numbers(json_data["stats"]["profit"]) << std::endl;
-		std::cout << "Flips done: " << flip_utils::round_big_numbers(json_data["stats"]["flips_done"]) << std::endl;
+		std::cout << "Total profit: " << flip_utils::round_big_numbers(db.json_data["stats"]["profit"]) << std::endl;
+		std::cout << "Flips done: " << flip_utils::round_big_numbers(db.json_data["stats"]["flips_done"]) << std::endl;
 		std::cout << "\n";
 
 		/* Quit if zero flips done */
-		if (json_data["stats"]["flips_done"] == 0)
+		if (db.json_data["stats"]["flips_done"] == 0)
 			return;
 
 		flip_utils::print_title("Top flips by ROI-%");
@@ -200,64 +139,52 @@ namespace flips
 		flips_by_profit.print();
 	}
 
-	void fix_stats()
+	void fix_stats(db& db)
 	{
-		init();
 		std::cout << "Recalculating statistics..." << std::endl;
 
 		long total_profit = 0;
 		int flip_count = 0;
 
-		for (size_t i = 0; i < json_data["flips"].size(); i++)
+		for (size_t i = 0; i < db.json_data["flips"].size(); i++)
 		{
 			/* Check if the flip is done */
-			if (json_data["flips"][i]["done"] == true)
+			if (db.json_data["flips"][i]["done"] == true)
 			{
 				flip_count++;
 
 				/* Flip is done, but the sold price is missing */
-				if (json_data["flips"][i]["sold"] == 0)
-					json_data["flips"][i]["sold"] = json_data["flips"][i]["sell"];
+				if (db.json_data["flips"][i]["sold"] == 0)
+					db.json_data["flips"][i]["sold"] = db.json_data["flips"][i]["sell"];
 
 				/* Calculate the profit */
-				int buy_price 	= json_data["flips"][i]["buy"];
-				int sell_price 	= json_data["flips"][i]["sold"];
-				int limit 		= json_data["flips"][i]["limit"];
+				int buy_price 	= db.json_data["flips"][i]["buy"];
+				int sell_price 	= db.json_data["flips"][i]["sold"];
+				int limit 		= db.json_data["flips"][i]["limit"];
 				total_profit += margin::calc_profit(buy_price, sell_price, limit);
 				//total_profit += (sell_price - buy_price) * limit;
 			}
 		}
 
 		/* Update the stats values */
-		json_data["stats"]["profit"] 		= total_profit;
-		json_data["stats"]["flips_done"] 	= flip_count;
+		db.json_data["stats"]["profit"] 		= total_profit;
+		db.json_data["stats"]["flips_done"] 	= flip_count;
 
 		/* Update the data file */
-		write_json();
+		db.write();
 	}
 
-	void restore_backup()
+	void list(const db& db, const std::string& account_filter)
 	{
-		std::cout << "Restoring the backup. Make sure to create a new one if you want to keep it, because the old one is lost" << std::endl;
-
-		/* Check if the backup exists */
-		if (std::filesystem::exists(data_file + "_backup"))
-			std::filesystem::rename(data_file + "_backup", data_file);
-	}
-
-	void list(const std::string& account_filter)
-	{
-		init();
-
 		std::vector<nlohmann::json> undone_flips;
 
-		for (size_t i = 0; i < flips.size(); i++)
+		for (size_t i = 0; i < db.flips.size(); i++)
 		{
 			/* Check if the flip is done yet */
-			if (flips[i]["done"] == true)
+			if (db.flips[i]["done"] == true)
 				continue;
 
-			undone_flips.push_back(flips[i]);
+			undone_flips.push_back(db.flips[i]);
 		}
 
 		if (undone_flips.empty())
@@ -330,15 +257,15 @@ namespace flips
 		daily_progress.print_progress();
 	}
 
-	int find_real_id_with_undone_id(const int undone_id)
+	int find_real_id_with_undone_id(const db& db, const int undone_id)
 	{
 		int undone_index = 0;
 		int result;
 		bool result_found = false;
-		for (size_t i = 0; i < flips.size(); i++)
+		for (size_t i = 0; i < db.flips.size(); i++)
 		{
 			/* Skip flips that are already done */
-			if (flips[i]["done"] == true)
+			if (db.flips[i]["done"] == true)
 				continue;
 
 			if (undone_index != undone_id)
@@ -362,35 +289,31 @@ namespace flips
 		}
 	}
 
-	void add(const flip& flip)
+	void add(db& db, const flip& flip)
 	{
-		init();
-		flips.push_back(flip.to_json());
-		apply_flip_array();
+		db.flips.push_back(flip.to_json());
+		db.apply_flip_array();
 	}
 
-	void cancel(const int ID)
+	void cancel(db& db, const int ID)
 	{
-		init();
-
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
-		const int flip_to_cancel = find_real_id_with_undone_id(ID);
-		flips[flip_to_cancel]["cancelled"] = true;
+		const int flip_to_cancel = find_real_id_with_undone_id(db, ID);
+		db.flips[flip_to_cancel]["cancelled"] = true;
 
-		std::cout << "Flip [" << flips[flip_to_cancel]["item"] << "] cancelled!\n";
+		std::cout << "Flip [" << db.flips[flip_to_cancel]["item"] << "] cancelled!\n";
 
-		apply_flip_array();
+		db.apply_flip_array();
 	}
 
-	void sell(const int index, int sell_value, int sell_amount)
+	void sell(db& db, const int index, int sell_value, int sell_amount)
 	{
-		init();
-		const int result = find_real_id_with_undone_id(index);
+		const int result = find_real_id_with_undone_id(db, index);
 		if (result == -1)
 			return;
 
-		nlohmann::json& result_flip = flips[result];
+		nlohmann::json& result_flip = db.flips[result];
 
 		/* Update the flip values */
 		if (sell_amount == 0)
@@ -406,17 +329,17 @@ namespace flips
 		result_flip["sold"] = sell_value;
 
 		{
-			int flips_done = json_data["stats"]["flips_done"];
+			int flips_done = db.json_data["stats"]["flips_done"];
 			++flips_done;
-			json_data["stats"]["flips_done"] = flips_done;
+			db.json_data["stats"]["flips_done"] = flips_done;
 		}
 
 		const int buy_price = result_flip["buy"];
 		const int profit = margin::calc_profit(buy_price, sell_value, sell_amount);
 
-		long total_profit = json_data["stats"]["profit"];
+		long total_profit = db.json_data["stats"]["profit"];
 		total_profit += profit;
-		json_data["stats"]["profit"] = total_profit;
+		db.json_data["stats"]["profit"] = total_profit;
 
 		flip_utils::print_title("Flip complete");
 		std::cout << "Item: " << result_flip["item"] << std::endl;
@@ -432,19 +355,19 @@ namespace flips
 		}
 
 		/* Update the json file */
-		apply_flip_array();
+		db.apply_flip_array();
 	}
 
-	std::vector<nlohmann::json> find_flips_by_name(const std::string& item_name)
+	std::vector<nlohmann::json> find_flips_by_name(const db& db, const std::string& item_name)
 	{
 		std::vector<nlohmann::json> result;
 
 		/* Quit if zero flips done */
-		const int flip_count = flips::json_data["stats"]["flips_done"];
+		const int flip_count = db.json_data["stats"]["flips_done"];
 		if (flip_count == 0)
 			return result;
 
-		std::copy_if(flips::json_data["flips"].begin(), flips::json_data["flips"].end(), std::back_inserter(result),
+		std::copy_if(db.json_data["flips"].begin(), db.json_data["flips"].end(), std::back_inserter(result),
 			[item_name](const nlohmann::json j) {
 				return j["item"] == item_name && j["done"] == true;
 			}
@@ -453,17 +376,16 @@ namespace flips
 		return result;
 	}
 
-	void filter_name(const std::string& name)
+	void filter_name(const db& db, const std::string& name)
 	{
-		init();
 		std::cout << "Filter: " << name << std::endl;
 
 		/* Quit if zero flips done */
-		const int flip_count = flips::json_data["stats"]["flips_done"];
+		const int flip_count = db.json_data["stats"]["flips_done"];
 		if (flip_count == 0)
 			return;
 
-		std::vector<nlohmann::json> found_flips = find_flips_by_name(name);
+		std::vector<nlohmann::json> found_flips = find_flips_by_name(db, name);
 
 		std::cout << "Results: " << found_flips.size() << std::endl;
 		if (found_flips.size() == 0)
@@ -531,19 +453,17 @@ namespace flips
 		std::cout << "\033[35mMax sell price: " << flip_utils::json_max_int(sorted_list, "sold") << "\033[0m\n";
 	}
 
-	void filter_count(const int flip_count)
+	void filter_count(const db& db, const int flip_count)
 	{
-		init();
-
 		/* Don't do anything if there are no flips in the db */
-		if (flips.size() == 0)
+		if (db.flips.size() == 0)
 			return;
 
 		/* Don't do anything if the flip count given is dumb */
 		if (flip_count < 1)
 			return;
 
-		std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(flips);
+		std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(db.flips);
 
 		for (size_t i = 0; i < avgStats.size(); i++)
 		{
@@ -552,19 +472,17 @@ namespace flips
 		}
 	}
 
-	bool flip_recommendations()
+	bool flip_recommendations(const db& db)
 	{
-		init();
-
-		if (flips.size() < 10)
+		if (db.flips.size() < 10)
 			return false;
 
 		/* Read in the item recommendation blacklist */
-		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(item_blacklist_file);
+		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(file_paths::item_blacklist_file);
 
 		flip_utils::print_title("Recommended flips");
 
-		const std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(flips);
+		const std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(db.flips);
 		const std::vector<stats::avg_stat> recommendedFlips = stats::sort_flips_by_recommendation(avgStats);
 
 		table recommendation_table({"Item name", "Average profit", "Count"});
