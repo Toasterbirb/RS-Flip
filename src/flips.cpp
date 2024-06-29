@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <iostream>
 
-constexpr int RECOMMENDATION_THRESHOLD = 750'000;
+constexpr i32 RECOMMENDATION_THRESHOLD = 750'000;
 
 namespace flips
 {
@@ -55,7 +55,7 @@ namespace flips
 			account = j["account"];
 	}
 
-	flip::flip(const std::string& item, const int buy_price, const int sell_price, const int buy_amount, const std::string& account_name)
+	flip::flip(const std::string& item, const i32 buy_price, const i32 sell_price, const i32 buy_amount, const std::string& account_name)
 	{
 		this->item 			= item;
 		this->buy_price 	= buy_price;
@@ -67,7 +67,7 @@ namespace flips
 		this->done 			= false;
 	}
 
-	void flip::sell(const int sell_price)
+	void flip::sell(const i32 sell_price)
 	{
 		this->sell_price 	= sell_price;
 		this->done 			= true;
@@ -94,7 +94,7 @@ namespace flips
 		return j;
 	}
 
-	void print_stats(const db& db, const int top_value_count)
+	void print_stats(const db& db, const i32 top_value_count)
 	{
 		/* Print top performing flips */
 		const std::vector<stats::avg_stat> stats = db.get_flip_avg_stats();
@@ -119,7 +119,7 @@ namespace flips
 
 		table flips_by_roi({"Item", "ROI-%", "Average profit"});
 
-		for (int i = 0; i < std::clamp(static_cast<int>(topROI.size()), 0, top_value_count); i++)
+		for (i32 i = 0; i < std::clamp(static_cast<int>(topROI.size()), 0, top_value_count); i++)
 			flips_by_roi.add_row({topROI[i].name, std::to_string(topROI[i].avg_roi()), flip_utils::round_big_numbers(topROI[i].avg_profit())});
 
 		flips_by_roi.print();
@@ -131,7 +131,7 @@ namespace flips
 
 		table flips_by_profit({"Item", "Average profit", "ROI-%"});
 
-		for (int i = 0; i < std::clamp(static_cast<int>(topProfit.size()), 0, top_value_count); i++)
+		for (i32 i = 0; i < std::clamp(static_cast<int>(topProfit.size()), 0, top_value_count); i++)
 		{
 			std::string avgprofit_string = flip_utils::round_big_numbers(topProfit[i].avg_profit());
 			flips_by_profit.add_row({topProfit[i].name, avgprofit_string, std::to_string(topProfit[i].avg_roi())});
@@ -283,7 +283,7 @@ namespace flips
 		}
 	}
 
-	void cancel(db& db, const int ID)
+	void cancel(db& db, const i32 ID)
 	{
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
@@ -295,7 +295,7 @@ namespace flips
 		std::cout << "Flip [" << db.get_flip<std::string>(flip_to_cancel, db::flip_key::item) << "] cancelled!\n";
 	}
 
-	void sell(db& db, const int index, i32 sell_value, i32 sell_amount)
+	void sell(db& db, const i32 index, i32 sell_value, i32 sell_amount)
 	{
 		const i32 flip_index = find_real_id_with_undone_id(db, index);
 		if (flip_index == -1)
@@ -434,11 +434,11 @@ namespace flips
 		table recommendation_table({"Item name", "Average profit", "Count"});
 
 		/* Print recommendations until the recommendation_count has been reached */
-		int i = 0; 		/* The current recommended item */
-		int count = 0; 	/* How many recommendations have been shown */
+		i32 i = 0; 		/* The current recommended item */
+		i32 count = 0; 	/* How many recommendations have been shown */
 
 		/* How many items to recommend in total */
-		const int max = std::clamp(static_cast<int>(recommendedFlips.size()), 1, recommendation_count);
+		const i32 max = std::clamp(static_cast<int>(recommendedFlips.size()), 1, recommendation_count);
 
 		while (count < max && i < static_cast<int>(recommendedFlips.size()))
 		{
@@ -471,7 +471,7 @@ namespace flips
 		recommendation_table.print();
 
 		// Pick some random flips
-		const int max_random_count = std::clamp(random_flip_count, 0, static_cast<int>(recommendedFlips.size()) - max);
+		const i32 max_random_count = std::clamp(random_flip_count, 0, static_cast<int>(recommendedFlips.size()) - max);
 
 		if (max_random_count > 0)
 		{
@@ -480,9 +480,9 @@ namespace flips
 			flip_utils::print_title("Random flips");
 			class random rng;
 
-			for (int j = 0; j < max_random_count; ++j)
+			for (i32 j = 0; j < max_random_count; ++j)
 			{
-				const int index = rng.range(max, static_cast<int>(recommendedFlips.size() - 1));
+				const i32 index = rng.range(max, static_cast<int>(recommendedFlips.size() - 1));
 				recommendation_table.add_row({recommendedFlips[index].name, flip_utils::round_big_numbers(recommendedFlips[index].rolling_avg_profit()), std::to_string(recommendedFlips[index].flip_count())});
 			}
 
