@@ -109,7 +109,7 @@ private:
 		{ flip_key::account,	"account" },
 		{ flip_key::item,		"item" },
 		{ flip_key::buy,		"buy" },
-		{ flip_key::sell,		"sold" },
+		{ flip_key::sell,		"sell" },
 		{ flip_key::sold,		"sold" },
 		{ flip_key::limit,		"limit" },
 		{ flip_key::cancelled,	"cancelled" },

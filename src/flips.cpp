@@ -226,6 +226,13 @@ namespace flips
 			const u64 flip_sell				= db.get_flip<u64>(undone_flips[i], db::flip_key::sell);
 			const std::string& account		= db.get_flip<std::string>(undone_flips[i], db::flip_key::account);
 
+			/* The minimum price and count for an item is 1 */
+			assert(!flip_name.empty());
+			assert(flip_item_count > 0);
+			assert(flip_buy > 0);
+			assert(flip_sell > 0);
+			assert(!account.empty());
+
 			/* If using account filtering, skip rows with non-matching accounts */
 			if (!account_filter.empty() && account != account_filter)
 				continue;
