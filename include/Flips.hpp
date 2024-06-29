@@ -31,7 +31,6 @@ namespace flips
 	void print_stats(const db& db, const int top_value_count = 10);
 	void fix_stats(db& db);
 	void list(const db& db, const std::string& account_filter = ""); /* List on-going flips */
-	void add(db& db, const flip& flip); /* Add a new flip */
 	void cancel(db& db, const int ID); /* Cancel an existing flip */
 	void sell(db& db, const int index, int sell_value, int sell_amount);
 
@@ -42,7 +41,7 @@ namespace flips
 
 	/* Print filtered data */
 	void filter_name(const db& db, const std::string& name);
-	void filter_count(const db& db, const int flip_count);
+	void filter_count(const db& db, const u32 flip_count);
 
 	/* Flip recommendations */
 	bool flip_recommendations(const db& db);

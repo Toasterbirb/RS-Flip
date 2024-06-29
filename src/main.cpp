@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 			i32 profit = margin::calc_profit(flip);
 			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << '\n';
 
-			flips::add(db, flip);
+			db.add_flip(flip);
 			break;
 		}
 

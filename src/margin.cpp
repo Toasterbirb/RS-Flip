@@ -8,6 +8,7 @@
 
 namespace margin
 {
+	__attribute__((const))
 	int calc_margin(const int insta_buy, const int insta_sell)
 	{
 		return insta_buy - insta_sell;
@@ -19,6 +20,7 @@ namespace margin
 		CHECK(calc_margin(4000, 5000) == -1000);
 	}
 
+	__attribute__((const))
 	int calc_profit_with_cut(const int margin, const int buy_limit, const int price_cut)
 	{
 		return buy_limit * (margin - (price_cut * 2));
@@ -32,6 +34,7 @@ namespace margin
 		CHECK(calc_profit_with_cut(-5, 10, 0) == -50);
 	}
 
+	__attribute__((const))
 	int calc_profit(const int buy_price, const int sell_price, const int buy_limit)
 	{
 		if (sell_price <= 50)
@@ -40,6 +43,7 @@ namespace margin
 			return ((sell_price * 0.98f) - buy_price) * buy_limit;
 	}
 
+	__attribute__((const))
 	int calc_profit(const flips::flip& flip)
 	{
 		if (flip.done)
@@ -54,6 +58,7 @@ namespace margin
 				return ((flip.sell_price * 0.98) - flip.buy_price) * flip.buylimit;
 	}
 
+	__attribute__((const))
 	int calc_profit_tax_free(const flips::flip& flip)
 	{
 		if (flip.done)

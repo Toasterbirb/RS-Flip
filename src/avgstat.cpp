@@ -28,7 +28,7 @@ namespace stats
 		total_sell_sold_distance 	= 0;
 	}
 
-	void avg_stat::add_data(const int profit, const double ROI, const int item_count, const int sell, const int sold, const int latest_trade_index)
+	void avg_stat::add_data(const i64 profit, const f64 ROI, const u32 item_count, const i32 sell, const i32 sold, const u32 latest_trade_index)
 	{
 		profit_list.push_back(profit);
 
@@ -55,7 +55,7 @@ namespace stats
 		total_sell_sold_distance += std::abs(sell - sold);
 	}
 
-	double avg_stat::avg_profit() const
+	f64 avg_stat::avg_profit() const
 	{
 		assert(value_count > 0);
 
@@ -66,7 +66,7 @@ namespace stats
 		return (double)total_profit / value_count;
 	}
 
-	double avg_stat::rolling_avg_profit() const
+	f64 avg_stat::rolling_avg_profit() const
 	{
 		/* Count the total "rolling" profit */
 		int rolling_total_profit = 0;
@@ -92,7 +92,7 @@ namespace stats
 		return (double)rolling_total_profit / rolling_profit_count;
 	}
 
-	double avg_stat::avg_roi() const
+	f64 avg_stat::avg_roi() const
 	{
 		assert(value_count > 0);
 
@@ -103,7 +103,7 @@ namespace stats
 		return (double)total_roi / value_count;
 	}
 
-	double avg_stat::avg_buy_limit() const
+	f64 avg_stat::avg_buy_limit() const
 	{
 		assert(value_count > 0);
 
@@ -114,12 +114,11 @@ namespace stats
 		return (double)total_item_count / value_count;
 	}
 
-	double avg_stat::flip_recommendation() const
+	f64 avg_stat::flip_recommendation() const
 	{
 		if (flip_count() > 0)
 		{
 			assert(total_flip_count > 0);
-			assert(total_flip_count - _latest_trade_index >= 0);
 
 			constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
 			constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
@@ -138,12 +137,12 @@ namespace stats
 		}
 	}
 
-	int avg_stat::flip_count() const
+	u32 avg_stat::flip_count() const
 	{
 		return value_count;
 	}
 
-	int avg_stat::latest_trade_index() const
+	i32 avg_stat::latest_trade_index() const
 	{
 		return _latest_trade_index;
 	}

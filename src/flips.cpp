@@ -7,6 +7,7 @@
 #include "Random.hpp"
 #include "Stats.hpp"
 #include "Table.hpp"
+#include "Types.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -16,7 +17,7 @@ constexpr int RECOMMENDATION_THRESHOLD = 750'000;
 namespace flips
 {
 	/* Declare some functions */
-	int find_real_id_with_undone_id(const db& db, const int undone_id);
+	i32 find_real_id_with_undone_id(const db& db, const u32 undone_id);
 
 	flip::flip()
 	{
@@ -96,7 +97,7 @@ namespace flips
 	void print_stats(const db& db, const int top_value_count)
 	{
 		/* Print top performing flips */
-		const std::vector<stats::avg_stat> stats = stats::flips_to_avg_stats(db.flips);
+		const std::vector<stats::avg_stat> stats = db.get_flip_avg_stats();
 
 		if (stats.empty())
 		{
@@ -105,12 +106,12 @@ namespace flips
 		}
 
 		flip_utils::print_title("Stats");
-		std::cout << "Total profit: " << flip_utils::round_big_numbers(db.json_data["stats"]["profit"]) << std::endl;
-		std::cout << "Flips done: " << flip_utils::round_big_numbers(db.json_data["stats"]["flips_done"]) << std::endl;
+		std::cout << "Total profit: " << flip_utils::round_big_numbers(db.get_stat(db::stat_key::profit)) << '\n';
+		std::cout << "Flips done: " << flip_utils::round_big_numbers(db.get_stat(db::stat_key::flips_done)) << '\n';
 		std::cout << "\n";
 
 		/* Quit if zero flips done */
-		if (db.json_data["stats"]["flips_done"] == 0)
+		if (db.get_stat(db::stat_key::flips_done) == 0)
 			return;
 
 		flip_utils::print_title("Top flips by ROI-%");
@@ -143,32 +144,31 @@ namespace flips
 	{
 		std::cout << "Recalculating statistics..." << std::endl;
 
-		long total_profit = 0;
-		int flip_count = 0;
+		i64 total_profit = 0;
+		i32 flip_count = 0;
 
-		for (size_t i = 0; i < db.json_data["flips"].size(); i++)
+		for (size_t i = 0; i < db.total_flip_count(); i++)
 		{
 			/* Check if the flip is done */
-			if (db.json_data["flips"][i]["done"] == true)
+			if (db.get_flip<bool>(i, db::flip_key::done) == true)
 			{
 				flip_count++;
 
 				/* Flip is done, but the sold price is missing */
-				if (db.json_data["flips"][i]["sold"] == 0)
-					db.json_data["flips"][i]["sold"] = db.json_data["flips"][i]["sell"];
+				if (db.get_flip<u64>(i, db::flip_key::sold) == 0)
+					db.set_flip(i, db::flip_key::sold, db.get_flip<u64>(i, db::flip_key::sell));
 
 				/* Calculate the profit */
-				int buy_price 	= db.json_data["flips"][i]["buy"];
-				int sell_price 	= db.json_data["flips"][i]["sold"];
-				int limit 		= db.json_data["flips"][i]["limit"];
+				i32 buy_price 	= db.get_flip<u64>(i, db::flip_key::buy);
+				i32 sell_price 	= db.get_flip<u64>(i, db::flip_key::sold);
+				i32 limit 		= db.get_flip<u64>(i, db::flip_key::limit);
 				total_profit += margin::calc_profit(buy_price, sell_price, limit);
-				//total_profit += (sell_price - buy_price) * limit;
 			}
 		}
 
 		/* Update the stats values */
-		db.json_data["stats"]["profit"] 		= total_profit;
-		db.json_data["stats"]["flips_done"] 	= flip_count;
+		db.set_stat(db::stat_key::profit, total_profit);
+		db.set_stat(db::stat_key::flips_done, flip_count);
 
 		/* Update the data file */
 		db.write();
@@ -176,15 +176,19 @@ namespace flips
 
 	void list(const db& db, const std::string& account_filter)
 	{
-		std::vector<nlohmann::json> undone_flips;
+		std::vector<u32> undone_flips;
 
-		for (size_t i = 0; i < db.flips.size(); i++)
+		for (size_t i = 0; i < db.total_flip_count(); i++)
 		{
 			/* Check if the flip is done yet */
-			if (db.flips[i]["done"] == true)
+			if (db.get_flip<bool>(i, db::flip_key::done))
 				continue;
 
-			undone_flips.push_back(db.flips[i]);
+			/* Check if the flip has been cancelled */
+			if (db.get_flip<bool>(i, db::flip_key::cancelled))
+				continue;
+
+			undone_flips.push_back(i);
 		}
 
 		if (undone_flips.empty())
@@ -194,24 +198,14 @@ namespace flips
 			return;
 		}
 
-		/* Set the account variable for the undone flips
-		 * This is because the variable might be missing due to backwards compat reasons
-		 *
-		 * Also keep track of the accounts listed. If only main account was used, we can
+		/* Keep track of the accounts listed. If only main account was used, we can
 		 * skip printing the Account column in the flip list command */
 		bool flips_only_with_main = true;
 		for (size_t i = 0; i < undone_flips.size(); ++i)
 		{
-			/* Check if the account variable was set */
-			if (!undone_flips[i].contains("account"))
-			{
-				undone_flips[i]["account"] = "main";
-				continue;
-			}
-
 			/* If account other than main was used, print the account
 			 * column to the table */
-			if (undone_flips[i]["account"] != "main")
+			if (db.get_flip<std::string>(undone_flips[i], db::flip_key::account) != "main")
 				flips_only_with_main = false;
 		}
 
@@ -226,11 +220,11 @@ namespace flips
 		flip_utils::print_title("On-going flips");
 		for (size_t i = 0; i < undone_flips.size(); i++)
 		{
-			const std::string& flip_name	= undone_flips[i]["item"];
-			const int flip_item_count		= undone_flips[i]["limit"];
-			const int flip_buy				= undone_flips[i]["buy"];
-			const int flip_sell				= undone_flips[i]["sell"];
-			const std::string& account		= undone_flips[i]["account"];
+			const std::string& flip_name	= db.get_flip<std::string>(undone_flips[i], db::flip_key::item);
+			const u32 flip_item_count		= db.get_flip<u32>(undone_flips[i], db::flip_key::limit);
+			const u64 flip_buy				= db.get_flip<u64>(undone_flips[i], db::flip_key::buy);
+			const u64 flip_sell				= db.get_flip<u64>(undone_flips[i], db::flip_key::sell);
+			const std::string& account		= db.get_flip<std::string>(undone_flips[i], db::flip_key::account);
 
 			/* If using account filtering, skip rows with non-matching accounts */
 			if (!account_filter.empty() && account != account_filter)
@@ -257,15 +251,15 @@ namespace flips
 		daily_progress.print_progress();
 	}
 
-	int find_real_id_with_undone_id(const db& db, const int undone_id)
+	i32 find_real_id_with_undone_id(const db& db, const u32 undone_id)
 	{
-		int undone_index = 0;
-		int result;
+		u32 undone_index = 0;
+		i32 result;
 		bool result_found = false;
-		for (size_t i = 0; i < db.flips.size(); i++)
+		for (size_t i = 0; i < db.total_flip_count(); i++)
 		{
 			/* Skip flips that are already done */
-			if (db.flips[i]["done"] == true)
+			if (db.get_flip<bool>(i, db::flip_key::done) == true)
 				continue;
 
 			if (undone_index != undone_id)
@@ -289,62 +283,50 @@ namespace flips
 		}
 	}
 
-	void add(db& db, const flip& flip)
-	{
-		db.flips.push_back(flip.to_json());
-		db.apply_flip_array();
-	}
-
 	void cancel(db& db, const int ID)
 	{
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
-		const int flip_to_cancel = find_real_id_with_undone_id(db, ID);
-		db.flips[flip_to_cancel]["cancelled"] = true;
+		const i32 flip_to_cancel = find_real_id_with_undone_id(db, ID);
+		assert(flip_to_cancel > 0);
+		db.set_flip(flip_to_cancel, db::flip_key::cancelled, true);
+		db.write();
 
-		std::cout << "Flip [" << db.flips[flip_to_cancel]["item"] << "] cancelled!\n";
-
-		db.apply_flip_array();
+		std::cout << "Flip [" << db.get_flip<std::string>(flip_to_cancel, db::flip_key::item) << "] cancelled!\n";
 	}
 
-	void sell(db& db, const int index, int sell_value, int sell_amount)
+	void sell(db& db, const int index, i32 sell_value, i32 sell_amount)
 	{
-		const int result = find_real_id_with_undone_id(db, index);
-		if (result == -1)
+		const i32 flip_index = find_real_id_with_undone_id(db, index);
+		if (flip_index == -1)
 			return;
-
-		nlohmann::json& result_flip = db.flips[result];
 
 		/* Update the flip values */
 		if (sell_amount == 0)
-			sell_amount = result_flip["limit"];
+			sell_amount = db.get_flip<u32>(flip_index, db::flip_key::limit);
 		else
-			result_flip["limit"] = sell_amount;
+			db.set_flip(flip_index, db::flip_key::limit, sell_amount);
 
-		result_flip["done"] = true;
+		db.set_flip(flip_index, db::flip_key::done, true);
 
 		if (sell_value == 0)
-			sell_value = result_flip["sell"];
+			sell_value = db.get_flip<u64>(flip_index, db::flip_key::sell);
 
-		result_flip["sold"] = sell_value;
+		db.set_flip(flip_index, db::flip_key::sold, sell_value);
 
-		{
-			int flips_done = db.json_data["stats"]["flips_done"];
-			++flips_done;
-			db.json_data["stats"]["flips_done"] = flips_done;
-		}
+		/* Increment the total flip counter by one */
+		db.set_stat(db::stat_key::flips_done, db.get_stat(db::stat_key::flips_done) + 1);
 
-		const int buy_price = result_flip["buy"];
-		const int profit = margin::calc_profit(buy_price, sell_value, sell_amount);
+		const i32 profit = margin::calc_profit(db.get_flip<u32>(flip_index, db::flip_key::buy), sell_value, sell_amount);
 
-		long total_profit = db.json_data["stats"]["profit"];
+		i64 total_profit = db.get_stat(db::stat_key::profit);
 		total_profit += profit;
-		db.json_data["stats"]["profit"] = total_profit;
+		db.set_stat(db::stat_key::profit, total_profit);
 
 		flip_utils::print_title("Flip complete");
-		std::cout << "Item: " << result_flip["item"] << std::endl;
-		std::cout << "Profit: " << profit << " (" << flip_utils::round_big_numbers(profit) << ")" << std::endl;
-		std::cout << "Total profit so far: " << total_profit << " (" << flip_utils::round_big_numbers(total_profit) << ")" << std::endl;
+		std::cout << "Item: " << db.get_flip<std::string>(flip_index, db::flip_key::item) << '\n'
+				<< "Profit: " << profit << " (" << flip_utils::round_big_numbers(profit) << ")\n"
+				<< "Total profit so far: " << total_profit << " (" << flip_utils::round_big_numbers(total_profit) << ")\n";
 
 		/* Handle daily progress */
 		{
@@ -358,34 +340,15 @@ namespace flips
 		db.apply_flip_array();
 	}
 
-	std::vector<nlohmann::json> find_flips_by_name(const db& db, const std::string& item_name)
-	{
-		std::vector<nlohmann::json> result;
-
-		/* Quit if zero flips done */
-		const int flip_count = db.json_data["stats"]["flips_done"];
-		if (flip_count == 0)
-			return result;
-
-		std::copy_if(db.json_data["flips"].begin(), db.json_data["flips"].end(), std::back_inserter(result),
-			[item_name](const nlohmann::json j) {
-				return j["item"] == item_name && j["done"] == true;
-			}
-		);
-
-		return result;
-	}
-
 	void filter_name(const db& db, const std::string& name)
 	{
 		std::cout << "Filter: " << name << std::endl;
 
 		/* Quit if zero flips done */
-		const int flip_count = db.json_data["stats"]["flips_done"];
-		if (flip_count == 0)
+		if (db.get_stat(db::stat_key::flips_done) == 0)
 			return;
 
-		std::vector<nlohmann::json> found_flips = find_flips_by_name(db, name);
+		std::vector<u32> found_flips = db.find_flips_by_name(name);
 
 		std::cout << "Results: " << found_flips.size() << std::endl;
 		if (found_flips.size() == 0)
@@ -396,16 +359,17 @@ namespace flips
 		std::cout << "| Buy         | Sell        | Count   | Profit      |\n";
 		std::cout << "+-------------+-------------+---------+-------------+\n";
 
-		int total_profit = 0;
+		i64 total_profit = 0;
 		for (size_t i = 0; i < found_flips.size(); i++)
 		{
-			flip flip(found_flips[i]);
+			flip flip = db.get_flip_obj(found_flips.at(i));
 
 			const std::string buy_price = flip_utils::round_big_numbers(flip.buy_price);
 			const std::string sell_price = flip_utils::round_big_numbers(flip.sold_price);
-			//int profit = (flip.sold_price - flip.buy_price) * flip.buylimit;
-			const int profit = margin::calc_profit(flip.buy_price, flip.sold_price, flip.buylimit);
+
+			const i64 profit = margin::calc_profit(flip.buy_price, flip.sold_price, flip.buylimit);
 			total_profit += profit;
+
 			const std::string profit_text = flip_utils::round_big_numbers(profit);
 			const std::string item_count = std::to_string(flip.buylimit);
 
@@ -421,60 +385,42 @@ namespace flips
 		std::cout << "\n\033[33mAverage profit: " << flip_utils::round_big_numbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
 		std::cout << "\033[32mTotal profit:   " << flip_utils::round_big_numbers((double)total_profit) << "\033[0m" << std::endl;
 
-		/** Calculate median buy and sell prices **/
-		const int middle_index = std::floor(found_flips.size() / 2.0);
-		std::vector<nlohmann::json> sorted_list = found_flips;
-
-		std::cout << "\n";
-
-		/* Sort by buying price */
-		flip_utils::json_sort(sorted_list, "buy");
-		std::cout << "Median buy price:  " << sorted_list.at(middle_index)["buy"] << "\n";
-
-		/* Sort by selling price */
-		flip_utils::json_sort(sorted_list, "sold");
-		std::cout << "Median sell price: " << sorted_list.at(middle_index)["sold"] << "\n";
-
 		std::cout << "\n";
 
 		/** Calculate average buying and selling prices **/
-		std::cout << "\033[37mAverage buy price:  " << flip_utils::json_average(found_flips, "buy") << "\033[0m\n";
-		std::cout << "\033[37mAverage sell price: " << flip_utils::json_average(found_flips, "sold") << "\033[0m\n";
+		std::cout << "\033[37mAverage buy price:  " << db.get_flip_average<u64>(found_flips, db::flip_key::buy) << "\033[0m\n";
+		std::cout << "\033[37mAverage sell price: " << db.get_flip_average<u64>(found_flips, db::flip_key::sold) << "\033[0m\n";
 
 		std::cout << "\n";
 
 		/** Find min and max buy/sell prices **/
-		std::cout << "\033[34mMin buy price: " << flip_utils::json_min_int(sorted_list, "buy") << "\033[0m\n";
-		std::cout << "\033[34mMax buy price: " << flip_utils::json_max_int(sorted_list, "buy") << "\033[0m\n";
+		std::cout << "\033[34mMin buy price: " << db.get_flip_min<u64>(found_flips, db::flip_key::buy) << "\033[0m\n";
+		std::cout << "\033[34mMax buy price: " << db.get_flip_max<u64>(found_flips, db::flip_key::buy) << "\033[0m\n";
 
 		std::cout << "\n";
 
-		std::cout << "\033[35mMin sell price: " << flip_utils::json_min_int(sorted_list, "sold") << "\033[0m\n";
-		std::cout << "\033[35mMax sell price: " << flip_utils::json_max_int(sorted_list, "sold") << "\033[0m\n";
+		std::cout << "\033[35mMin sell price: " << db.get_flip_min<u64>(found_flips, db::flip_key::sold) << "\033[0m\n";
+		std::cout << "\033[35mMax sell price: " << db.get_flip_max<u64>(found_flips, db::flip_key::sold) << "\033[0m\n";
 	}
 
-	void filter_count(const db& db, const int flip_count)
+	void filter_count(const db& db, const u32 flip_count)
 	{
 		/* Don't do anything if there are no flips in the db */
-		if (db.flips.size() == 0)
+		if (db.total_flip_count() == 0)
 			return;
 
 		/* Don't do anything if the flip count given is dumb */
 		if (flip_count < 1)
 			return;
 
-		std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(db.flips);
-
-		for (size_t i = 0; i < avgStats.size(); i++)
-		{
-			if (avgStats[i].flip_count() <= flip_count)
-				std::cout << avgStats[i].name << std::endl;
-		}
+		std::vector<u32> flips = db.find_flips_by_count(flip_count);
+		for (const u32 flip : flips)
+			std::cout << db.get_flip<std::string>(flip, db::flip_key::item) << '\n';
 	}
 
 	bool flip_recommendations(const db& db)
 	{
-		if (db.flips.size() < 10)
+		if (db.total_flip_count() < 10)
 			return false;
 
 		/* Read in the item recommendation blacklist */
@@ -482,7 +428,7 @@ namespace flips
 
 		flip_utils::print_title("Recommended flips");
 
-		const std::vector<stats::avg_stat> avgStats = stats::flips_to_avg_stats(db.flips);
+		const std::vector<stats::avg_stat> avgStats = db.get_flip_avg_stats();
 		const std::vector<stats::avg_stat> recommendedFlips = stats::sort_flips_by_recommendation(avgStats);
 
 		table recommendation_table({"Item name", "Average profit", "Count"});
