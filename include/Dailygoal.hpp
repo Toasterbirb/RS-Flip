@@ -32,6 +32,7 @@ public:
 	int current_progress() const;
 	int goal() const;
 	void print_progress() const;
+	void write(); /* Write to the daily progress file */
 
 private:
 	std::string file_path;

@@ -10,15 +10,13 @@
 #include "Types.hpp"
 
 #include <algorithm>
+#include <doctest/doctest.h>
 #include <iostream>
 
 constexpr i32 RECOMMENDATION_THRESHOLD = 750'000;
 
 namespace flips
 {
-	/* Declare some functions */
-	i32 find_real_id_with_undone_id(const db& db, const u32 undone_id);
-
 	flip::flip()
 	{
 		item 		= "null";
@@ -169,12 +167,9 @@ namespace flips
 		/* Update the stats values */
 		db.set_stat(db::stat_key::profit, total_profit);
 		db.set_stat(db::stat_key::flips_done, flip_count);
-
-		/* Update the data file */
-		db.write();
 	}
 
-	void list(const db& db, const std::string& account_filter)
+	void list(const db& db, const daily_progress& daily_progress, const std::string& account_filter)
 	{
 		std::vector<u32> undone_flips;
 
@@ -253,7 +248,6 @@ namespace flips
 			std::cout << "There are no on-going flips on account '" << account_filter << "'\n";
 
 		/* Print out daily goal */
-		const daily_progress daily_progress;
 		std::cout << "\n";
 		daily_progress.print_progress();
 	}
@@ -295,14 +289,19 @@ namespace flips
 		/* Mark the flip as cancelled. It will be removed when the flip array
 		 * is loaded next time around and saved */
 		const i32 flip_to_cancel = find_real_id_with_undone_id(db, ID);
-		assert(flip_to_cancel > 0);
+
+		// flip_to_cancel will be -1 if the ID was bogus
+		if (flip_to_cancel < 0)
+			return;
+
+		assert(!db.get_flip<bool>(flip_to_cancel, db::flip_key::done));
+
 		db.set_flip(flip_to_cancel, db::flip_key::cancelled, true);
-		db.write();
 
 		std::cout << "Flip [" << db.get_flip<std::string>(flip_to_cancel, db::flip_key::item) << "] cancelled!\n";
 	}
 
-	void sell(db& db, const i32 index, i32 sell_value, i32 sell_amount)
+	void sell(db& db, daily_progress& daily_progress, const i32 index, i32 sell_value, i32 sell_amount)
 	{
 		const i32 flip_index = find_real_id_with_undone_id(db, index);
 		if (flip_index == -1)
@@ -336,15 +335,9 @@ namespace flips
 				<< "Total profit so far: " << total_profit << " (" << flip_utils::round_big_numbers(total_profit) << ")\n";
 
 		/* Handle daily progress */
-		{
-			daily_progress daily_progress;
-			daily_progress.add_progress(profit);
-			std::cout << "\n";
-			daily_progress.print_progress();
-		}
-
-		/* Update the json file */
-		db.apply_flip_array();
+		daily_progress.add_progress(profit);
+		std::cout << "\n";
+		daily_progress.print_progress();
 	}
 
 	void filter_name(const db& db, const std::string& name)

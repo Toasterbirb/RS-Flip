@@ -18,6 +18,10 @@ class db
 public:
 	db();
 
+	/* Allow custom json data for testing purposes */
+	__attribute__((cold))
+	explicit db(const nlohmann::json& json_data);
+
 	enum class flip_key
 	{
 		account, item, buy, sell, sold, limit, cancelled, done
@@ -75,24 +79,29 @@ public:
 		json_data["flips"][index][flip_key_to_str.at(key)] = data;
 	}
 
+	__attribute__((warn_unused_result))
 	flips::flip get_flip_obj(const u32 index) const;
+
+	__attribute__((warn_unused_result))
 	std::vector<stats::avg_stat> get_flip_avg_stats() const;
 
+	__attribute__((warn_unused_result))
 	std::vector<u32> find_flips_by_name(const std::string& item_name) const;
+
+	__attribute__((warn_unused_result))
 	std::vector<u32> find_flips_by_count(const u32 flip_count) const;
 
 	__attribute__((warn_unused_result))
 	i64 get_stat(const stat_key key) const;
 	void set_stat(const stat_key key, const i64 data);
 
-	void apply_flip_array();
 	void write(); /* Write the DB to disk */
 
 private:
-	std::vector<nlohmann::json> flips;
 	nlohmann::json json_data;
 
 	template<typename T>
+	__attribute__((warn_unused_result))
 	std::vector<T> get_flip_values(const std::vector<u32>& indices, const flip_key key) const
 	{
 		std::vector<T> values;
@@ -103,7 +112,6 @@ private:
 	}
 
 	void create_default_data_file();
-	void initialize_flip_array();
 
 	const static inline std::unordered_map<flip_key, std::string> flip_key_to_str = {
 		{ flip_key::account,	"account" },

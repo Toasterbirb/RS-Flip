@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 
 #include "DB.hpp"
+#include "Dailygoal.hpp"
 #include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
@@ -105,22 +106,22 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// Database
 	db db;
+	daily_progress daily_progress;
 
 	switch (selected_mode)
 	{
 		case mode::tips:
 			flips::flip_recommendations(db);
-			break;
+			return 0;
 
 		case mode::calc:
 			margin::print_flip_estimation(options.buy_price, options.sell_price, options.item_count);
-			break;
+			return 0;
 
 		case mode::flip:
 		{
-			flips::flip flip(options.item_name,
+			const flips::flip flip_obj(options.item_name,
 					options.buy_price,
 					options.sell_price,
 					options.item_count,
@@ -131,15 +132,15 @@ int main(int argc, char** argv)
 					<< "Sell price: " << flip_utils::round_big_numbers(options.sell_price) << '\n'
 					<< "Buy count: " << options.item_count << "\n\n";
 
-			i32 profit = margin::calc_profit(flip);
+			i32 profit = margin::calc_profit(flip_obj);
 			std::cout << "Estimated profit: " << flip_utils::round_big_numbers(profit) << '\n';
 
-			db.add_flip(flip);
+			db.add_flip(flip_obj);
 			break;
 		}
 
 		case mode::sold:
-			flips::sell(db, options.id, options.sell_price, options.item_count);
+			flips::sell(db, daily_progress, options.id, options.sell_price, options.item_count);
 			break;
 
 		case mode::cancel:
@@ -147,7 +148,7 @@ int main(int argc, char** argv)
 			break;
 
 		case mode::list:
-			flips::list(db, options.account);
+			flips::list(db, daily_progress, options.account);
 			break;
 
 		case mode::filtering:
@@ -158,11 +159,12 @@ int main(int argc, char** argv)
 				flips::filter_count(db, options.flip_count);
 			else
 				std::cout << "Not really sure how to filter because no filters were defined\n";
-			break;
+			return 0;
 		}
 
 		case mode::stats:
 			flips::print_stats(db, options.result_count);
+			return 0;
 			break;
 
 		case mode::repair:
@@ -173,7 +175,7 @@ int main(int argc, char** argv)
 		{
 			auto fmt = clipp::doc_formatting{}.doc_column(30);
 			std::cout << clipp::make_man_page(cli, "rs-flip", fmt);
-			break;
+			return 0;
 		}
 
 		case mode::test:
@@ -182,4 +184,9 @@ int main(int argc, char** argv)
 			return context.run();
 		}
 	}
+
+	/* Update the database files
+	 * If no update is required, exit early */
+	db.write();
+	daily_progress.write();
 }

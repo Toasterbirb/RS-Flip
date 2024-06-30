@@ -85,8 +85,6 @@ void daily_progress::add_progress(const int amount)
 	int progress = json_data["progress"];
 	progress += amount;
 	json_data["progress"] = progress;
-
-	flip_utils::write_json_file(this->json_data, this->file_path);
 }
 
 int daily_progress::current_progress() const
@@ -106,4 +104,9 @@ void daily_progress::print_progress() const
 	const float progress_in_percent = ((float)progress / goal) * 100;
 
 	std::cout << "\033[1mDaily progress: " << flip_utils::round_big_numbers(progress) << " / " << flip_utils::round_big_numbers(goal) << " (" << std::round(progress_in_percent) << "%)\033[0m" << std::endl;
+}
+
+void daily_progress::write()
+{
+	flip_utils::write_json_file(this->json_data, this->file_path);
 }

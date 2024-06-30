@@ -4,6 +4,7 @@
 #include "Flips.hpp"
 
 #include <assert.h>
+#include <doctest/doctest.h>
 #include <filesystem>
 
 constexpr char DEFAULT_DATA_FILE[] = "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n";
@@ -22,49 +23,51 @@ db::db()
 	/* Read the json data file */
 	const std::string json_string = flip_utils::read_file(file_paths::data_file);
 	json_data = nlohmann::json::parse(json_string);
-
-	initialize_flip_array();
 }
 
-void db::initialize_flip_array()
-{
-	assert(!json_data.empty());
-	assert(json_data.contains("flips"));
-
-	/* Create the flip array */
-	for (size_t i = 0; i < total_flip_count(); i++)
-	{
-		/* Don't load cancelled flips */
-		if (get_flip<bool>(i, flip_key::cancelled) == true)
-			continue;
-
-		/* If the flip doesn't specify an account, set it to "main" */
-		if (!json_data["flips"][i].contains("account"))
-			json_data["flips"][i]["account"] = "main";
-
-		flips.push_back(json_data["flips"][i]);
-	}
-}
+db::db(const nlohmann::json& json_data)
+:json_data(json_data)
+{}
 
 void db::add_flip(const flips::flip& flip)
 {
-	flips.emplace_back(flip.to_json());
-	apply_flip_array();
+	json_data["flips"].emplace_back(flip.to_json());
+}
+
+TEST_CASE("Add a new flip")
+{
+	flips::flip flip_a;
+	flip_a.account = "main";
+	flip_a.buy_price = 1468;
+	flip_a.cancelled = false;
+	flip_a.done = false;
+	flip_a.item = "Yew shieldbow";
+	flip_a.buylimit = 4950;
+	flip_a.sell_price = 1649;
+	flip_a.sold_price = 0;
+
+	nlohmann::json db_json;
+
+	db db(db_json);
+
+	CHECK(db.total_flip_count() == 0);
+	db.add_flip(flip_a);
+	CHECK(db.total_flip_count() == 1);
 }
 
 size_t db::total_flip_count() const
 {
-	return json_data["flips"].size();
+	return json_data.contains("flips") ? json_data["flips"].size() : 0;
 }
 
 flips::flip db::get_flip_obj(const u32 index) const
 {
-	return flips::flip(flips.at(index));
+	return flips::flip(json_data["flips"].at(index));
 }
 
 std::vector<stats::avg_stat> db::get_flip_avg_stats() const
 {
-	return stats::flips_to_avg_stats(flips);
+	return stats::flips_to_avg_stats(json_data["flips"]);
 }
 
 std::vector<u32> db::find_flips_by_name(const std::string& item_name) const
@@ -95,7 +98,7 @@ std::vector<u32> db::find_flips_by_count(const u32 flip_count) const
 	if (get_stat(stat_key::flips_done) == 0)
 		return result;
 
-	std::vector<stats::avg_stat> avg_stats = stats::flips_to_avg_stats(flips);
+	std::vector<stats::avg_stat> avg_stats = stats::flips_to_avg_stats(json_data["flips"]);
 	for (size_t i = 0; i < avg_stats.size(); i++)
 	{
 		if (avg_stats[i].flip_count() <= flip_count)
@@ -113,12 +116,6 @@ i64 db::get_stat(const stat_key key) const
 void db::set_stat(const stat_key key, const i64 data)
 {
 	json_data["stats"][stat_key_to_str.at(key)] = data;
-}
-
-void db::apply_flip_array()
-{
-	json_data["flips"] = flips;
-	write();
 }
 
 void db::write()
