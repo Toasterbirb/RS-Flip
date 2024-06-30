@@ -40,3 +40,5 @@ if (DEBUG)
 else()
 	target_compile_options(flip PRIVATE -std=c++20 ${WARNINGS})
 endif()
+
+add_custom_target(test DEPENDS flip COMMAND flip test)
