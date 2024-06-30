@@ -263,6 +263,10 @@ namespace flips
 			if (db.get_flip<bool>(i, db::flip_key::done) == true)
 				continue;
 
+			/* Skip cancelled flips */
+			if (db.get_flip<bool>(i, db::flip_key::cancelled) == true)
+				continue;
+
 			if (undone_index != undone_id)
 				undone_index++;
 			else

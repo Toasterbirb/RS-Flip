@@ -217,3 +217,249 @@ TEST_CASE("Misc. flipping unit tests")
 		ensure_original_flip_states();
 	}
 }
+
+TEST_CASE("Flip selling")
+{
+	constexpr char json_str[] = R"~~~({
+    "flips": [
+        {
+            "account": "alt2",
+            "buy": 2461,
+            "cancelled": false,
+            "done": false,
+            "item": "Huge plated steel salvage",
+            "limit": 20000,
+            "sell": 4856,
+            "sold": 0
+        },
+        {
+            "account": "alt2",
+            "buy": 1101,
+            "cancelled": false,
+            "done": true,
+            "item": "Tomato",
+            "limit": 1376,
+            "sell": 1271,
+            "sold": 1207
+        },
+        {
+            "account": "alt2",
+            "buy": 6460,
+            "cancelled": false,
+            "done": true,
+            "item": "Emerald necklace",
+            "limit": 4950,
+            "sell": 6992,
+            "sold": 6992
+        },
+        {
+            "account": "alt1",
+            "buy": 6301,
+            "cancelled": false,
+            "done": false,
+            "item": "Prayer potion (3)",
+            "limit": 950,
+            "sell": 19997,
+            "sold": 0
+        },
+        {
+            "account": "alt1",
+            "buy": 811,
+            "cancelled": false,
+            "done": true,
+            "item": "Regular ritual candle",
+            "limit": 9950,
+            "sell": 999,
+            "sold": 999
+        },
+        {
+            "account": "alt1",
+            "buy": 1020,
+            "cancelled": false,
+            "done": true,
+            "item": "Red dragonhide",
+            "limit": 9950,
+            "sell": 1289,
+            "sold": 1037
+        },
+        {
+            "account": "main",
+            "buy": 2254,
+            "cancelled": false,
+            "done": true,
+            "item": "Iron bar",
+            "limit": 9950,
+            "sell": 2532,
+            "sold": 2480
+        },
+        {
+            "account": "main",
+            "buy": 4207,
+            "cancelled": false,
+            "done": false,
+            "item": "Medium plated adamant salvage",
+            "limit": 24950,
+            "sell": 6599,
+            "sold": 0
+        },
+        {
+            "account": "main",
+            "buy": 5000,
+            "cancelled": false,
+            "done": false,
+            "item": "Adamant bar",
+            "limit": 9950,
+            "sell": 5287,
+            "sold": 0
+        },
+        {
+            "account": "main",
+            "buy": 1468,
+            "cancelled": false,
+            "done": false,
+            "item": "Yew shieldbow",
+            "limit": 4950,
+            "sell": 1649,
+            "sold": 0
+        },
+        {
+            "account": "main",
+            "buy": 5,
+            "cancelled": false,
+            "done": true,
+            "item": "item",
+            "limit": 100,
+            "sell": 20,
+            "sold": 20
+        },
+        {
+            "account": "main",
+            "buy": 100,
+            "cancelled": true,
+            "done": false,
+            "item": "Another test",
+            "limit": 1000,
+            "sell": 200,
+            "sold": 0
+        },
+        {
+            "account": "alt1",
+            "buy": 6216,
+            "cancelled": false,
+            "done": false,
+            "item": "Prayer potion (3)",
+            "limit": 1950,
+            "sell": 18699,
+            "sold": 0
+        },
+        {
+            "account": "alt1",
+            "buy": 2041,
+            "cancelled": false,
+            "done": false,
+            "item": "Red topaz",
+            "limit": 4950,
+            "sell": 7619,
+            "sold": 7619
+        },
+        {
+            "account": "alt2",
+            "buy": 3001,
+            "cancelled": false,
+            "done": false,
+            "item": "White oak",
+            "limit": 4950,
+            "sell": 3248,
+            "sold": 0
+        },
+        {
+            "account": "alt2",
+            "buy": 1883,
+            "cancelled": false,
+            "done": false,
+            "item": "Adamantite ore",
+            "limit": 24950,
+            "sell": 2801,
+            "sold": 0
+        },
+        {
+            "account": "alt1",
+            "buy": 3502,
+            "cancelled": false,
+            "done": false,
+            "item": "Yew incense sticks",
+            "limit": 950,
+            "sell": 4197,
+            "sold": 0
+        }
+    ],
+    "stats": {
+        "flips_done": 6,
+        "profit": 5445099
+    }
+}
+)~~~";
+
+	nlohmann::json json_data = nlohmann::json::parse(json_str);
+	db db(json_data);
+	daily_progress daily_progress;
+
+	constexpr i32 known_ongoing_flip_count = 10;
+
+	std::vector<i32> ongoing_flips;
+
+	// Find the IDs for the "undone flips"
+	for (i32 i = 0; i < known_ongoing_flip_count; ++i)
+	{
+		const i32 id = flips::find_real_id_with_undone_id(db, i);
+		CHECK(id != -1);
+		ongoing_flips.push_back(id);
+	}
+
+	// Verify the flip names
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(0), db::flip_key::item) == "Huge plated steel salvage");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(1), db::flip_key::item) == "Prayer potion (3)");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(2), db::flip_key::item) == "Medium plated adamant salvage");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(3), db::flip_key::item) == "Adamant bar");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(4), db::flip_key::item) == "Yew shieldbow");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(5), db::flip_key::item) == "Prayer potion (3)");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(6), db::flip_key::item) == "Red topaz");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(7), db::flip_key::item) == "White oak");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(8), db::flip_key::item) == "Adamantite ore");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(9), db::flip_key::item) == "Yew incense sticks");
+
+	// Verify account names
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(0), db::flip_key::account) == "alt2");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(1), db::flip_key::account) == "alt1");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(2), db::flip_key::account) == "main");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(3), db::flip_key::account) == "main");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(4), db::flip_key::account) == "main");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(5), db::flip_key::account) == "alt1");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(6), db::flip_key::account) == "alt1");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(7), db::flip_key::account) == "alt2");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(8), db::flip_key::account) == "alt2");
+	CHECK(db.get_flip<std::string>(ongoing_flips.at(9), db::flip_key::account) == "alt1");
+
+	// Confirm that all of the listed flips are not done and are not cancelled
+	for (i32 i = 0; i < known_ongoing_flip_count; ++i)
+	{
+		CHECK(db.get_flip<bool>(ongoing_flips.at(i), db::flip_key::cancelled) == false);
+		CHECK(db.get_flip<bool>(ongoing_flips.at(i), db::flip_key::done) == false);
+	}
+
+	// Try selling the item "White oak"
+	const i32 white_oak_index = ongoing_flips.at(7);
+
+	CHECK_FALSE(db.get_flip<bool>(white_oak_index, db::flip_key::done));
+	CHECK(db.get_flip<i32>(white_oak_index, db::flip_key::sell) == 3248);
+	CHECK(db.get_flip<i32>(white_oak_index, db::flip_key::sold) == 0);
+
+	// The ID shown in the list is 7
+	flips::sell(db, daily_progress, 7, 0, 0);
+
+	CHECK(db.get_flip<bool>(white_oak_index, db::flip_key::done));
+	CHECK(db.get_flip<i32>(white_oak_index, db::flip_key::sold) == db.get_flip<i32>(white_oak_index, db::flip_key::sell));
+
+	CHECK(db.get_flip<bool>(white_oak_index, db::flip_key::cancelled) == false);
+	CHECK(db.get_flip<bool>(white_oak_index, db::flip_key::done) == true);
+}
