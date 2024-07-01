@@ -8,7 +8,7 @@
 
 namespace margin
 {
-	i64 calc_margin(const int insta_buy, const int insta_sell)
+	i64 calc_margin(const i32 insta_buy, const i32 insta_sell)
 	{
 		return insta_buy - insta_sell;
 	}
@@ -19,7 +19,7 @@ namespace margin
 		CHECK(calc_margin(4000, 5000) == -1000);
 	}
 
-	i64 calc_profit_with_cut(const int margin, const int buy_limit, const int price_cut)
+	i64 calc_profit_with_cut(const i32 margin, const i32 buy_limit, const i32 price_cut)
 	{
 		return buy_limit * (margin - (price_cut * 2));
 	}
@@ -32,7 +32,7 @@ namespace margin
 		CHECK(calc_profit_with_cut(-5, 10, 0) == -50);
 	}
 
-	i64 calc_profit(const int buy_price, const int sell_price, const int buy_limit)
+	i64 calc_profit(const i32 buy_price, const i32 sell_price, const i32 buy_limit)
 	{
 		if (sell_price <= 50)
 			return (sell_price - buy_price) * buy_limit;
@@ -74,7 +74,7 @@ namespace margin
 		CHECK(calc_profit(yew_logs) == -162993);
 	}
 
-	void print_flip_estimation(const int insta_buy, const int insta_sell, const int buy_limit)
+	void print_flip_estimation(const i32 insta_buy, const i32 insta_sell, const i32 buy_limit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
 		const i64 margin = calc_margin((insta_buy - 1) * 0.98f, insta_sell + 1);
