@@ -13,8 +13,6 @@
 #include <doctest/doctest.h>
 #include <iostream>
 
-constexpr i32 RECOMMENDATION_THRESHOLD = 750'000;
-
 namespace flips
 {
 	flip::flip()
@@ -422,7 +420,7 @@ namespace flips
 			std::cout << db.get_flip<std::string>(flip, db::flip_key::item) << '\n';
 	}
 
-	bool flip_recommendations(const db& db)
+	bool flip_recommendations(const db& db, const i64 profit_threshold)
 	{
 		if (db.total_flip_count() < 10)
 			return false;
@@ -454,7 +452,7 @@ namespace flips
 			}
 
 			/* Skip items with average profit below a certain threshold */
-			if (recommendedFlips[i].avg_profit() < RECOMMENDATION_THRESHOLD)
+			if (recommendedFlips[i].avg_profit() < profit_threshold)
 			{
 				++i;
 				continue;

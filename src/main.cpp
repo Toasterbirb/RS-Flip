@@ -27,6 +27,13 @@ struct options
 
 	u32 flip_count{};
 	u32 result_count = 10;
+
+	struct tips
+	{
+		i64 profit_threshold = 750'000;
+	};
+
+	tips tips;
 };
 
 int main(int argc, char** argv)
@@ -35,7 +42,8 @@ int main(int argc, char** argv)
 	options options;
 
 	auto tips = (
-		clipp::command("tips").set(selected_mode, mode::tips) % "mode"
+		clipp::command("tips").set(selected_mode, mode::tips) % "mode",
+		(clipp::option("-t") & clipp::value("profit", options.tips.profit_threshold)) % "profit threshold"
 	) % "recommend flips based on past flipping data";
 
 	auto calc = (
@@ -112,7 +120,7 @@ int main(int argc, char** argv)
 	switch (selected_mode)
 	{
 		case mode::tips:
-			flips::flip_recommendations(db);
+			flips::flip_recommendations(db, options.tips.profit_threshold);
 			return 0;
 
 		case mode::calc:

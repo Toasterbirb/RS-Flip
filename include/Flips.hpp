@@ -49,5 +49,5 @@ namespace flips
 	void filter_count(const db& db, const u32 flip_count);
 
 	/* Flip recommendations */
-	bool flip_recommendations(const db& db);
+	bool flip_recommendations(const db& db, const i64 profit_threshold);
 }
