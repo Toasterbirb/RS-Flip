@@ -8,9 +8,6 @@
 
 namespace flips
 {
-	static constexpr i32 recommendation_count = 35;
-	static constexpr i32 random_flip_count = 5;
-
 	struct flip
 	{
 		flip();
@@ -49,5 +46,5 @@ namespace flips
 	void filter_count(const db& db, const u32 flip_count);
 
 	/* Flip recommendations */
-	bool flip_recommendations(const db& db, const i64 profit_threshold);
+	bool flip_recommendations(const db& db, const i64 profit_threshold, const i32 recommendation_count, const i32 random_flip_count, const bool ge_inspector_format);
 }

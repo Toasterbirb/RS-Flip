@@ -31,6 +31,9 @@ struct options
 	struct tips
 	{
 		i64 profit_threshold = 750'000;
+		i32 max_result_count = 35;
+		i32 max_random_flip_count = 5;
+		bool ge_inspector_format = false;
 	};
 
 	tips tips;
@@ -43,7 +46,10 @@ int main(int argc, char** argv)
 
 	auto tips = (
 		clipp::command("tips").set(selected_mode, mode::tips) % "mode",
-		(clipp::option("-t") & clipp::value("profit", options.tips.profit_threshold)) % "profit threshold"
+		(clipp::option("-t") & clipp::value("profit", options.tips.profit_threshold)) % "profit threshold",
+		(clipp::option("-c") & clipp::value("count", options.tips.max_result_count)) % "maximum result count",
+		(clipp::option("-r") & clipp::value("count", options.tips.max_random_flip_count)) % "maximum random flip suggestion count",
+		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format"
 	) % "recommend flips based on past flipping data";
 
 	auto calc = (
@@ -120,7 +126,7 @@ int main(int argc, char** argv)
 	switch (selected_mode)
 	{
 		case mode::tips:
-			flips::flip_recommendations(db, options.tips.profit_threshold);
+			flips::flip_recommendations(db, options.tips.profit_threshold, options.tips.max_result_count, options.tips.max_random_flip_count, options.tips.ge_inspector_format);
 			return 0;
 
 		case mode::calc:

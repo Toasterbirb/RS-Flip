@@ -420,15 +420,19 @@ namespace flips
 			std::cout << db.get_flip<std::string>(flip, db::flip_key::item) << '\n';
 	}
 
-	bool flip_recommendations(const db& db, const i64 profit_threshold)
+	bool flip_recommendations(const db& db, const i64 profit_threshold, const i32 recommendation_count, const i32 random_flip_count, const bool ge_inspector_format)
 	{
+		if (recommendation_count < 1)
+		{
+			std::cout << "A recommendation count of at least 1 is required\n";
+			return false;
+		}
+
 		if (db.total_flip_count() < 10)
 			return false;
 
 		/* Read in the item recommendation blacklist */
 		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(file_paths::item_blacklist_file);
-
-		flip_utils::print_title("Recommended flips");
 
 		const std::vector<stats::avg_stat> avgStats = db.get_flip_avg_stats();
 		const std::vector<stats::avg_stat> recommendedFlips = stats::sort_flips_by_recommendation(avgStats);
@@ -441,6 +445,9 @@ namespace flips
 
 		/* How many items to recommend in total */
 		const i32 max = std::clamp(static_cast<int>(recommendedFlips.size()), 1, recommendation_count);
+
+		/* String that gets printed out if ge_inspector_format is requested */
+		std::string ge_inspector_format_str;
 
 		while (count < max && i < static_cast<int>(recommendedFlips.size()))
 		{
@@ -458,7 +465,10 @@ namespace flips
 				continue;
 			}
 
-			recommendation_table.add_row({recommendedFlips[i].name, flip_utils::round_big_numbers(recommendedFlips[i].rolling_avg_profit()), std::to_string(recommendedFlips[i].flip_count())});
+			if (ge_inspector_format)
+				ge_inspector_format_str += recommendedFlips[i].name + ';';
+			else
+				recommendation_table.add_row({recommendedFlips[i].name, flip_utils::round_big_numbers(recommendedFlips[i].rolling_avg_profit()), std::to_string(recommendedFlips[i].flip_count())});
 
 			++i;
 			++count;
@@ -470,6 +480,18 @@ namespace flips
 			return true;
 		}
 
+		// If we were building a ge_inspector_format_str, skip printing the table
+		// and instead print the ge_inspector_format_str
+		if (ge_inspector_format)
+		{
+			// Remove the last semicolon
+			ge_inspector_format_str.erase(ge_inspector_format_str.end() - 1);
+
+			std::cout << ge_inspector_format_str << '\n';
+			return true;
+		}
+
+		flip_utils::print_title("Recommended flips");
 		recommendation_table.print();
 
 		// Pick some random flips
