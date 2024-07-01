@@ -74,8 +74,8 @@ int main(int argc, char** argv)
 	auto filtering = (
 		clipp::command("filter").set(selected_mode, mode::filtering) % "mode",
 		clipp::one_of(
-			clipp::option("-i") & clipp::value("name").set(options.item_name) % "find stats for a specific item",
-			clipp::option("-c") & clipp::option("count").set(options.flip_count) % "find flips that have been done count <= times"
+			(clipp::option("-i") & clipp::value("name").set(options.item_name)) % "find stats for a specific item",
+			(clipp::option("-c") & clipp::option("count").set(options.flip_count)) % "find flips that have been done count <= times"
 		)
 	) % "look for items with filters";
 
