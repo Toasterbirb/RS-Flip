@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Types.hpp"
+
 #include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <unordered_set>
@@ -32,4 +34,7 @@ namespace flip_utils
 	// After the point of diminishing_returns, the value starts incresing slower
 	// By lowering the slope value, you can make the value increase faster
 	double limes(const double approach_value, const double diminishing_returns, const double slope, const double value);
+
+	// Create a string with ANSI escape code colors or other formatting
+	std::string color_format_string(const u8 color_code, const std::string& text);
 }

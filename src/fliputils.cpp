@@ -200,4 +200,9 @@ namespace flip_utils
 		CHECK(limes(2, 2, 1, 1) == 0);
 		CHECK(limes(2, 2, 1, 2) == 1);
 	}
+
+	std::string color_format_string(const u8 color_code, const std::string& text)
+	{
+		return "\033[" + std::to_string(color_code) + 'm' + text + "\033[0m";
+	}
 }

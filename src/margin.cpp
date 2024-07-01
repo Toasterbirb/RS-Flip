@@ -86,28 +86,34 @@ namespace margin
 	void print_flip_estimation(const i32 insta_buy, const i32 insta_sell, const i32 buy_limit)
 	{
 		/* Multiply the sell price by 0.98 to account for the 2% tax */
-		const i64 margin = calc_margin((insta_buy - 1) * 0.98f, insta_sell + 1);
+		const i64 margin = calc_margin((insta_buy - 1) * tax_rate, insta_sell + 1);
 		const i64 cut_profit = calc_profit_with_cut(margin, buy_limit, 0);	/* The cut has already been taken into account in margin */
 																 			/* We can't use CalcProfit here though because it also */
 																 			/* calculates the taxes */
-		const std::string roi = flip_utils::round(((double)margin / insta_sell) * 100, 2) + "%";
+
+		const auto percentage_str = [](const f32 value)
+		{
+			return flip_utils::round(value * 100.0f, 2) + '%';
+		};
+
+		const std::string roi = percentage_str(margin / static_cast<double>(insta_sell));
 		const std::string required_capital = flip_utils::round_big_numbers(insta_sell * buy_limit);
 
-		/* Green color by default */
-		i32 color_code = 32;
+		constexpr u8 green_escape_code = 32;
+		constexpr u8 red_escape_code = 31;
 
-		/* Set red color when you'd be making a loss */
-		if (cut_profit < 0)
-			color_code = 31;
-
-		/* Color coded string for the profit text */
-		const std::string profit_str = "\033[" + std::to_string(color_code) + "m" + flip_utils::round_big_numbers(cut_profit) + "\033[0m";
+		/* Green color by default and red color when making a loss */
+		const u8 color_escape_code = cut_profit < 0 ? red_escape_code : green_escape_code;
 
 		table stat_table({"Stat", "Value"});
 		stat_table.add_row({"Margin", std::to_string(margin)});
 		stat_table.add_row({"ROI-%", roi});
 		stat_table.add_row({"Cost", required_capital});
-		stat_table.add_row({"Profit", profit_str});
+		stat_table.add_row({"Profit",
+			flip_utils::color_format_string(color_escape_code,
+				flip_utils::round_big_numbers(cut_profit)
+			)}
+		);
 
 		table price_table({"Offer", "Price"});
 		price_table.add_row({"Buy", std::to_string(insta_sell + 1)});
