@@ -105,8 +105,10 @@ private:
 	std::vector<T> get_flip_values(const std::vector<u32>& indices, const flip_key key) const
 	{
 		std::vector<T> values;
-		for (u32 index : indices)
-			values.push_back(json_data["flips"][index].at(flip_key_to_str.at(key)));
+		std::transform(indices.begin(), indices.end(), std::back_inserter(values), [&](const u32 index)
+		{
+			return json_data["flips"][index].at(flip_key_to_str.at(key));
+		});
 
 		return values;
 	}
