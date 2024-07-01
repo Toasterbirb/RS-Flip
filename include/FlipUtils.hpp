@@ -10,17 +10,6 @@ namespace flip_utils
 {
 	std::string clean_decimals(const double value);
 
-	double json_average(const std::vector<nlohmann::json>& data, const std::string& key);
-
-	/* Sort the given json vector in-place based on the values gotten with the key */
-	void json_sort(std::vector<nlohmann::json>& data, const std::string& key);
-
-	/* Find the lowest value from the json array with the given key */
-	int json_min_int(const std::vector<nlohmann::json>& data, const std::string& key);
-
-	/* Find the highest value from the json array with the given key */
-	int json_max_int(const std::vector<nlohmann::json>& data, const std::string& key);
-
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
 	std::string round_big_numbers(const long number);
 	std::string round(const double value, const int decimals); /* Round a value with given accuracy */
