@@ -8,11 +8,15 @@
 
 namespace flip_utils
 {
-	std::string clean_decimals(const double value);
+	__attribute__((hot))
+	std::string clean_decimals(const f64 value);
 
 	/* 1000 -> 1k, 1000000 -> 1m etc. */
+	__attribute__((hot))
 	std::string round_big_numbers(const long number);
-	std::string round(const double value, const int decimals); /* Round a value with given accuracy */
+
+	__attribute__((hot))
+	std::string round(const f64 value, const i32 decimals); /* Round a value with given accuracy */
 	void print_title(const std::string& text); /* #### Prints like this #### */
 	std::string read_file(const std::string& filepath);
 	std::unordered_set<std::string> read_file_items(const std::string& filepath); /* Read unique item lines from a file */
@@ -22,7 +26,7 @@ namespace flip_utils
 	// Function that approaches a given value but never really reaches it
 	// After the point of diminishing_returns, the value starts incresing slower
 	// By lowering the slope value, you can make the value increase faster
-	double limes(const double approach_value, const double diminishing_returns, const double slope, const double value);
+	f64 limes(const f64 approach_value, const f64 diminishing_returns, const f64 slope, const f64 value);
 
 	// Create a string with ANSI escape code colors or other formatting
 	std::string color_format_string(const u8 color_code, const std::string& text);

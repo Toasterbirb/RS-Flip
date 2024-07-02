@@ -11,7 +11,7 @@ namespace flips
 	struct flip
 	{
 		flip();
-		flip(const nlohmann::json& j);
+		explicit flip(const nlohmann::json& j);
 		flip(const std::string& item, const i32 buy_price, const i32 sell_price, const i32 buy_amount, const std::string& account_name = "main");
 		void sell(const i32 sell_price);
 		nlohmann::json to_json() const;

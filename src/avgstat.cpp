@@ -8,7 +8,7 @@
 
 namespace stats
 {
-	constexpr int PROFIT_QUEUE_SIZE = 10;
+	constexpr i32 PROFIT_QUEUE_SIZE = 10;
 
 	avg_stat::avg_stat()
 	:name("null")
@@ -55,13 +55,7 @@ namespace stats
 
 	f64 avg_stat::avg_profit() const
 	{
-		assert(flip_count() > 0);
-
-		/* Avoid division by zero */
-		if (flip_count() == 0)
-			return 0;
-
-		return (double)total_profit / flip_count();
+		return flip_count() == 0 ? 0 : total_profit / static_cast<double>(flip_count());
 	}
 
 	f64 avg_stat::rolling_avg_profit() const
@@ -101,24 +95,12 @@ namespace stats
 
 	f64 avg_stat::avg_roi() const
 	{
-		assert(flip_count() > 0);
-
-		/* Avoid division by zero */
-		if (flip_count() == 0)
-			return 0;
-
-		return (double)total_roi / flip_count();
+		return flip_count() == 0 ? 0 : total_roi / static_cast<double>(flip_count());
 	}
 
 	f64 avg_stat::avg_buy_limit() const
 	{
-		assert(flip_count() > 0);
-
-		/* Avoid division by zero */
-		if (flip_count() == 0)
-			return 0;
-
-		return (double)total_item_count / flip_count();
+		return flip_count() == 0 ? 0 : total_item_count / static_cast<double>(flip_count());
 	}
 
 	f64 avg_stat::flip_recommendation() const
@@ -128,16 +110,17 @@ namespace stats
 
 		assert(total_flip_count > 0);
 
-		constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
-		constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
-		double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
+		constexpr f64 flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
+		constexpr f64 flip_index_age_exponent = 1.1; // Increase the impact of flip age
+		f64 flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
 
 		// Set limits to the age penalty
-		constexpr double min_penalty = 0.001;
-		constexpr double max_penalty = 1.0;
+		constexpr f64 min_penalty = 0.001;
+		constexpr f64 max_penalty = 1.0;
 		flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
 
-		return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) / 10000.0);
+		constexpr f32 inverse_divisor = 1.0 / 10000.0;
+		return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) * inverse_divisor);
 	}
 
 	u32 avg_stat::flip_count() const
@@ -187,31 +170,26 @@ namespace stats
 		/* Convert flips into avg stats */
 		for (size_t i = 0; i < flips.size(); i++)
 		{
-			const nlohmann::json& flip = flips[i];
+			const flips::flip flip(flips[i]);
 
 			/* Ignore items that haven't sold yet */
-			if (flip["done"] == false)
+			if (flip.done == false)
 				continue;
 
 			/* Ignore items that have been cancelled */
-			if (flip["cancelled"] == true)
+			if (flip.cancelled == true)
 				continue;
 
-
-			/* Asserts for checking if the json object has all of the required keys */
-			assert(flip.contains("item"));
-			assert(flip.contains("buy"));
-			assert(flip.contains("limit"));
-			assert(flip.contains("sell"));
-			assert(flip.contains("sold"));
-			assert(flip.contains("cancelled"));
-			assert(flip.contains("done"));
-
-			const int profit = margin::calc_profit(flip);
-
-			avg_stat& stat = avg_stats[flip["item"]];
-			stat.name = flip["item"];
-			stat.add_data(profit, stats::calc_roi(flip), flip["limit"], flip["sell"], flip["sold"], i);
+			avg_stat& stat = avg_stats[flip.item];
+			stat.name = flip.item;
+			stat.add_data(
+					margin::calc_profit(flip),
+					stats::calc_roi(flip.buy_price, flip.sold_price),
+					flip.buylimit,
+					flip.sell_price,
+					flip.sold_price,
+					i
+				);
 
 			assert(stat.name.empty() == false);
 			assert(stat.flip_count() > 0);

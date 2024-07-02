@@ -7,18 +7,26 @@
 
 namespace flip_utils
 {
-	std::string clean_decimals(const double value)
+	std::string clean_decimals(const f64 value)
 	{
 		std::string result = std::to_string(value);
-		const int size = (int)result.size();
-		for (int i = size - 1; i > 0; i--)
+
+		/* If the last char is not a zero, return early */
+		if (result.at(result.size() - 1) != '0')
+			return result;
+
+		size_t first_non_zero_pos = result.size() - 1;
+		for (i32 i = result.size() - 2; i > 0; --i)
 		{
-			if (result[i] != '0' && i < size - 1)
+			if (result[i] != '0')
 			{
-				result.erase(i + 1, size);
+				first_non_zero_pos = i;
 				break;
 			}
 		}
+
+		if (first_non_zero_pos != std::string::npos)
+			result.erase(first_non_zero_pos + 1, result.size() - first_non_zero_pos);
 
 		/* Check if the last char is a dot */
 		if (result[result.size() - 1] == '.')
@@ -55,7 +63,7 @@ namespace flip_utils
 		CHECK(round_big_numbers(-3'000'000) == "-3m");
 	}
 
-	std::string round(const double value, const int decimals)
+	std::string round(const f64 value, const i32 decimals)
 	{
 		return clean_decimals(std::round(value * std::pow(10, decimals)) / std::pow(10, decimals));
 	}
@@ -82,8 +90,15 @@ namespace flip_utils
 			return "";
 		}
 
-		std::string contents( 	(std::istreambuf_iterator<char>(file)),
-								(std::istreambuf_iterator<char>()));
+		file.seekg(0, std::ios::end);
+		size_t file_size = file.tellg();
+		file.seekg(0, std::ios::beg);
+
+		std::string contents;
+		contents.resize(file_size);
+
+		file.read(&contents[0], file_size);
+
 		return contents;
 	}
 
@@ -109,7 +124,7 @@ namespace flip_utils
 		std::ofstream file(filepath);
 		if (!file.is_open())
 		{
-			std::cerr << "Can't open the data file!" << std::endl;
+			std::cerr << "Can't open the data file!\n";
 			return;
 		}
 
@@ -122,11 +137,9 @@ namespace flip_utils
 		file << std::setw(4) << json_data << std::endl;
 	}
 
-	double limes(const double approach_value, const double diminishing_returns, const double slope, const double value)
+	f64 limes(const f64 approach_value, const f64 diminishing_returns, const f64 slope, const f64 value)
 	{
-		if (value < 0.001)
-			return -300;
-		return approach_value - diminishing_returns / value * slope;
+		return value < 0.001 ? -300 : approach_value - diminishing_returns / value * slope;
 	}
 
 	TEST_CASE("Limes")

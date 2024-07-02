@@ -16,16 +16,22 @@
 namespace flips
 {
 	flip::flip()
-	{
-		item 		= "null";
-		buy_price 	= 0;
-		sell_price 	= 0;
-		sold_price 	= 0;
-		buylimit 	= 0;
-		done 		= false;
-	}
+	:item("null"),
+	 buy_price(0),
+	 sell_price(0),
+	 sold_price(0),
+	 buylimit(0),
+	 done(false)
+	{}
 
 	flip::flip(const nlohmann::json& j)
+	:item(j["item"]),
+	 buy_price(j["buy"]),
+	 sell_price(j["sell"]),
+	 sold_price(j["sold"]),
+	 buylimit(j["limit"]),
+	 cancelled(j["cancelled"]),
+	 done(j["done"])
 	{
 		/* Asserts for checking if the json object has all of the required keys */
 		assert(j.contains("item"));
@@ -36,14 +42,6 @@ namespace flips
 		assert(j.contains("cancelled"));
 		assert(j.contains("done"));
 
-		item 		= j["item"];
-		buy_price 	= j["buy"];
-		sell_price 	= j["sell"];
-		sold_price 	= j["sold"];
-		buylimit 	= j["limit"];
-		cancelled 	= j["cancelled"];
-		done 		= j["done"];
-
 		/* Assume "main" as the account if its not specified */
 		if (!j.contains("account"))
 			account = "main";
@@ -52,16 +50,15 @@ namespace flips
 	}
 
 	flip::flip(const std::string& item, const i32 buy_price, const i32 sell_price, const i32 buy_amount, const std::string& account_name)
-	{
-		this->item 			= item;
-		this->buy_price 	= buy_price;
-		this->sell_price 	= sell_price;
-		this->sold_price 	= 0;
-		this->buylimit 		= buy_amount;
-		this->account 		= account_name;
-		this->cancelled 	= false;
-		this->done 			= false;
-	}
+	:item(item),
+	 buy_price(buy_price),
+	 sell_price(sell_price),
+	 sold_price(0),
+	 buylimit(buy_amount),
+	 cancelled(false),
+	 done(false),
+	 account(account_name)
+	{}
 
 	void flip::sell(const i32 sell_price)
 	{
@@ -138,7 +135,7 @@ namespace flips
 
 	void fix_stats(db& db)
 	{
-		std::cout << "Recalculating statistics..." << std::endl;
+		std::cout << "Recalculating statistics...\n";
 
 		i64 total_profit = 0;
 		i32 flip_count = 0;
@@ -277,13 +274,11 @@ namespace flips
 
 		if (!result_found)
 		{
-			std::cout << "No items matching ID [" << undone_id << "] were found!" << std::endl;
+			std::cout << "No items matching ID [" << undone_id << "] were found!\n";
 			return -1;
 		}
-		else
-		{
-			return result;
-		}
+
+		return result;
 	}
 
 	void cancel(db& db, const i32 ID)
@@ -344,7 +339,7 @@ namespace flips
 
 	void filter_name(const db& db, const std::string& name)
 	{
-		std::cout << "Filter: " << name << std::endl;
+		std::cout << "Filter: " << name << '\n';
 
 		/* Quit if zero flips done */
 		if (db.get_stat(db::stat_key::flips_done) == 0)
@@ -352,7 +347,7 @@ namespace flips
 
 		std::vector<u32> found_flips = db.find_flips_by_name(name);
 
-		std::cout << "Results: " << found_flips.size() << std::endl;
+		std::cout << "Results: " << found_flips.size() << '\n';
 		if (found_flips.size() == 0)
 			return;
 
@@ -384,8 +379,8 @@ namespace flips
 		std::cout << "+-------------+-------------+---------+-------------+\n";
 
 		/* Calculate average profit */
-		std::cout << "\n\033[33mAverage profit: " << flip_utils::round_big_numbers((double)total_profit / found_flips.size()) << "\033[0m" << std::endl;
-		std::cout << "\033[32mTotal profit:   " << flip_utils::round_big_numbers((double)total_profit) << "\033[0m" << std::endl;
+		std::cout << "\n\033[33mAverage profit: " << flip_utils::round_big_numbers((double)total_profit / found_flips.size()) << "\033[0m\n";
+		std::cout << "\033[32mTotal profit:   " << flip_utils::round_big_numbers((double)total_profit) << "\033[0m\n";
 
 		std::cout << "\n";
 
@@ -434,8 +429,7 @@ namespace flips
 		/* Read in the item recommendation blacklist */
 		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(file_paths::item_blacklist_file);
 
-		const std::vector<stats::avg_stat> avg_stats = db.get_flip_avg_stats();
-		const std::vector<stats::avg_stat> recommended_flips = stats::sort_flips_by_recommendation(avg_stats);
+		const std::vector<stats::avg_stat> recommended_flips = stats::sort_flips_by_recommendation(db.get_flip_avg_stats());
 
 		const std::vector<std::string> recommendation_table_column_names = { "Item name", "Average profit", "Count" };
 		table recommendation_table(recommendation_table_column_names);
@@ -459,9 +453,17 @@ namespace flips
 				continue;
 
 			if (ge_inspector_format)
+			{
 				ge_inspector_format_str += recommended_flips[i].name + ';';
+			}
 			else
-				recommendation_table.add_row({recommended_flips[i].name, flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()), std::to_string(recommended_flips[i].flip_count())});
+			{
+				recommendation_table.add_row({
+					recommended_flips[i].name,
+					flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()),
+					std::to_string(recommended_flips[i].flip_count())
+				});
+			}
 		}
 
 		if (recommendation_table.row_count() == 0)
@@ -502,8 +504,12 @@ namespace flips
 
 		for (u32 j = 0; j < max_random_count; ++j)
 		{
-			const i32 index = rng.range(max, recommended_flips.size() - 1);
-			random_table.add_row({recommended_flips[index].name, flip_utils::round_big_numbers(recommended_flips[index].rolling_avg_profit()), std::to_string(recommended_flips[index].flip_count())});
+			const u32 index = rng.range(max, recommended_flips.size() - 1);
+			random_table.add_row({
+				recommended_flips[index].name,
+				flip_utils::round_big_numbers(recommended_flips[index].rolling_avg_profit()),
+				std::to_string(recommended_flips[index].flip_count())
+			});
 		}
 
 		random_table.print();
