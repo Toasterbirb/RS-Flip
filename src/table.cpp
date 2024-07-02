@@ -35,26 +35,25 @@ void table::print() const
 	assert(column_size.size() == column_names.size());
 	assert(column_size.size() == data.at(0).size());
 
-	/* Print the column names */
 	std::cout << std::left;
+
+	/* Print the column names */
 	for (size_t i = 0; i < column_names.size() - 1; ++i)
 		std::cout << "\033[1m" << std::setw(column_size.at(i)) << column_names.at(i) << "\033[0m";
 
-	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
+	std::cout << column_names.at(column_names.size() - 1) << "\n";
 
 	/* Print a divider */
 	const size_t divider_size = std::accumulate(column_size.begin(), column_size.end(), 0) - COLUMN_PADDING;
 	const std::string divider(divider_size, '-');
 	std::cout << divider << '\n';
 
-
 	/* Print the data */
-	std::cout << std::left;
 	for (size_t i = 0; i < data.size(); ++i)
 	{
 		for (size_t j = 0; j < data.at(i).size() - 1; ++j)
 			std::cout << std::setw(column_size.at(j)) << data.at(i).at(j);
-		std::cout << std::left << std::setw(column_size.at(data.at(i).size() - 1)) << data.at(i).at(data.at(i).size() - 1) << std::left << '\n';
+		std::cout << std::setw(column_size.at(data.at(i).size() - 1)) << data.at(i).at(data.at(i).size() - 1) << '\n';
 	}
 }
 
