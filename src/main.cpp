@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 
 	if (!clipp::parse(argc, argv, cli))
 	{
-		std::cout << "Invalid arguments were provided. Please check 'rs-flip --help'\n";
+		std::cout << "Invalid arguments were provided. Please check 'flip --help'\n";
 		return 1;
 	}
 
