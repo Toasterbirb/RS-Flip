@@ -420,7 +420,7 @@ namespace flips
 			std::cout << db.get_flip<std::string>(flip, db::flip_key::item) << '\n';
 	}
 
-	bool flip_recommendations(const db& db, const i64 profit_threshold, const i32 recommendation_count, const i32 random_flip_count, const bool ge_inspector_format)
+	bool flip_recommendations(const db& db, const i64 profit_threshold, const i32 recommendation_count, const size_t random_flip_count, const bool ge_inspector_format)
 	{
 		if (recommendation_count < 1)
 		{
@@ -434,47 +434,37 @@ namespace flips
 		/* Read in the item recommendation blacklist */
 		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(file_paths::item_blacklist_file);
 
-		const std::vector<stats::avg_stat> avgStats = db.get_flip_avg_stats();
-		const std::vector<stats::avg_stat> recommendedFlips = stats::sort_flips_by_recommendation(avgStats);
+		const std::vector<stats::avg_stat> avg_stats = db.get_flip_avg_stats();
+		const std::vector<stats::avg_stat> recommended_flips = stats::sort_flips_by_recommendation(avg_stats);
 
-		table recommendation_table({"Item name", "Average profit", "Count"});
+		const std::vector<std::string> recommendation_table_column_names = { "Item name", "Average profit", "Count" };
+		table recommendation_table(recommendation_table_column_names);
 
 		/* Print recommendations until the recommendation_count has been reached */
-		i32 i = 0; 		/* The current recommended item */
-		i32 count = 0; 	/* How many recommendations have been shown */
 
 		/* How many items to recommend in total */
-		const i32 max = std::clamp(static_cast<int>(recommendedFlips.size()), 1, recommendation_count);
+		const size_t max = std::clamp(static_cast<int>(recommended_flips.size()), 1, recommendation_count);
 
 		/* String that gets printed out if ge_inspector_format is requested */
 		std::string ge_inspector_format_str;
 
-		while (count < max && i < static_cast<int>(recommendedFlips.size()))
+		for (size_t i = 0; i < recommended_flips.size() && recommendation_table.row_count() < max; ++i)
 		{
-			/* Skip items that are blacklisted */
-			if (item_blacklist.contains(recommendedFlips[i].name))
-			{
-				++i;
-				continue;
-			}
-
 			/* Skip items with average profit below a certain threshold */
-			if (recommendedFlips[i].avg_profit() < profit_threshold)
-			{
-				++i;
+			if (recommended_flips[i].avg_profit() < profit_threshold)
 				continue;
-			}
+
+			/* Skip items that are blacklisted */
+			if (item_blacklist.contains(recommended_flips[i].name))
+				continue;
 
 			if (ge_inspector_format)
-				ge_inspector_format_str += recommendedFlips[i].name + ';';
+				ge_inspector_format_str += recommended_flips[i].name + ';';
 			else
-				recommendation_table.add_row({recommendedFlips[i].name, flip_utils::round_big_numbers(recommendedFlips[i].rolling_avg_profit()), std::to_string(recommendedFlips[i].flip_count())});
-
-			++i;
-			++count;
+				recommendation_table.add_row({recommended_flips[i].name, flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()), std::to_string(recommended_flips[i].flip_count())});
 		}
 
-		if (count == 0)
+		if (recommendation_table.row_count() == 0)
 		{
 			std::cout << "Couldn't find any flips to recommend...\n";
 			return true;
@@ -495,24 +485,28 @@ namespace flips
 		recommendation_table.print();
 
 		// Pick some random flips
-		const i32 max_random_count = std::clamp(random_flip_count, 0, static_cast<int>(recommendedFlips.size()) - max);
+		const size_t max_random_count = random_flip_count < recommended_flips.size() - recommendation_table.row_count()
+			? random_flip_count
+			: recommended_flips.size() - recommendation_table.row_count();
 
-		if (max_random_count > 0)
+		// If there are no random flips to print, return early
+		if (max_random_count == 0)
+			return true;
+
+		std::cout << "\n";
+
+		flip_utils::print_title("Random flips");
+		class random rng;
+
+		table random_table(recommendation_table_column_names);
+
+		for (u32 j = 0; j < max_random_count; ++j)
 		{
-			std::cout << "\n";
-			recommendation_table.clear();
-			flip_utils::print_title("Random flips");
-			class random rng;
-
-			for (i32 j = 0; j < max_random_count; ++j)
-			{
-				const i32 index = rng.range(max, static_cast<int>(recommendedFlips.size() - 1));
-				recommendation_table.add_row({recommendedFlips[index].name, flip_utils::round_big_numbers(recommendedFlips[index].rolling_avg_profit()), std::to_string(recommendedFlips[index].flip_count())});
-			}
-
-			recommendation_table.print();
+			const i32 index = rng.range(max, recommended_flips.size() - 1);
+			random_table.add_row({recommended_flips[index].name, flip_utils::round_big_numbers(recommended_flips[index].rolling_avg_profit()), std::to_string(recommended_flips[index].flip_count())});
 		}
 
+		random_table.print();
 
 		return true;
 	}
