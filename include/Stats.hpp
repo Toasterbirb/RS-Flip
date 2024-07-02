@@ -7,8 +7,8 @@
 
 namespace stats
 {
-	double calc_roi(const int buy_price, const int sell_price);
-	double calc_roi(const nlohmann::json& flip);
+	f64 calc_roi(const i32 buy_price, const i32 sell_price);
+	f64 calc_roi(const nlohmann::json& flip);
 	std::vector<avg_stat> sort_flips_by_roi(std::vector<avg_stat> flips);
 	std::vector<avg_stat> sort_flips_by_profit(std::vector<avg_stat> flips);
 	std::vector<avg_stat> sort_flips_by_recommendation(std::vector<avg_stat> flips);

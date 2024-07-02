@@ -5,12 +5,12 @@
 
 namespace stats
 {
-	double calc_roi(const nlohmann::json& flip)
+	f64 calc_roi(const nlohmann::json& flip)
 	{
 		return calc_roi(flip["buy"], flip["sold"]);
 	}
 
-	double calc_roi(const int buy_price, const int sell_price)
+	f64 calc_roi(const i32 buy_price, const i32 sell_price)
 	{
 		/* Avoid division by zero
 		 * If the item cost nothing, return ROI-% of 100% */
