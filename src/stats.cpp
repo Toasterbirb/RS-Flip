@@ -5,15 +5,6 @@
 
 namespace stats
 {
-	/* Internal function declarations */
-	double calc_flip_roi(const nlohmann::json& flip);
-
-
-	double calc_flip_roi(const nlohmann::json& flip)
-	{
-		return calc_roi(flip["buy"], flip["sold"]);
-	}
-
 	double calc_roi(const nlohmann::json& flip)
 	{
 		return calc_roi(flip["buy"], flip["sold"]);
