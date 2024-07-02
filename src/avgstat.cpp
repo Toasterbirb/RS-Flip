@@ -107,25 +107,21 @@ namespace stats
 
 	f64 avg_stat::flip_recommendation() const
 	{
-		if (flip_count() > 0)
-		{
-			assert(total_flip_count > 0);
-
-			constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
-			constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
-			double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
-
-			// Set limits to the age penalty
-			constexpr double min_penalty = 0.001;
-			constexpr double max_penalty = 1.0;
-			flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
-
-			return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) / 10000.0);
-		}
-		else
-		{
+		if (flip_count() == 0)
 			return 0;
-		}
+
+		assert(total_flip_count > 0);
+
+		constexpr double flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
+		constexpr double flip_index_age_exponent = 1.1; // Increase the impact of flip age
+		double flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
+
+		// Set limits to the age penalty
+		constexpr double min_penalty = 0.001;
+		constexpr double max_penalty = 1.0;
+		flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
+
+		return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) / 10000.0);
 	}
 
 	u32 avg_stat::flip_count() const
