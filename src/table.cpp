@@ -4,8 +4,9 @@
 #include <doctest/doctest.h>
 #include <iomanip>
 #include <iostream>
+#include <numeric>
 
-constexpr int COLUMN_PADDING = 6;
+constexpr int COLUMN_PADDING = 2;
 
 table::table(const std::vector<std::string>& column_names)
 :column_names(column_names)
@@ -37,15 +38,13 @@ void table::print() const
 	/* Print the column names */
 	std::cout << std::left;
 	for (size_t i = 0; i < column_names.size() - 1; ++i)
-		std::cout << "\033[1m" << std::setw(column_size.at(i) - i) << column_names.at(i) << "\033[0m";
+		std::cout << "\033[1m" << std::setw(column_size.at(i)) << column_names.at(i) << "\033[0m";
+
 	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
 
 	/* Print a divider */
-	int divider_size = 0;
-	for (size_t i = 0; i < column_size.size(); ++i)
-		divider_size += column_size.at(i);
-
-	const std::string divider(divider_size - (COLUMN_PADDING * (column_names.size() - 2)) + 1, '-');
+	const size_t divider_size = std::accumulate(column_size.begin(), column_size.end(), 0);
+	const std::string divider(divider_size, '-');
 	std::cout << divider << '\n';
 
 
@@ -54,10 +53,8 @@ void table::print() const
 	for (size_t i = 0; i < data.size(); ++i)
 	{
 		for (size_t j = 0; j < data.at(i).size() - 1; ++j)
-			std::cout << std::setw(column_size.at(j) - j) << data.at(i).at(j);
-		std::cout << std::left << std::setw(column_size.at(data.at(i).size() - 1)) << data.at(i).at(data.at(i).size() - 1) << std::left;
-
-		std::cout << "\n";
+			std::cout << std::setw(column_size.at(j)) << data.at(i).at(j);
+		std::cout << std::left << std::setw(column_size.at(data.at(i).size() - 1)) << data.at(i).at(data.at(i).size() - 1) << std::left << '\n';
 	}
 }
 
@@ -104,8 +101,10 @@ std::vector<size_t> table::get_column_sizes() const
 
 	/* Also check the column names */
 	for (size_t i = 0; i < column_names.size(); ++i)
+	{
 		if (column_size[i] < column_names[i].size())
 			column_size[i] = column_names[i].size();
+	}
 
 	/* Pad all of the columns a little bit */
 	for (size_t i = 0; i < column_size.size(); ++i)
