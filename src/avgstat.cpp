@@ -184,17 +184,19 @@ namespace stats
 	{
 		std::unordered_map<std::string, avg_stat> avg_stats;
 
-		/* Initialize the result list with the first flip */
-
-		/* Find the first item that has sold */
-		const auto first_sold_flip =	std::find_if(flips.begin(), flips.end(), [flips](const nlohmann::json& flip){
-											return flip["done"];
-										});
-
 		/* Convert flips into avg stats */
-		for (size_t i = first_sold_flip - flips.begin(); i < flips.size(); i++)
+		for (size_t i = 0; i < flips.size(); i++)
 		{
 			const nlohmann::json& flip = flips[i];
+
+			/* Ignore items that haven't sold yet */
+			if (flip["done"] == false)
+				continue;
+
+			/* Ignore items that have been cancelled */
+			if (flip["cancelled"] == true)
+				continue;
+
 
 			/* Asserts for checking if the json object has all of the required keys */
 			assert(flip.contains("item"));
@@ -204,10 +206,6 @@ namespace stats
 			assert(flip.contains("sold"));
 			assert(flip.contains("cancelled"));
 			assert(flip.contains("done"));
-
-			/* Ignore items that haven't sold yet */
-			if (flip["done"] == false)
-				continue;
 
 			const int profit = margin::calc_profit(flip);
 
@@ -226,6 +224,7 @@ namespace stats
 
 		/* Convert the map into a vector */
 		std::vector<avg_stat> result;
+		result.reserve(avg_stats.size());
 		std::transform(avg_stats.begin(), avg_stats.end(), std::back_inserter(result), [](const auto& element) { return element.second; });
 
 		return result;
