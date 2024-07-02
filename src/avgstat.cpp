@@ -20,7 +20,6 @@ namespace stats
 		total_profit 		= 0;
 		total_roi 			= 0;
 		total_item_count 	= 0;
-		value_count 		= 0;
 
 		lowest_item_count 	= 0;
 		highest_item_count 	= 0;
@@ -35,7 +34,6 @@ namespace stats
 		total_profit 		+= profit;
 		total_roi 			+= ROI;
 		total_item_count 	+= item_count;
-		value_count++;
 
 		if (this->_latest_trade_index < latest_trade_index)
 		{
@@ -57,13 +55,13 @@ namespace stats
 
 	f64 avg_stat::avg_profit() const
 	{
-		assert(value_count > 0);
+		assert(flip_count() > 0);
 
 		/* Avoid division by zero */
-		if (value_count == 0)
+		if (flip_count() == 0)
 			return 0;
 
-		return (double)total_profit / value_count;
+		return (double)total_profit / flip_count();
 	}
 
 	f64 avg_stat::rolling_avg_profit() const
@@ -77,32 +75,50 @@ namespace stats
 		const size_t first_flip = flip_list_longer_than_profit_queue ? profit_list.size() - PROFIT_QUEUE_SIZE : 0;
 		const u32 rolling_profit_count = flip_list_longer_than_profit_queue ? PROFIT_QUEUE_SIZE : profit_list.size();
 
-		const u64 rolling_total_profit = std::accumulate(profit_list.begin() + first_flip, profit_list.end(), 0);
+		const i64 rolling_total_profit = std::accumulate(profit_list.begin() + first_flip, profit_list.end(), 0);
 
 		assert(rolling_profit_count != 0 && "Zero division");
 		return rolling_total_profit / static_cast<double>(rolling_profit_count);
 	}
 
+	TEST_CASE("Rolling average profit")
+	{
+		SUBCASE("Granite (5kg)")
+		{
+			avg_stat granite("Granite (5kg)");
+			const f64 roi = calc_roi(8614, 8613);
+			constexpr i64 profit = -509556;
+
+			CHECK(roi < 0);
+
+			granite.add_data(profit, roi, 2941);
+			CHECK(granite.flip_count() == 1);
+			CHECK(granite.avg_roi() == roi);
+			CHECK(granite.avg_profit() == profit);
+			CHECK(granite.rolling_avg_profit() == profit);
+		}
+	}
+
 	f64 avg_stat::avg_roi() const
 	{
-		assert(value_count > 0);
+		assert(flip_count() > 0);
 
 		/* Avoid division by zero */
-		if (value_count == 0)
+		if (flip_count() == 0)
 			return 0;
 
-		return (double)total_roi / value_count;
+		return (double)total_roi / flip_count();
 	}
 
 	f64 avg_stat::avg_buy_limit() const
 	{
-		assert(value_count > 0);
+		assert(flip_count() > 0);
 
 		/* Avoid division by zero */
-		if (value_count == 0)
+		if (flip_count() == 0)
 			return 0;
 
-		return (double)total_item_count / value_count;
+		return (double)total_item_count / flip_count();
 	}
 
 	f64 avg_stat::flip_recommendation() const
@@ -126,7 +142,7 @@ namespace stats
 
 	u32 avg_stat::flip_count() const
 	{
-		return value_count;
+		return profit_list.size();
 	}
 
 	i32 avg_stat::latest_trade_index() const
@@ -171,34 +187,33 @@ namespace stats
 		/* Initialize the result list with the first flip */
 
 		/* Find the first item that has sold */
-		size_t i;
-		for (i = 0; i < flips.size(); i++)
-		{
-			if (flips[i]["done"] == true)
-				break;
-		}
+		const auto first_sold_flip =	std::find_if(flips.begin(), flips.end(), [flips](const nlohmann::json& flip){
+											return flip["done"];
+										});
 
 		/* Convert flips into avg stats */
-		for (; i < flips.size(); i++)
+		for (size_t i = first_sold_flip - flips.begin(); i < flips.size(); i++)
 		{
+			const nlohmann::json& flip = flips[i];
+
 			/* Asserts for checking if the json object has all of the required keys */
-			assert(flips[i].contains("item"));
-			assert(flips[i].contains("buy"));
-			assert(flips[i].contains("limit"));
-			assert(flips[i].contains("sell"));
-			assert(flips[i].contains("sold"));
-			assert(flips[i].contains("cancelled"));
-			assert(flips[i].contains("done"));
+			assert(flip.contains("item"));
+			assert(flip.contains("buy"));
+			assert(flip.contains("limit"));
+			assert(flip.contains("sell"));
+			assert(flip.contains("sold"));
+			assert(flip.contains("cancelled"));
+			assert(flip.contains("done"));
 
 			/* Ignore items that haven't sold yet */
-			if (flips[i]["done"] == false)
+			if (flip["done"] == false)
 				continue;
 
-			const int profit = margin::calc_profit(flips[i]);
+			const int profit = margin::calc_profit(flip);
 
-			avg_stat& stat = avg_stats[flips[i]["item"]];
-			stat.name = flips[i]["item"];
-			stat.add_data(profit, stats::calc_roi(flips[i]), flips[i]["limit"], flips[i]["sell"], flips[i]["sold"], i);
+			avg_stat& stat = avg_stats[flip["item"]];
+			stat.name = flip["item"];
+			stat.add_data(profit, stats::calc_roi(flip), flip["limit"], flip["sell"], flip["sold"], i);
 
 			assert(stat.name.empty() == false);
 			assert(stat.flip_count() > 0);

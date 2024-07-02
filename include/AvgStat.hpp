@@ -33,7 +33,6 @@ namespace stats
 		i64 total_profit = 0;
 		f64 total_roi = 0;
 		i32 total_item_count = 0;
-		u32 value_count = 0;
 		u32 _latest_trade_index = 0;
 
 		u32 lowest_item_count = 0;
