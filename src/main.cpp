@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 	mode selected_mode = mode::tips;
 	options options;
 
-	auto tips = (
+	const auto tips = (
 		clipp::command("tips").set(selected_mode, mode::tips) % "mode",
 		(clipp::option("-t") & clipp::value("profit", options.tips.profit_threshold)) % "profit threshold",
 		(clipp::option("-c") & clipp::value("count", options.tips.max_result_count)) % "maximum result count",
@@ -52,14 +52,14 @@ int main(int argc, char** argv)
 		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format"
 	) % "recommend flips based on past flipping data";
 
-	auto calc = (
+	const auto calc = (
 		clipp::command("calc").set(selected_mode, mode::calc) % "mode",
 		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "insta buy price",
 		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "insta sell price",
 		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item"
 	) % "calculate the margin for an item and possible profits";
 
-	auto flip = (
+	const auto flip = (
 		clipp::command("add").set(selected_mode, mode::flip) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("name").set(options.item_name)) % "item name",
 		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "buying price",
@@ -68,24 +68,24 @@ int main(int argc, char** argv)
 		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "the name of the account used for the flip"
 	) % "add a flip to the database";
 
-	auto sold = (
+	const auto sold = (
 		clipp::command("sold").set(selected_mode, mode::sold) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id number can be found with the 'list' command",
 		(clipp::option("-s").required(false) & clipp::value("price").set(options.sell_price)) % "final selling price",
 		(clipp::option("-l").required(false) & clipp::value("count").set(options.item_count)) % "final amount of items sold"
 	) % "finish an on-going flip";
 
-	auto cancel = (
+	const auto cancel = (
 		clipp::command("cancel").set(selected_mode, mode::cancel) % "mode",
 		clipp::value("id").set(options.id) % "the id of the flip to cancel"
 	) % "cancels an on-going flip and removes it from the database";
 
-	auto list = (
+	const auto list = (
 		clipp::command("list").set(selected_mode, mode::list) % "mode",
 		clipp::value("account").set(options.account).required(false) % "list only flips made with this account"
 	) % "list all on-going flips with their ids, buy and sell values";
 
-	auto filtering = (
+	const auto filtering = (
 		clipp::command("filter").set(selected_mode, mode::filtering) % "mode",
 		clipp::one_of(
 			(clipp::option("-i") & clipp::value("name").set(options.item_name)) % "find stats for a specific item",
@@ -93,24 +93,24 @@ int main(int argc, char** argv)
 		)
 	) % "look for items with filters";
 
-	auto stats = (
+	const auto stats = (
 		clipp::command("stats").set(selected_mode, mode::stats) % "mode",
 		(clipp::option("-c") & clipp::value("count").set(options.result_count)) % "set the amount of values to show"
 	) % "print out profit statistics";
 
-	auto repair = (
+	const auto repair = (
 		clipp::command("repair").set(selected_mode, mode::repair) % "attempts to repair the statistics from the flip data in-case of some bug"
 	);
 
-	auto help = (
+	const auto help = (
 		clipp::command("help").set(selected_mode, mode::help) % "show help"
 	);
 
-	auto test (
+	const auto test (
 		clipp::command("test").set(selected_mode, mode::test) % "run unit tests"
 	);
 
-	auto cli = (
+	const auto cli = (
 		( tips | calc | flip | sold | cancel | list | filtering | stats | repair | help | test )
 	);
 
