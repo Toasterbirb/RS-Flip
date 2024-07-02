@@ -68,28 +68,19 @@ namespace stats
 
 	f64 avg_stat::rolling_avg_profit() const
 	{
+		if (profit_list.empty())
+			return 0;
+
 		/* Count the total "rolling" profit */
-		int rolling_total_profit = 0;
-		int rolling_profit_count = 1;
 
-		if (profit_list.size() >= PROFIT_QUEUE_SIZE)
-		{
-			for (size_t i = profit_list.size() - PROFIT_QUEUE_SIZE; i < profit_list.size(); ++i)
-				rolling_total_profit += profit_list.at(i);
+		const bool flip_list_longer_than_profit_queue = profit_list.size() >= PROFIT_QUEUE_SIZE;
+		const size_t first_flip = flip_list_longer_than_profit_queue ? profit_list.size() - PROFIT_QUEUE_SIZE : 0;
+		const u32 rolling_profit_count = flip_list_longer_than_profit_queue ? PROFIT_QUEUE_SIZE : profit_list.size();
 
-			rolling_profit_count = PROFIT_QUEUE_SIZE;
-		}
-		else
-		{
-			for (size_t i = 0; i < profit_list.size(); ++i)
-				rolling_total_profit += profit_list.at(i);
+		const u64 rolling_total_profit = std::accumulate(profit_list.begin() + first_flip, profit_list.end(), 0);
 
-			rolling_profit_count = profit_list.size();
-		}
-
-		assert(rolling_profit_count != 0);
-
-		return (double)rolling_total_profit / rolling_profit_count;
+		assert(rolling_profit_count != 0 && "Zero division");
+		return rolling_total_profit / static_cast<double>(rolling_profit_count);
 	}
 
 	f64 avg_stat::avg_roi() const
