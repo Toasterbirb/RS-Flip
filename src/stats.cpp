@@ -13,9 +13,9 @@ namespace stats
 	f64 calc_roi(const i32 buy_price, const i32 sell_price)
 	{
 		/* Avoid division by zero
-		 * If the item cost nothing, return ROI-% of 100% */
+		 * If the item cost nothing, return ROI-% of INFINITY% */
 		if (buy_price == 0)
-			return 100;
+			return INFINITY;
 
 		return ((sell_price - buy_price) / (double)buy_price) * 100;
 	}
@@ -25,6 +25,7 @@ namespace stats
 		CHECK(calc_roi(20, 30) == 50);
 		CHECK(calc_roi(10, 20) == 100);
 		CHECK(calc_roi(20, 10) == -50);
+		CHECK(calc_roi(0, 100) == INFINITY);
 	}
 
 	std::vector<avg_stat> sort_flips_by_roi(std::vector<avg_stat> flips)
