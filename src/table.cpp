@@ -6,7 +6,7 @@
 #include <iostream>
 #include <numeric>
 
-constexpr int COLUMN_PADDING = 2;
+constexpr int COLUMN_PADDING = 4;
 
 table::table(const std::vector<std::string>& column_names)
 :column_names(column_names)
@@ -43,7 +43,7 @@ void table::print() const
 	std::cout << column_names.at(column_names.size() - 1) << std::left << "\n";
 
 	/* Print a divider */
-	const size_t divider_size = std::accumulate(column_size.begin(), column_size.end(), 0);
+	const size_t divider_size = std::accumulate(column_size.begin(), column_size.end(), 0) - COLUMN_PADDING;
 	const std::string divider(divider_size, '-');
 	std::cout << divider << '\n';
 
