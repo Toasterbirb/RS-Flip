@@ -439,10 +439,13 @@ namespace flips
 		/* How many items to recommend in total */
 		const size_t max = std::clamp(static_cast<int>(recommended_flips.size()), 1, recommendation_count);
 
+		// How many flips have been added to the recommendation list
+		u32 count{};
+
 		/* String that gets printed out if ge_inspector_format is requested */
 		std::string ge_inspector_format_str;
 
-		for (size_t i = 0; i < recommended_flips.size() && recommendation_table.row_count() < max; ++i)
+		for (size_t i = 0; i < recommended_flips.size() && count < max; ++i)
 		{
 			/* Skip items with average profit below a certain threshold */
 			if (recommended_flips[i].avg_profit() < profit_threshold)
@@ -464,6 +467,8 @@ namespace flips
 					std::to_string(recommended_flips[i].flip_count())
 				});
 			}
+
+			++count;
 		}
 
 		// If we were building a ge_inspector_format_str, skip printing the table
