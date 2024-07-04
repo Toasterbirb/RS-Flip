@@ -466,12 +466,6 @@ namespace flips
 			}
 		}
 
-		if (recommendation_table.row_count() == 0)
-		{
-			std::cout << "Couldn't find any flips to recommend...\n";
-			return true;
-		}
-
 		// If we were building a ge_inspector_format_str, skip printing the table
 		// and instead print the ge_inspector_format_str
 		if (ge_inspector_format)
@@ -480,6 +474,13 @@ namespace flips
 			ge_inspector_format_str.erase(ge_inspector_format_str.end() - 1);
 
 			std::cout << ge_inspector_format_str << '\n';
+			return true;
+		}
+
+		// If we are printing the full table instead, check if there's anything to print
+		if (recommendation_table.row_count() == 0)
+		{
+			std::cout << "Couldn't find any flips to recommend...\n";
 			return true;
 		}
 
