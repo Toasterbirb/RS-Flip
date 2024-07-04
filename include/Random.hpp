@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <random>
 
 class random
@@ -30,8 +31,9 @@ public:
 	 * @brief Generate a random integer value between min and max (inclusive)
 	 */
 	template<typename T>
-	T range(T min, T max)
+	T range(const T min, const T max)
 	{
+		assert(min < max);
 		return rng_engine() % (max + 1 - min) + min;
 	}
 

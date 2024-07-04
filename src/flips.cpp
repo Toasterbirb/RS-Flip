@@ -503,7 +503,7 @@ namespace flips
 			: recommended_flips.size() - recommendation_table.row_count();
 
 		// If there are no random flips to print, return early
-		if (max_random_count == 0)
+		if (max_random_count == 0 || max > recommendation_table.row_count())
 			return true;
 
 		std::cout << "\n";
