@@ -439,47 +439,52 @@ namespace flips
 		/* How many items to recommend in total */
 		const size_t max = std::clamp(static_cast<int>(recommended_flips.size()), 1, recommendation_count);
 
-		// How many flips have been added to the recommendation list
-		u32 count{};
-
-		/* String that gets printed out if ge_inspector_format is requested */
-		std::string ge_inspector_format_str;
-
-		for (size_t i = 0; i < recommended_flips.size() && count < max; ++i)
+		const auto should_flip_be_skipped = [&item_blacklist, profit_threshold](const stats::avg_stat& flip) -> bool
 		{
-			/* Skip items with average profit below a certain threshold */
-			if (recommended_flips[i].avg_profit() < profit_threshold)
-				continue;
+			const bool is_below_threshold = flip.avg_profit() < profit_threshold;
+			const bool is_blacklisted = item_blacklist.contains(flip.name);
+			return is_below_threshold || is_blacklisted;
+		};
 
-			/* Skip items that are blacklisted */
-			if (item_blacklist.contains(recommended_flips[i].name))
-				continue;
-
-			if (ge_inspector_format)
-			{
-				ge_inspector_format_str += recommended_flips[i].name + ';';
-			}
-			else
-			{
-				recommendation_table.add_row({
-					recommended_flips[i].name,
-					flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()),
-					std::to_string(recommended_flips[i].flip_count())
-				});
-			}
-
-			++count;
-		}
-
-		// If we were building a ge_inspector_format_str, skip printing the table
-		// and instead print the ge_inspector_format_str
+		// If we are printing in ge-inspector format, build the string
+		// only and don't build the recommendation table
 		if (ge_inspector_format)
 		{
+			u32 count{};
+			std::string ge_inspector_format_str;
+
+			for (const stats::avg_stat& flip : recommended_flips)
+			{
+				// Check if we have reached the requested amount of recommendations
+				if (count >= max)
+					break;
+
+				if (should_flip_be_skipped(flip))
+					continue;
+
+				ge_inspector_format_str += flip.name + ';';
+				++count;
+			}
+
 			// Remove the last semicolon
 			ge_inspector_format_str.erase(ge_inspector_format_str.end() - 1);
 
 			std::cout << ge_inspector_format_str << '\n';
+
 			return true;
+		}
+
+		// Build the recommendation table
+		for (size_t i = 0; i < recommended_flips.size() && recommendation_table.row_count() < max; ++i)
+		{
+			if (should_flip_be_skipped(recommended_flips[i]))
+				continue;
+
+			recommendation_table.add_row({
+				recommended_flips[i].name,
+				flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()),
+				std::to_string(recommended_flips[i].flip_count())
+			});
 		}
 
 		// If we are printing the full table instead, check if there's anything to print
