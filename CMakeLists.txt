@@ -24,6 +24,11 @@ include_directories(include/)
 add_subdirectory(vendor/clipp)
 include_directories(vendor/clipp/include)
 
+include_directories(vendor/doctest)
+
+include_directories(vendor/json/include)
+
+
 file(GLOB SRC ./src/*)
 add_executable(flip ${SRC})
 
