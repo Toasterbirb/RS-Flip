@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 
 	const auto cancel = (
 		clipp::command("cancel").set(selected_mode, mode::cancel) % "mode",
-		clipp::value("id").set(options.id) % "the id of the flip to cancel"
+		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id of the flip to cancel"
 	) % "cancels an on-going flip and removes it from the database";
 
 	const auto list = (
