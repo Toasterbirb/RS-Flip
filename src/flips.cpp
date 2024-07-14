@@ -142,6 +142,10 @@ namespace flips
 
 		for (size_t i = 0; i < db.total_flip_count(); i++)
 		{
+			/* Skip cancelled flips */
+			if (db.get_flip<bool>(i, db::flip_key::cancelled) == true)
+				continue;
+
 			/* Check if the flip is done */
 			if (db.get_flip<bool>(i, db::flip_key::done) == true)
 			{
