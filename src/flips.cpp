@@ -147,20 +147,20 @@ namespace flips
 				continue;
 
 			/* Check if the flip is done */
-			if (db.get_flip<bool>(i, db::flip_key::done) == true)
-			{
-				flip_count++;
+			if (db.get_flip<bool>(i, db::flip_key::done) == false)
+				continue;
 
-				/* Flip is done, but the sold price is missing */
-				if (db.get_flip<u64>(i, db::flip_key::sold) == 0)
-					db.set_flip(i, db::flip_key::sold, db.get_flip<u64>(i, db::flip_key::sell));
+			flip_count++;
 
-				/* Calculate the profit */
-				i32 buy_price 	= db.get_flip<u64>(i, db::flip_key::buy);
-				i32 sell_price 	= db.get_flip<u64>(i, db::flip_key::sold);
-				i32 limit 		= db.get_flip<u64>(i, db::flip_key::limit);
-				total_profit += margin::calc_profit(buy_price, sell_price, limit);
-			}
+			/* Flip is done, but the sold price is missing */
+			if (db.get_flip<u64>(i, db::flip_key::sold) == 0)
+				db.set_flip(i, db::flip_key::sold, db.get_flip<u64>(i, db::flip_key::sell));
+
+			/* Calculate the profit */
+			i32 buy_price 	= db.get_flip<u64>(i, db::flip_key::buy);
+			i32 sell_price 	= db.get_flip<u64>(i, db::flip_key::sold);
+			i32 limit 		= db.get_flip<u64>(i, db::flip_key::limit);
+			total_profit += margin::calc_profit(buy_price, sell_price, limit);
 		}
 
 		/* Update the stats values */
