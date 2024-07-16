@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <doctest/doctest.h>
+#include <format>
 #include <iostream>
 
 namespace flips
@@ -137,17 +138,78 @@ namespace flips
 	{
 		std::cout << "Recalculating statistics...\n";
 
+		/* Get the old statistics so that they can be compared to the newly
+		   calculated results */
+		const i64 old_total_profit = db.get_stat(db::stat_key::profit);
+		const i64 old_flip_count = db.get_stat(db::stat_key::flips_done);
+
 		i64 total_profit = 0;
-		i32 flip_count = 0;
+		i64 flip_count = 0;
+
+		const auto warning_prefix = [&db](const size_t flip_index) -> std::string
+		{
+			return std::format("Warning: flip {} [{}] ", flip_index, db.get_flip<std::string>(flip_index, db::flip_key::item));
+		};
+
+		const auto action_postfix = [](const std::string& action) -> std::string
+		{
+			return std::format(" -> {}\n", action);
+		};
+
+		const auto cancel_flip = [&db, &action_postfix](const size_t flip_index)
+		{
+			std::cout << action_postfix("Marking the flip as cancelled");
+			db.set_flip<bool>(flip_index, db::flip_key::done, false);
+			db.set_flip<bool>(flip_index, db::flip_key::cancelled, true);
+		};
 
 		for (size_t i = 0; i < db.total_flip_count(); i++)
 		{
-			/* Skip cancelled flips */
-			if (db.get_flip<bool>(i, db::flip_key::cancelled) == true)
-				continue;
+			/* Warn about problematic flip data */
+
+			if (db.get_flip<bool>(i, db::flip_key::cancelled) && db.get_flip<bool>(i, db::flip_key::done))
+			{
+				std::cout << warning_prefix(i)
+					<< "is cancelled and done at the same time\n";
+				cancel_flip(i);
+			}
+
+			if (db.get_flip<u64>(i, db::flip_key::limit) == 0)
+			{
+				std::cout << warning_prefix(i)
+					<< "has a buy limit of zero\n";
+				cancel_flip(i);
+			}
+
+			if (db.get_flip<u64>(i, db::flip_key::buy) == 0)
+			{
+				std::cout << warning_prefix(i)
+					<< "has a buy price of zero\n";
+				cancel_flip(i);
+			}
 
 			/* Check if the flip is done */
 			if (db.get_flip<bool>(i, db::flip_key::done) == false)
+				continue;
+
+			/* Perform more checks */
+			if (db.get_flip<u64>(i, db::flip_key::sell) == 0)
+			{
+				std::cout << warning_prefix(i)
+					<< "has a sell price of zero\n";
+				cancel_flip(i);
+			}
+
+			if (db.get_flip<u64>(i, db::flip_key::sold) == 0)
+			{
+				std::cout << warning_prefix(i)
+					<< "has a sold price of zero\n";
+				cancel_flip(i);
+			}
+
+
+			/* Skip cancelled flips */
+			if (db.get_flip<bool>(i, db::flip_key::cancelled) == true)
 				continue;
 
 			flip_count++;
@@ -166,6 +228,17 @@ namespace flips
 		/* Update the stats values */
 		db.set_stat(db::stat_key::profit, total_profit);
 		db.set_stat(db::stat_key::flips_done, flip_count);
+
+		/* Print changes */
+		if (old_total_profit != total_profit)
+			std::cout << "Total profit: "
+				<< flip_utils::round_big_numbers(old_total_profit)
+				<< " -> "
+				<< flip_utils::round_big_numbers(total_profit)
+				<< '\n';
+
+		if (old_flip_count != flip_count)
+			std::cout << "Flip count: " << old_flip_count << " -> " << flip_count << '\n';
 	}
 
 	void list(const db& db, const daily_progress& daily_progress, const std::string& account_filter)
