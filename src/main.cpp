@@ -46,38 +46,38 @@ int main(int argc, char** argv)
 
 	const auto tips = (
 		clipp::command("tips").set(selected_mode, mode::tips) % "mode",
-		(clipp::option("-t") & clipp::value("profit", options.tips.profit_threshold)) % "profit threshold",
-		(clipp::option("-c") & clipp::value("count", options.tips.max_result_count)) % "maximum result count",
-		(clipp::option("-r") & clipp::value("count", options.tips.max_random_flip_count)) % "maximum random flip suggestion count",
+		(clipp::option("-t") & clipp::number("profit", options.tips.profit_threshold)) % "profit threshold",
+		(clipp::option("-c") & clipp::number("count", options.tips.max_result_count)) % "maximum result count",
+		(clipp::option("-r") & clipp::number("count", options.tips.max_random_flip_count)) % "maximum random flip suggestion count",
 		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format"
 	) % "recommend flips based on past flipping data";
 
 	const auto calc = (
 		clipp::command("calc").set(selected_mode, mode::calc) % "mode",
-		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "insta buy price",
-		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "insta sell price",
-		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item"
+		(clipp::option("-b").required(true) & clipp::number("price").set(options.buy_price)) % "insta buy price",
+		(clipp::option("-s").required(true) & clipp::number("price").set(options.sell_price)) % "insta sell price",
+		(clipp::option("-l").required(true) & clipp::number("limit").set(options.item_count)) % "buy limit for the item"
 	) % "calculate the margin for an item and possible profits";
 
 	const auto add = (
 		clipp::command("add").set(selected_mode, mode::add) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("name").set(options.item_name)) % "item name",
-		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "buying price",
-		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "assumed future selling price",
-		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "item count to buy (usually the buy limit or slightly below)",
+		(clipp::option("-b").required(true) & clipp::number("price").set(options.buy_price)) % "buying price",
+		(clipp::option("-s").required(true) & clipp::number("price").set(options.sell_price)) % "assumed future selling price",
+		(clipp::option("-l").required(true) & clipp::number("limit").set(options.item_count)) % "item count to buy (usually the buy limit or slightly below)",
 		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "the name of the account used for the flip"
 	) % "add a flip to the database";
 
 	const auto sold = (
 		clipp::command("sold").set(selected_mode, mode::sold) % "mode",
-		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id number can be found with the 'list' command",
-		(clipp::option("-s").required(false) & clipp::value("price").set(options.sell_price)) % "final selling price",
-		(clipp::option("-l").required(false) & clipp::value("count").set(options.item_count)) % "final amount of items sold"
+		(clipp::option("-i").required(true) & clipp::number("id").set(options.id)) % "the id number can be found with the 'list' command",
+		(clipp::option("-s").required(false) & clipp::number("price").set(options.sell_price)) % "final selling price",
+		(clipp::option("-l").required(false) & clipp::number("count").set(options.item_count)) % "final amount of items sold"
 	) % "finish an on-going flip";
 
 	const auto cancel = (
 		clipp::command("cancel").set(selected_mode, mode::cancel) % "mode",
-		(clipp::option("-i").required(true) & clipp::value("id").set(options.id)) % "the id of the flip to cancel"
+		(clipp::option("-i").required(true) & clipp::number("id").set(options.id)) % "the id of the flip to cancel"
 	) % "cancels an on-going flip and removes it from the database";
 
 	const auto list = (
@@ -89,13 +89,13 @@ int main(int argc, char** argv)
 		clipp::command("filter").set(selected_mode, mode::filtering) % "mode",
 		clipp::one_of(
 			(clipp::option("-i") & clipp::value("name").set(options.item_name)) % "find stats for a specific item",
-			(clipp::option("-c") & clipp::option("count").set(options.flip_count)) % "find flips that have been done count <= times"
+			(clipp::option("-c") & clipp::number("count").set(options.flip_count)) % "find flips that have been done count <= times"
 		)
 	) % "look for items with filters";
 
 	const auto stats = (
 		clipp::command("stats").set(selected_mode, mode::stats) % "mode",
-		(clipp::option("-c") & clipp::value("count").set(options.result_count)) % "set the amount of values to show"
+		(clipp::option("-c") & clipp::number("count").set(options.result_count)) % "set the amount of values to show"
 	) % "print out profit statistics";
 
 	const auto repair = (
