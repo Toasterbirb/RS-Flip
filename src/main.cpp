@@ -12,7 +12,7 @@
 
 enum class mode
 {
-	tips, calc, flip, sold, cancel, list, filtering, stats, repair, help, test
+	tips, calc, add, sold, cancel, list, filtering, stats, repair, help, test
 };
 
 struct options
@@ -59,8 +59,8 @@ int main(int argc, char** argv)
 		(clipp::option("-l").required(true) & clipp::value("limit").set(options.item_count)) % "buy limit for the item"
 	) % "calculate the margin for an item and possible profits";
 
-	const auto flip = (
-		clipp::command("add").set(selected_mode, mode::flip) % "mode",
+	const auto add = (
+		clipp::command("add").set(selected_mode, mode::add) % "mode",
 		(clipp::option("-i").required(true) & clipp::value("name").set(options.item_name)) % "item name",
 		(clipp::option("-b").required(true) & clipp::value("price").set(options.buy_price)) % "buying price",
 		(clipp::option("-s").required(true) & clipp::value("price").set(options.sell_price)) % "assumed future selling price",
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 	);
 
 	const auto cli = (
-		( tips | calc | flip | sold | cancel | list | filtering | stats | repair | help | test )
+		( tips | calc | add | sold | cancel | list | filtering | stats | repair | help | test )
 	);
 
 	if (!clipp::parse(argc, argv, cli))
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 			margin::print_flip_estimation(options.buy_price, options.sell_price, options.item_count);
 			return 0;
 
-		case mode::flip:
+		case mode::add:
 		{
 			const flips::flip flip_obj(options.item_name,
 					options.buy_price,
