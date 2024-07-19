@@ -30,6 +30,7 @@ namespace flips
 	void fix_stats(db& db);
 	void list(const db& db, const daily_progress& daily_progress, const std::string& account_filter = ""); /* List on-going flips */
 	void cancel(db& db, const i32 ID); /* Cancel an existing flip */
+	void update(db& db, const i32 ID, u32 buy_price, u32 sell_price, u32 buy_amount, std::string account_name); /* Update flip information */
 	void sell(db& db, daily_progress& daily_progress, const i32 index, i32 sell_value, i32 sell_amount);
 
 	/** Filtering **/

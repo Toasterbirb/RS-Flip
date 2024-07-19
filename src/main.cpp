@@ -12,7 +12,7 @@
 
 enum class mode
 {
-	tips, calc, add, sold, cancel, list, filtering, stats, repair, help, test
+	tips, calc, add, sold, cancel, update, list, filtering, stats, repair, help, test
 };
 
 struct options
@@ -80,6 +80,15 @@ int main(int argc, char** argv)
 		(clipp::option("-i").required(true) & clipp::number("id").set(options.id)) % "the id of the flip to cancel"
 	) % "cancels an on-going flip and removes it from the database";
 
+	const auto update = (
+		clipp::command("update").set(selected_mode, mode::update) % "mode",
+		(clipp::option("-i").required(true) & clipp::number("id").set(options.id)) % "the id of the flip to update",
+		(clipp::option("-b").required(false) & clipp::number("price").set(options.buy_price)) % "new buying price",
+		(clipp::option("-s").required(false) & clipp::number("price").set(options.sell_price)) % "new selling price",
+		(clipp::option("-l").required(false) & clipp::number("count").set(options.item_count)) % "new item count",
+		(clipp::option("-a").required(false) & clipp::value("account").set(options.account)) % "new account name"
+	) % "update the details of an on-going flip";
+
 	const auto list = (
 		clipp::command("list").set(selected_mode, mode::list) % "mode",
 		clipp::value("account").set(options.account).required(false) % "list only flips made with this account"
@@ -111,7 +120,7 @@ int main(int argc, char** argv)
 	);
 
 	const auto cli = (
-		( tips | calc | add | sold | cancel | list | filtering | stats | repair | help | test )
+		( tips | calc | add | sold | cancel | update | list | filtering | stats | repair | help | test )
 	);
 
 	if (!clipp::parse(argc, argv, cli))
@@ -159,6 +168,10 @@ int main(int argc, char** argv)
 
 		case mode::cancel:
 			flips::cancel(db, options.id);
+			break;
+
+		case mode::update:
+			flips::update(db, options.id, options.buy_price, options.sell_price, options.item_count, options.account);
 			break;
 
 		case mode::list:

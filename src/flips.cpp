@@ -375,6 +375,40 @@ namespace flips
 		std::cout << "Flip [" << db.get_flip<std::string>(flip_to_cancel, db::flip_key::item) << "] cancelled!\n";
 	}
 
+	void update(db& db, const i32 ID, u32 buy_price, u32 sell_price, u32 buy_amount, std::string account_name)
+	{
+		/* Since the given ID is the ID from the flip list, we'll need to convert it into a flip index */
+		const u32 flip_index = find_real_id_with_undone_id(db, ID);
+
+		/* Update variables that have been changed by the user */
+
+		std::cout << "Updating item [" << db.get_flip<std::string>(flip_index, db::flip_key::item) << "]\n";
+
+		if (buy_price != 0)
+		{
+			std::cout << "Buy price: " << db.get_flip<u32>(flip_index, db::flip_key::buy) << " -> " << buy_price << '\n';
+			db.set_flip(flip_index, db::flip_key::buy, buy_price);
+		}
+
+		if (sell_price != 0)
+		{
+			std::cout << "Sell price: " << db.get_flip<u32>(flip_index, db::flip_key::sell) << " -> " << sell_price << '\n';
+			db.set_flip(flip_index, db::flip_key::sell, sell_price);
+		}
+
+		if (buy_amount != 0)
+		{
+			std::cout << "Item count: " << db.get_flip<u32>(flip_index, db::flip_key::limit) << " -> " << buy_amount << '\n';
+			db.set_flip(flip_index, db::flip_key::limit, buy_amount);
+		}
+
+		if (!account_name.empty())
+		{
+			std::cout << "Account: " << db.get_flip<u32>(flip_index, db::flip_key::account) << " -> " << account_name << '\n';
+			db.set_flip(flip_index, db::flip_key::account, account_name);
+		}
+	}
+
 	void sell(db& db, daily_progress& daily_progress, const i32 index, i32 sell_value, i32 sell_amount)
 	{
 		const i32 flip_index = find_real_id_with_undone_id(db, index);
