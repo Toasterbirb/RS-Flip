@@ -404,7 +404,7 @@ namespace flips
 
 		if (!account_name.empty())
 		{
-			std::cout << "Account: " << db.get_flip<u32>(flip_index, db::flip_key::account) << " -> " << account_name << '\n';
+			std::cout << "Account: " << db.get_flip<std::string>(flip_index, db::flip_key::account) << " -> " << account_name << '\n';
 			db.set_flip(flip_index, db::flip_key::account, account_name);
 		}
 	}
