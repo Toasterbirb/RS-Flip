@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <doctest/doctest.h>
 #include <filesystem>
+#include <iostream>
+#include <sys/types.h>
 
 constexpr char DEFAULT_DATA_FILE[] = "{\"stats\":{\"profit\":0,\"flips_done\":0},\"flips\":[]}\n";
 
@@ -22,7 +24,25 @@ db::db()
 
 	/* Read the json data file */
 	const std::string json_string = flip_utils::read_file(file_paths::data_file);
-	json_data = nlohmann::json::parse(json_string);
+
+	try
+	{
+		json_data = nlohmann::json::parse(json_string);
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "The database is possibly corrupted. Restore a backup to proceed.\nError: " << e.what() << '\n';
+		exit(1);
+	}
+
+	/* Validate the database before using it to avoid nuking any backups on write
+	 * if there's still one around */
+
+	if (!validate(json_data))
+	{
+		std::cout << "The json database is missing information. Restore a backup to proceed\n";
+		exit(1);
+	}
 }
 
 db::db(const nlohmann::json& json_data)
@@ -126,6 +146,18 @@ void db::write()
 	std::filesystem::copy_file(file_paths::data_file, file_paths::data_file + "_backup", std::filesystem::copy_options::overwrite_existing);
 
 	flip_utils::write_json_file(json_data, file_paths::data_file);
+}
+
+bool db::validate(const nlohmann::json& json_obj)
+{
+	/* Check if the json file has all of the keys that should be there */
+
+	bool key_flips = json_obj.contains("flips");
+	bool key_stats = json_obj.contains("stats");
+	bool key_flips_done = json_obj.at("stats").contains("flips_done");
+	bool key_profit = json_obj.at("stats").contains("profit");
+
+	return key_flips && key_stats && key_flips_done && key_profit;
 }
 
 void db::create_default_data_file()

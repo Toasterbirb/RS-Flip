@@ -100,6 +100,8 @@ public:
 private:
 	nlohmann::json json_data;
 
+	bool validate(const nlohmann::json& json_obj); /* Make sure that everything is OK with the DB file */
+
 	template<typename T>
 	__attribute__((warn_unused_result))
 	std::vector<T> get_flip_values(const std::vector<u32>& indices, const flip_key key) const
