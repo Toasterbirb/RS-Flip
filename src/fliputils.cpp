@@ -137,6 +137,18 @@ namespace flip_utils
 		file << std::setw(4) << json_data << std::endl;
 	}
 
+	std::string str_to_lower(const std::string& str)
+	{
+		std::string lowercase_str;
+		lowercase_str.resize(str.size());
+
+		std::transform(str.begin(), str.end(), lowercase_str.begin(), [](const char c){
+			return std::tolower(c);
+		});
+
+		return lowercase_str;
+	}
+
 	f64 limes(const f64 approach_value, const f64 diminishing_returns, const f64 slope, const f64 value)
 	{
 		return value < 0.001 ? -300 : approach_value - diminishing_returns / value * slope;

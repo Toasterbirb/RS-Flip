@@ -93,6 +93,7 @@ std::vector<stats::avg_stat> db::get_flip_avg_stats() const
 std::vector<u32> db::find_flips_by_name(const std::string& item_name) const
 {
 	std::vector<u32> result;
+	const std::string item_name_lowercase = flip_utils::str_to_lower(item_name);
 
 	/* Quit if zero flips done */
 	if (get_stat(stat_key::flips_done) == 0)
@@ -100,7 +101,7 @@ std::vector<u32> db::find_flips_by_name(const std::string& item_name) const
 
 	for (u32 i = 0; i < total_flip_count(); ++i)
 	{
-		if (get_flip<std::string>(i, flip_key::item) != item_name)
+		if (flip_utils::str_to_lower(get_flip<std::string>(i, flip_key::item)) != item_name_lowercase)
 			continue;
 
 		if (get_flip<bool>(i, flip_key::done))

@@ -22,6 +22,7 @@ namespace flip_utils
 	std::unordered_set<std::string> read_file_items(const std::string& filepath); /* Read unique item lines from a file */
 	void write_file(const std::string& filepath, const std::string& text);
 	void write_json_file(const nlohmann::json& json_data, const std::string& file_path);
+	std::string str_to_lower(const std::string& str);
 
 	// Function that approaches a given value but never really reaches it
 	// After the point of diminishing_returns, the value starts incresing slower
