@@ -111,7 +111,7 @@ namespace stats
 		assert(total_flip_count > 0);
 
 		constexpr f64 flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
-		constexpr f64 flip_index_age_exponent = 1.1; // Increase the impact of flip age
+		constexpr f64 flip_index_age_exponent = 0.9; // Increase the impact of flip age
 		f64 flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
 
 		// Set limits to the age penalty
