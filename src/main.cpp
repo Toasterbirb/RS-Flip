@@ -30,7 +30,7 @@ struct options
 
 	struct tips
 	{
-		i64 profit_threshold = 750'000;
+		i64 profit_threshold = 2'000'000;
 		i32 max_result_count = 35;
 		i32 max_random_flip_count = 5;
 		bool ge_inspector_format = false;

@@ -119,8 +119,13 @@ namespace stats
 		constexpr f64 max_penalty = 1.0;
 		flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
 
+		const f64 roi_modifier = flip_utils::limes(2, 1.5, 1, avg_roi());
+		const f64 flip_count_modifier = flip_utils::limes(2, 1, 3, flip_count());
+
+		constexpr f32 profit_exponent = 1.50f;
+
 		constexpr f32 inverse_divisor = 1.0 / 10000.0;
-		return std::round((flip_age_debuff * rolling_avg_profit() * flip_utils::limes(2, 1.5, 1, avg_roi()) *  flip_utils::limes(1.1, 1, 1, flip_count())) * inverse_divisor);
+		return std::round((std::pow(rolling_avg_profit(), profit_exponent) * flip_age_debuff * roi_modifier * flip_count_modifier) * inverse_divisor);
 	}
 
 	u32 avg_stat::flip_count() const
