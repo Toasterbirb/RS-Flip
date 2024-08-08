@@ -463,9 +463,14 @@ namespace flips
 			return;
 
 		/* List out the flips */
-		std::cout << "+-------------+-------------+---------+-------------+\n";
-		std::cout << "| Buy         | Sell        | Count   | Profit      |\n";
-		std::cout << "+-------------+-------------+---------+-------------+\n";
+		std::cout	<< "+-------------+-------------+---------+-------------+\n"
+					<< "| Buy         | Sell        | Count   | Profit      |\n"
+					<< "+-------------+-------------+---------+-------------+\n";
+
+		constexpr u8 buy_cell_width		= 11;
+		constexpr u8 sell_cell_width	= 11;
+		constexpr u8 count_cell_width	= 7;
+		constexpr u8 profit_cell_width	= 11;
 
 		i64 total_profit = 0;
 		for (size_t i = 0; i < found_flips.size(); i++)
@@ -481,10 +486,11 @@ namespace flips
 			const std::string profit_text = flip_utils::round_big_numbers(profit);
 			const std::string item_count = std::to_string(flip.buylimit);
 
-			std::cout << "| " << buy_price << std::setw(14 - buy_price.length()) << " | " <<
-				sell_price << std::setw(14 - sell_price.length())	<< " | " <<
-				item_count << std::setw(10 - item_count.length()) 	<< " | " <<
-				profit_text << std::setw(14 - profit_text.length()) << " |\n";
+			std::cout << "| "
+				<< std::setw(buy_cell_width) << buy_price << " | "
+				<< std::setw(sell_cell_width) << sell_price << " | "
+				<< std::setw(count_cell_width) << item_count << " | "
+				<< std::setw(profit_cell_width) << profit_text << " |\n";
 		}
 
 		std::cout << "+-------------+-------------+---------+-------------+\n";
