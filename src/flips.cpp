@@ -552,7 +552,7 @@ namespace flips
 
 		const auto should_flip_be_skipped = [&item_blacklist, profit_threshold](const stats::avg_stat& flip) -> bool
 		{
-			const bool is_below_threshold = flip.avg_profit() < profit_threshold;
+			const bool is_below_threshold = flip.rolling_avg_profit() < profit_threshold;
 			const bool is_blacklisted = item_blacklist.contains(flip.name);
 			return is_below_threshold || is_blacklisted;
 		};
