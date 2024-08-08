@@ -20,14 +20,9 @@ namespace stats
 		total_profit 		= 0;
 		total_roi 			= 0;
 		total_item_count 	= 0;
-
-		lowest_item_count 	= 0;
-		highest_item_count 	= 0;
-
-		total_sell_sold_distance 	= 0;
 	}
 
-	void avg_stat::add_data(const i64 profit, const f64 ROI, const u32 item_count, const i32 sell, const i32 sold, const u32 latest_trade_index)
+	void avg_stat::add_data(const i64 profit, const f64 ROI, const u32 item_count, const u32 latest_trade_index)
 	{
 		profit_list.push_back(profit);
 
@@ -43,14 +38,6 @@ namespace stats
 			if (latest_trade_index > total_flip_count)
 				total_flip_count = latest_trade_index;
 		}
-
-		if (lowest_item_count == 0 || lowest_item_count > item_count)
-			lowest_item_count = item_count;
-
-		if (highest_item_count == 0 || highest_item_count < item_count)
-			highest_item_count = item_count;
-
-		total_sell_sold_distance += std::abs(sell - sold);
 	}
 
 	f64 avg_stat::avg_profit() const
@@ -191,8 +178,6 @@ namespace stats
 					margin::calc_profit(flip),
 					stats::calc_roi(flip.buy_price, flip.sold_price),
 					flip.buylimit,
-					flip.sell_price,
-					flip.sold_price,
 					i
 				);
 
