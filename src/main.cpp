@@ -12,7 +12,7 @@
 
 enum class mode
 {
-	tips, calc, add, sold, cancel, update, list, filtering, stats, repair, help, test
+	tips, calc, add, sold, cancel, update, list, filtering, stats, progress, repair, help, test
 };
 
 struct options
@@ -107,6 +107,10 @@ int main(int argc, char** argv)
 		(clipp::option("-c") & clipp::number("count").set(options.result_count)) % "set the amount of values to show"
 	) % "print out profit statistics";
 
+	const auto progress = (
+		clipp::command("progress").set(selected_mode, mode::progress) % "mode"
+	) % "print out current daily progress";
+
 	const auto repair = (
 		clipp::command("repair").set(selected_mode, mode::repair) % "attempts to repair the statistics from the flip data in-case of some bug"
 	);
@@ -120,7 +124,7 @@ int main(int argc, char** argv)
 	);
 
 	const auto cli = (
-		( tips | calc | add | sold | cancel | update | list | filtering | stats | repair | help | test )
+		( tips | calc | add | sold | cancel | update | list | filtering | stats | progress | repair | help | test )
 	);
 
 	if (!clipp::parse(argc, argv, cli))
@@ -193,6 +197,20 @@ int main(int argc, char** argv)
 			flips::print_stats(db, options.result_count);
 			return 0;
 			break;
+
+		case mode::progress:
+		{
+			std::cout << flip_utils::round_big_numbers(daily_progress.current_progress())
+				<< '/'
+				<< flip_utils::round_big_numbers(daily_progress.goal())
+				<< '\n';
+
+			// only update the daily progress and exit
+			// this is to update the daily reset if the day has changed
+			daily_progress.write();
+			return 0;
+			break;
+		}
 
 		case mode::repair:
 			flips::fix_stats(db);
