@@ -38,9 +38,9 @@ namespace flip_utils
 	std::string round_big_numbers(const long number)
 	{
 		if (number > 1'000'000 || number < -1'000'000)
-			return clean_decimals((double)number / 1'000'000) + "m";
+			return round((double)number / 1'000'000, 3) + "m";
 		else if (number > 1000 || number < -1000)
-			return clean_decimals((double)number / 1000) + "k";
+			return round((double)number / 1000, 2) + "k";
 
 		/* Small enough number to not need rounding */
 		return std::to_string(number);
