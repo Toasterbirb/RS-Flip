@@ -45,8 +45,8 @@ void table::print() const
 
 	/* Print a divider */
 	const size_t divider_size = std::accumulate(column_size.begin(), column_size.end(), 0) - COLUMN_PADDING;
-	const std::string divider(divider_size, '-');
-	std::cout << divider << '\n';
+	for (size_t i = 0; i < divider_size; ++i) std::cout << "─";
+	std::cout << '\n';
 
 	/* Print the data */
 	for (size_t i = 0; i < data.size(); ++i)
