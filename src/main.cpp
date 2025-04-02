@@ -127,11 +127,36 @@ int main(int argc, char** argv)
 		( tips | calc | add | sold | cancel | update | list | filtering | stats | progress | repair | help | test )
 	);
 
+#ifndef FUZZING
 	if (!clipp::parse(argc, argv, cli))
 	{
 		std::cout << "Invalid arguments were provided. Please check 'flip help'\n";
 		return 1;
 	}
+#else
+	std::cout << "Fuzzing instrumentation is enabled. CLI args are read from stdin\n";
+	std::vector<std::string> cli_args;
+	{
+		std::string word;
+		while (std::getline(std::cin, word, ' '))
+		{
+			if (!word.empty())
+			{
+				// strip out newline characters from the end of the line
+				if (word.at(word.size() - 1) == '\n')
+					word.erase(word.size() - 1, 1);
+
+				cli_args.push_back(word);
+			}
+		}
+	}
+
+	if (!clipp::parse(cli_args.begin(), cli_args.end(), cli))
+	{
+		std::cout << "Invalid arguments were provided. Please check 'flip help'\n";
+		return 1;
+	}
+#endif
 
 	db db;
 	daily_progress daily_progress;
