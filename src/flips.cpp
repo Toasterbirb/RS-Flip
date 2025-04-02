@@ -378,7 +378,11 @@ namespace flips
 	void update(db& db, const i32 ID, u32 buy_price, u32 sell_price, u32 buy_amount, std::string account_name)
 	{
 		/* Since the given ID is the ID from the flip list, we'll need to convert it into a flip index */
-		const u32 flip_index = find_real_id_with_undone_id(db, ID);
+		const i32 flip_index = find_real_id_with_undone_id(db, ID);
+
+		/* If no flips were found, bail out */
+		if (flip_index == -1)
+			return;
 
 		/* Update variables that have been changed by the user */
 
