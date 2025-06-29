@@ -30,7 +30,8 @@ static inline std::array<std::function<f64(const stats::avg_stat& stat)>, 2> rec
 		constexpr f32 profit_exponent = 1.50f;
 
 		constexpr f32 inverse_divisor = 1.0 / 10000.0;
-		return std::round((std::pow(stat.rolling_avg_profit(), profit_exponent) * flip_age_debuff * roi_modifier * flip_count_modifier) * inverse_divisor);
+		constexpr u32 rolling_avg_window_size = 10;
+		return std::round((std::pow(stat.rolling_avg_profit(rolling_avg_window_size), profit_exponent) * flip_age_debuff * roi_modifier * flip_count_modifier) * inverse_divisor);
 	},
 	[](const stats::avg_stat& stat) -> f64 // v2
 	{

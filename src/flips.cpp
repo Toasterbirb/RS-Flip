@@ -556,13 +556,14 @@ namespace flips
 		table recommendation_table(recommendation_table_column_names);
 
 		/* Print recommendations until the recommendation_count has been reached */
+		static constexpr u32  rolling_avg_profit_window_size = 10;
 
 		/* How many items to recommend in total */
 		const size_t max = std::clamp(static_cast<int>(recommended_flips.size()), 1, recommendation_count);
 
 		const auto should_flip_be_skipped = [&item_blacklist, profit_threshold](const stats::avg_stat& flip) -> bool
 		{
-			const bool is_below_threshold = flip.rolling_avg_profit() < profit_threshold;
+			const bool is_below_threshold = flip.rolling_avg_profit(rolling_avg_profit_window_size) < profit_threshold;
 			const bool is_blacklisted = item_blacklist.contains(flip.name);
 			return is_below_threshold || is_blacklisted;
 		};
@@ -603,7 +604,7 @@ namespace flips
 
 			recommendation_table.add_row({
 				recommended_flips[i].name,
-				flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit()),
+				flip_utils::round_big_numbers(recommended_flips[i].rolling_avg_profit(rolling_avg_profit_window_size)),
 				std::to_string(recommended_flips[i].flip_count())
 			});
 		}
@@ -639,7 +640,7 @@ namespace flips
 			const u32 index = rng.range(max, recommended_flips.size() - 1);
 			random_table.add_row({
 				recommended_flips[index].name,
-				flip_utils::round_big_numbers(recommended_flips[index].rolling_avg_profit()),
+				flip_utils::round_big_numbers(recommended_flips[index].rolling_avg_profit(rolling_avg_profit_window_size)),
 				std::to_string(recommended_flips[index].flip_count())
 			});
 		}

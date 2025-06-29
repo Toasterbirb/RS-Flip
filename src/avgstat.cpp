@@ -9,7 +9,6 @@
 
 namespace stats
 {
-	constexpr i32 PROFIT_QUEUE_SIZE = 10;
 	static inline recommendation_algorithm current_algorithm = recommendation_algorithm::v1;
 
 	avg_stat::avg_stat()
@@ -47,16 +46,16 @@ namespace stats
 		return flip_count() == 0 ? 0 : total_profit / static_cast<double>(flip_count());
 	}
 
-	f64 avg_stat::rolling_avg_profit() const
+	f64 avg_stat::rolling_avg_profit(const u32 window_size) const
 	{
 		if (profit_list.empty())
 			return 0;
 
 		/* Count the total "rolling" profit */
 
-		const bool flip_list_longer_than_profit_queue = profit_list.size() >= PROFIT_QUEUE_SIZE;
-		const size_t first_flip = flip_list_longer_than_profit_queue ? profit_list.size() - PROFIT_QUEUE_SIZE : 0;
-		const u32 rolling_profit_count = flip_list_longer_than_profit_queue ? PROFIT_QUEUE_SIZE : profit_list.size();
+		const bool flip_list_longer_than_profit_queue = profit_list.size() >= window_size;
+		const size_t first_flip = flip_list_longer_than_profit_queue ? profit_list.size() - window_size : 0;
+		const u32 rolling_profit_count = flip_list_longer_than_profit_queue ? window_size : profit_list.size();
 
 		const i64 rolling_total_profit = std::accumulate(profit_list.begin() + first_flip, profit_list.end(), 0);
 
@@ -78,7 +77,7 @@ namespace stats
 			CHECK(granite.flip_count() == 1);
 			CHECK(granite.avg_roi() == roi);
 			CHECK(granite.avg_profit() == profit);
-			CHECK(granite.rolling_avg_profit() == profit);
+			CHECK(granite.rolling_avg_profit(10) == profit);
 		}
 	}
 

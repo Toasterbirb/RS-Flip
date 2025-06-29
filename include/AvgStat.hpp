@@ -21,7 +21,7 @@ namespace stats
 		explicit avg_stat(const std::string& item_name);
 		void add_data(const i64 profit, const f64 ROI, const u32 item_count, const u32 latest_trade_index = 0);
 		f64 avg_profit() const;
-		f64 rolling_avg_profit() const; /* Get the avg. profit of the latest flips */
+		f64 rolling_avg_profit(const u32 window_size) const; /* Get the avg. profit of the latest flips */
 		f64 avg_roi() const;
 		f64 avg_buy_limit() const;
 		f64 flip_recommendation() const;
