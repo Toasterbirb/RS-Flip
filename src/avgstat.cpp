@@ -2,6 +2,7 @@
 #include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
+#include "Recommendations.hpp"
 #include "Stats.hpp"
 
 #include <doctest/doctest.h>
@@ -9,6 +10,7 @@
 namespace stats
 {
 	constexpr i32 PROFIT_QUEUE_SIZE = 10;
+	static inline recommendation_algorithm current_algorithm = recommendation_algorithm::v1;
 
 	avg_stat::avg_stat()
 	:name("null")
@@ -35,8 +37,8 @@ namespace stats
 			this->_latest_trade_index = latest_trade_index;
 
 			// Attempt to keep the total flip amount up-to-date
-			if (latest_trade_index > total_flip_count)
-				total_flip_count = latest_trade_index;
+			if (latest_trade_index > _total_flip_count)
+				_total_flip_count = latest_trade_index;
 		}
 	}
 
@@ -92,27 +94,9 @@ namespace stats
 
 	f64 avg_stat::flip_recommendation() const
 	{
-		if (flip_count() == 0)
-			return 0;
-
-		assert(total_flip_count > 0);
-
-		constexpr f64 flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
-		constexpr f64 flip_index_age_exponent = 0.9; // Increase the impact of flip age
-		f64 flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(total_flip_count - _latest_trade_index, flip_index_age_exponent));
-
-		// Set limits to the age penalty
-		constexpr f64 min_penalty = 0.001;
-		constexpr f64 max_penalty = 1.0;
-		flip_age_debuff = std::clamp(flip_age_debuff, min_penalty, max_penalty);
-
-		const f64 roi_modifier = flip_utils::limes(2, 1.5, 1, avg_roi());
-		const f64 flip_count_modifier = flip_utils::limes(2, 1, 3, flip_count());
-
-		constexpr f32 profit_exponent = 1.50f;
-
-		constexpr f32 inverse_divisor = 1.0 / 10000.0;
-		return std::round((std::pow(rolling_avg_profit(), profit_exponent) * flip_age_debuff * roi_modifier * flip_count_modifier) * inverse_divisor);
+		assert(_total_flip_count > 0);
+		assert(static_cast<size_t>(current_algorithm) < recommendation_algorithms.size());
+		return recommendation_algorithms.at(static_cast<size_t>(current_algorithm))(*this);
 	}
 
 	u32 avg_stat::flip_count() const
@@ -123,6 +107,11 @@ namespace stats
 	i32 avg_stat::latest_trade_index() const
 	{
 		return _latest_trade_index;
+	}
+
+	u32 avg_stat::total_flip_count()
+	{
+		return _total_flip_count;
 	}
 
 	TEST_CASE("Average stats per item")
@@ -153,6 +142,11 @@ namespace stats
 		CHECK(statC.avg_profit() == 50005);
 		CHECK(statC.avg_buy_limit() == 10500);
 		CHECK(statC.flip_count() == 2);
+	}
+
+	void avg_stat::set_recommendation_algorithm(const recommendation_algorithm& algorithm)
+	{
+		current_algorithm = algorithm;
 	}
 
 	std::vector<avg_stat> flips_to_avg_stats(const std::vector<nlohmann::json>& flips)

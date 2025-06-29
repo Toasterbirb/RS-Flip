@@ -8,6 +8,12 @@
 
 namespace stats
 {
+	enum class recommendation_algorithm
+	{
+		v1 = 0,
+		v2 = 1
+	};
+
 	class avg_stat
 	{
 	public:
@@ -22,6 +28,11 @@ namespace stats
 		u32 flip_count() const;
 		i32 latest_trade_index() const;
 
+		// how many flips have been done in total
+		static u32 total_flip_count();
+
+		static void set_recommendation_algorithm(const recommendation_algorithm& algorithm);
+
 		std::string name;
 
 	private:
@@ -33,7 +44,7 @@ namespace stats
 		u32 _latest_trade_index = 0;
 
 		/// The total amount (count) of flip data added to avgstats
-		static inline u32 total_flip_count = 0;
+		static inline u32 _total_flip_count = 0;
 	};
 
 	std::vector<avg_stat> flips_to_avg_stats(const std::vector<nlohmann::json>& flips);
