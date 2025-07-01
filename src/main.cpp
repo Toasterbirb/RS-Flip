@@ -5,6 +5,7 @@
 #include "FlipUtils.hpp"
 #include "Flips.hpp"
 #include "Margin.hpp"
+#include "Optimize_v2.hpp"
 #include "Types.hpp"
 
 #include <clipp.h>
@@ -12,7 +13,7 @@
 
 enum class mode
 {
-	tips, calc, add, sold, cancel, update, list, filtering, stats, progress, repair, help, test
+	tips, optimize, calc, add, sold, cancel, update, list, filtering, stats, progress, repair, help, test
 };
 
 struct options
@@ -28,15 +29,7 @@ struct options
 	u32 flip_count{};
 	u32 result_count = 10;
 
-	struct tips
-	{
-		i64 profit_threshold = 2'000'000;
-		i32 max_result_count = 35;
-		i32 max_random_flip_count = 0;
-		bool ge_inspector_format = false;
-	};
-
-	tips tips;
+	flips::tip_config tips;
 };
 
 int main(int argc, char** argv)
@@ -49,8 +42,13 @@ int main(int argc, char** argv)
 		(clipp::option("-t") & clipp::number("profit", options.tips.profit_threshold)) % "profit threshold",
 		(clipp::option("-c") & clipp::number("count", options.tips.max_result_count)) % "maximum result count",
 		(clipp::option("-r") & clipp::number("count", options.tips.max_random_flip_count)) % "maximum random flip suggestion count (def: 0)",
-		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format"
+		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format",
+		(clipp::option("-a") & clipp::number("algorithm_version", options.tips.recommendation_algorithm)) % "change the recommendation algorithm version"
 	) % "recommend flips based on past flipping data";
+
+	const auto optimize = (
+		clipp::command("optimize").set(selected_mode, mode::optimize) % "mode"
+	) % "optimize the v2 recommendation algorithm weights based on past data with repeated simulations";
 
 	const auto calc = (
 		clipp::command("calc").set(selected_mode, mode::calc) % "mode",
@@ -124,7 +122,7 @@ int main(int argc, char** argv)
 	);
 
 	const auto cli = (
-		( tips | calc | add | sold | cancel | update | list | filtering | stats | progress | repair | help | test )
+		( tips | optimize | calc | add | sold | cancel | update | list | filtering | stats | progress | repair | help | test )
 	);
 
 #ifndef FUZZING
@@ -164,7 +162,11 @@ int main(int argc, char** argv)
 	switch (selected_mode)
 	{
 		case mode::tips:
-			flips::flip_recommendations(db, options.tips.profit_threshold, options.tips.max_result_count, options.tips.max_random_flip_count, options.tips.ge_inspector_format);
+			flips::flip_recommendations(db, options.tips);
+			return 0;
+
+		case mode::optimize:
+			optimize_v2_recommendation_algorithm(db);
 			return 0;
 
 		case mode::calc:

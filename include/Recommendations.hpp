@@ -9,12 +9,25 @@
 #include <functional>
 #include <array>
 
+constexpr u8 v2_variable_count = 5;
+// static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = {
+// 	0.254,  // avg profit
+// 	0.263,  // success rate
+// 	0.129, // consistency
+// 	0.242, // cancellation penalty
+// 	0.119,   // flip count
+// 	0.2,     // average roi-%
+// 	0.1,
+// 	0.2,
+// };
+
+static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = { 0.169872, 0.158593, 0.172282, 0.16679, 0.16679 };
+
+f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f64, v2_variable_count>& weights);
+
 static inline std::array<std::function<f64(const stats::avg_stat& stat)>, 2> recommendation_algorithms = {
 	[](const stats::avg_stat& stat) -> f64 // v1
 	{
-		if (stat.flip_count() == 0)
-			return 0;
-
 		constexpr f64 flip_age_penaly = 0.005; // Higher value lowers the score more for stale flips
 		constexpr f64 flip_index_age_exponent = 0.9; // Increase the impact of flip age
 		f64 flip_age_debuff = 1.0 - (flip_age_penaly * std::pow(stat.total_flip_count() - stat.latest_trade_index(), flip_index_age_exponent));
@@ -35,6 +48,6 @@ static inline std::array<std::function<f64(const stats::avg_stat& stat)>, 2> rec
 	},
 	[](const stats::avg_stat& stat) -> f64 // v2
 	{
-		return 0;
+		return v2_recommendation_algorithm(stat, v2_recommendation_algorithm_weights);
 	}
 };

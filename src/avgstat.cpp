@@ -5,11 +5,13 @@
 #include "Recommendations.hpp"
 #include "Stats.hpp"
 
+#include <cmath>
 #include <doctest/doctest.h>
+#include <iostream>
 
 namespace stats
 {
-	static inline recommendation_algorithm current_algorithm = recommendation_algorithm::v1;
+	static inline recommendation_algorithm current_algorithm = recommendation_algorithm::v2;
 
 	avg_stat::avg_stat()
 	:name("null")
@@ -41,9 +43,39 @@ namespace stats
 		}
 	}
 
+	void avg_stat::inc_cancel_count()
+	{
+		_cancelled_flip_count++;
+	}
+
 	f64 avg_stat::avg_profit() const
 	{
 		return flip_count() == 0 ? 0 : total_profit / static_cast<double>(flip_count());
+	}
+
+	f64 avg_stat::normalized_avg_profit() const
+	{
+		return (avg_profit() - min_avg_profit) / (max_avg_profit - min_avg_profit);
+	}
+
+	f64 avg_stat::profit_standard_deviation() const
+	{
+		assert(!profit_list.empty());
+
+		const f64 mean = avg_profit();
+
+		std::vector<f64> squared_differences(profit_list.size());
+		for (const i32 p : profit_list)
+		{
+			const f64 difference = p - mean;
+			squared_differences.push_back(difference * difference);
+		}
+
+		const f64 sum_of_squared_differences = std::accumulate(squared_differences.begin(), squared_differences.end(), 0.0f);
+		const f64 variance = sum_of_squared_differences / squared_differences.size();
+		const f64 standard_deviation = std::sqrt(variance);
+
+		return standard_deviation;
 	}
 
 	f64 avg_stat::rolling_avg_profit(const u32 window_size) const
@@ -86,15 +118,29 @@ namespace stats
 		return flip_count() == 0 ? 0 : total_roi / static_cast<double>(flip_count());
 	}
 
+	f64 avg_stat::normalized_avg_roi() const
+	{
+		return (avg_roi() - min_avg_roi) / (max_avg_roi - min_avg_roi);
+	}
+
 	f64 avg_stat::avg_buy_limit() const
 	{
 		return flip_count() == 0 ? 0 : total_item_count / static_cast<double>(flip_count());
+	}
+
+	f64 avg_stat::normalized_avg_buy_limit() const
+	{
+		return (avg_buy_limit() - min_avg_buy_limit) / (max_avg_buy_limit - min_avg_buy_limit);
 	}
 
 	f64 avg_stat::flip_recommendation() const
 	{
 		assert(_total_flip_count > 0);
 		assert(static_cast<size_t>(current_algorithm) < recommendation_algorithms.size());
+
+		if (flip_count() == 0)
+			return 0;
+
 		return recommendation_algorithms.at(static_cast<size_t>(current_algorithm))(*this);
 	}
 
@@ -103,9 +149,33 @@ namespace stats
 		return profit_list.size();
 	}
 
+	u32 avg_stat::profitable_flip_count() const
+	{
+		u32 counter{0};
+		for (const i32 p : profit_list)
+			if (p > 0) counter++;
+
+		return counter;
+	}
+
+	u32 avg_stat::cancelled_flip_count() const
+	{
+		return _cancelled_flip_count;
+	}
+
+	f64 avg_stat::cancellation_ratio() const
+	{
+		return _cancelled_flip_count / static_cast<f64>(_cancelled_flip_count + profit_list.size());
+	}
+
 	i32 avg_stat::latest_trade_index() const
 	{
 		return _latest_trade_index;
+	}
+
+	const std::vector<i32>& avg_stat::profits() const
+	{
+		return profit_list;
 	}
 
 	u32 avg_stat::total_flip_count()
@@ -143,9 +213,22 @@ namespace stats
 		CHECK(statC.flip_count() == 2);
 	}
 
-	void avg_stat::set_recommendation_algorithm(const recommendation_algorithm& algorithm)
+	void avg_stat::set_recommendation_algorithm(const u8 algorithm)
 	{
-		current_algorithm = algorithm;
+		switch (algorithm)
+		{
+			case 1:
+				current_algorithm = recommendation_algorithm::v1;
+				break;
+
+			case 2:
+				current_algorithm = recommendation_algorithm::v2;
+				break;
+
+			default:
+				std::cout << "unknown algorithm version: " << algorithm << "\nfalling back to default (" << static_cast<u32>(current_algorithm) << ")\n";
+				break;
+		}
 	}
 
 	std::vector<avg_stat> flips_to_avg_stats(const std::vector<nlohmann::json>& flips)
@@ -157,15 +240,20 @@ namespace stats
 		{
 			const flips::flip flip(flips[i]);
 
+			avg_stat& stat = avg_stats[flip.item];
+
+			/* Ignore items that have been cancelled
+			 * do count them though... */
+			if (flip.cancelled == true)
+			{
+				stat.inc_cancel_count();
+				continue;
+			}
+
 			/* Ignore items that haven't sold yet */
 			if (flip.done == false)
 				continue;
 
-			/* Ignore items that have been cancelled */
-			if (flip.cancelled == true)
-				continue;
-
-			avg_stat& stat = avg_stats[flip.item];
 			stat.name = flip.item;
 			stat.add_data(
 					margin::calc_profit(flip),
@@ -183,10 +271,43 @@ namespace stats
 			assert(stat.flip_count() < 10'000'000);
 		}
 
-		/* Convert the map into a vector */
+		// convert the map into a vector
 		std::vector<avg_stat> result;
 		result.reserve(avg_stats.size());
 		std::transform(avg_stats.begin(), avg_stats.end(), std::back_inserter(result), [](const auto& element) { return element.second; });
+
+		// figure out the value ranges
+		avg_stat::min_avg_profit = result[0].avg_profit();
+		avg_stat::max_avg_profit = result[0].avg_profit();
+		avg_stat::min_avg_buy_limit = result[0].avg_buy_limit();
+		avg_stat::max_avg_buy_limit = result[0].avg_buy_limit();
+		avg_stat::min_avg_roi = result[0].avg_roi();
+		avg_stat::max_avg_roi = result[0].avg_roi();
+
+		for (const avg_stat& avg : result)
+		{
+			const f64 avg_profit = avg.avg_profit();
+			const f64 avg_buy_limit = avg.avg_buy_limit();
+			const f64 avg_roi = avg.avg_roi();
+
+			if (avg_profit < avg_stat::min_avg_profit)
+				avg_stat::min_avg_profit = avg_profit;
+
+			if (avg_profit > avg_stat::max_avg_profit)
+				avg_stat::max_avg_profit = avg_profit;
+
+			if (avg_buy_limit < avg_stat::min_avg_buy_limit)
+				avg_stat::min_avg_buy_limit = avg_buy_limit;
+
+			if (avg_buy_limit > avg_stat::max_avg_buy_limit)
+				avg_stat::max_avg_buy_limit = avg_buy_limit;
+
+			if (avg_roi < avg_stat::min_avg_roi)
+				avg_stat::min_avg_roi = avg_roi;
+
+			if (avg_roi > avg_stat::max_avg_roi)
+				avg_stat::max_avg_roi = avg_roi;
+		}
 
 		return result;
 	}

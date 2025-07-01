@@ -33,7 +33,11 @@ public:
 	template<typename T>
 	T range(const T min, const T max)
 	{
-		assert(min < max);
+		assert(min <= max);
+
+		if (min == max)
+			return min;
+
 		return rng_engine() % (max + 1 - min) + min;
 	}
 

@@ -36,6 +36,7 @@ include_directories(vendor/json/include)
 
 file(GLOB SRC ./src/*)
 add_executable(flip ${SRC})
+target_link_libraries(flip tbb)
 
 # set(WARNINGS
 # 	-pedantic -Wall -Wextra -Wcast-align

@@ -1,6 +1,7 @@
 #include "Stats.hpp"
 
 #include <doctest/doctest.h>
+#include <execution>
 #include <nlohmann/json.hpp>
 
 namespace stats
@@ -48,7 +49,7 @@ namespace stats
 
 	std::vector<avg_stat> sort_flips_by_recommendation(std::vector<avg_stat> flips)
 	{
-		std::sort(flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
+		std::sort(std::execution::par_unseq, flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
 			return a.flip_recommendation() > b.flip_recommendation();
 		});
 

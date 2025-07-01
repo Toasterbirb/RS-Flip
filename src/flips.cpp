@@ -536,9 +536,9 @@ namespace flips
 			std::cout << db.get_flip<std::string>(flip, db::flip_key::item) << '\n';
 	}
 
-	bool flip_recommendations(const db& db, const i64 profit_threshold, const i32 recommendation_count, const size_t random_flip_count, const bool ge_inspector_format)
+	bool flip_recommendations(const db& db, const tip_config& config)
 	{
-		if (recommendation_count < 1)
+		if (config.max_result_count < 1)
 		{
 			std::cout << "A recommendation count of at least 1 is required\n";
 			return false;
@@ -546,6 +546,10 @@ namespace flips
 
 		if (db.total_flip_count() < 10)
 			return false;
+
+		// set the recommendation algorithm if the user wants to change it
+		if (config.recommendation_algorithm)
+			stats::avg_stat::set_recommendation_algorithm(config.recommendation_algorithm);
 
 		/* Read in the item recommendation blacklist */
 		const std::unordered_set<std::string> item_blacklist = flip_utils::read_file_items(file_paths::item_blacklist_file);
@@ -559,18 +563,19 @@ namespace flips
 		static constexpr u32  rolling_avg_profit_window_size = 10;
 
 		/* How many items to recommend in total */
-		const size_t max = std::clamp(static_cast<int>(recommended_flips.size()), 1, recommendation_count);
+		const size_t max = std::clamp(static_cast<u32>(recommended_flips.size()), 1U, config.max_result_count);
 
-		const auto should_flip_be_skipped = [&item_blacklist, profit_threshold](const stats::avg_stat& flip) -> bool
+		const auto should_flip_be_skipped = [&item_blacklist, &config](const stats::avg_stat& flip) -> bool
 		{
-			const bool is_below_threshold = flip.rolling_avg_profit(rolling_avg_profit_window_size) < profit_threshold;
+			const bool is_below_threshold = flip.rolling_avg_profit(rolling_avg_profit_window_size) < config.profit_threshold;
 			const bool is_blacklisted = item_blacklist.contains(flip.name);
-			return is_below_threshold || is_blacklisted;
+			const bool not_enough_data = flip.flip_count() < 2;
+			return is_below_threshold || is_blacklisted || not_enough_data;
 		};
 
 		// If we are printing in ge-inspector format, build the string
 		// only and don't build the recommendation table
-		if (ge_inspector_format)
+		if (config.ge_inspector_format)
 		{
 			u32 count{};
 			std::string ge_inspector_format_str;
@@ -620,8 +625,8 @@ namespace flips
 		recommendation_table.print();
 
 		// Pick some random flips
-		const size_t max_random_count = random_flip_count < recommended_flips.size() - recommendation_table.row_count()
-			? random_flip_count
+		const size_t max_random_count = config.max_random_flip_count < recommended_flips.size() - recommendation_table.row_count()
+			? config.max_random_flip_count
 			: recommended_flips.size() - recommendation_table.row_count();
 
 		// If there are no random flips to print, return early
