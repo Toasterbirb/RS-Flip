@@ -22,7 +22,7 @@ void optimize_v2_recommendation_algorithm(const db& db)
 	const std::vector<stats::avg_stat> raw_flips = db.get_flip_avg_stats();
 
 	// filter out flips with lacking data
-	constexpr u8 min_flip_data = 4;
+	constexpr u8 min_flip_data = 10;
 	std::vector<stats::avg_stat> flips;
 	for (const stats::avg_stat& flip : raw_flips)
 	{
@@ -115,10 +115,10 @@ f64 reward_function(const std::vector<stats::avg_stat>& sorted_flips, class rand
 {
 	// run a simulations with the flip recommendations
 
-	constexpr u16 simulation_repetitions = 10;
+	constexpr u16 simulation_repetitions = 5;
 	constexpr u8 hours = 24;
 	constexpr u8 cooldown_duration = 4;
-	constexpr u8 top_flip_count = 20;
+	constexpr u8 top_flip_count = 50;
 	assert(sorted_flips.size() >= top_flip_count);
 
 	const auto simulation_run = [&sorted_flips, &rng]() -> f64
@@ -143,18 +143,33 @@ f64 reward_function(const std::vector<stats::avg_stat>& sorted_flips, class rand
 				if (got_cancelled)
 					continue;
 
-				// do a flip with the item
-				if (!item_trade_index.contains(i))
-					item_trade_index[i] = 0;
+				// only consider the last 15 flips done with the item
+				// this should help a little bit with cases where the item has been flipped
+				// for ages and the profitability has gone down over time
 
+				const auto update_trade_index = [&item_trade_index, &sorted_flips](const size_t i)
+				{
+					if (!item_trade_index.contains(i) || item_trade_index[i] >= sorted_flips[i].profits().size())
+					{
+						item_trade_index[i] = sorted_flips[i].profits().size() >= 15
+							? sorted_flips[i].profits().size() - 15
+							: 0;
+					}
+				};
+
+				// do a flip with the item
+
+				update_trade_index(i);
 				const std::vector<i32>& profit_list = sorted_flips[i].profits();
-				const i64 profit = profit_list.at(item_trade_index[i]);
-				item_trade_index[i] = (item_trade_index[i] + 1) % profit_list.size();
+				const i64 profit = profit_list.at(item_trade_index[i]++);
+				update_trade_index(i);
 
 				total_profit += profit;
 				buy_limit_cooldowns[i] = cooldown_duration;
 				flipped_item_count++;
 			}
+
+			assert(flipped_item_count != 0);
 
 			// reduce the cooldown of all flips by one hour
 			for (auto& [flip_index, cooldown] : buy_limit_cooldowns)

@@ -1,5 +1,6 @@
 #include "Recommendations.hpp"
-#include <iostream>
+
+#include <cassert>
 
 f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f64, v2_variable_count>& weights)
 {
@@ -29,9 +30,11 @@ f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f6
 	for (u8 i = 0; i < v2_variable_count; ++i)
 		composite_score += variables[i] * weights[i];
 
+	assert(composite_score <= static_cast<f64>(v2_variable_count));
+
 	// lower the score for flips with out-of-date data
 	const f64 flip_age = stat.latest_trade_index() / static_cast<f64>(stat.total_flip_count());
-	const f64 flip_age_penalty = std::clamp(flip_age, 0.85, 1.0);
+	const f64 flip_age_penalty = std::clamp(flip_age, 0.90, 1.0);
 
 	return composite_score * flip_age_penalty;
 }

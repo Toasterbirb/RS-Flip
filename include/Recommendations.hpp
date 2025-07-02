@@ -21,7 +21,7 @@ constexpr u8 v2_variable_count = 5;
 // 	0.2,
 // };
 
-static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = { 0.169872, 0.158593, 0.172282, 0.16679, 0.16679 };
+static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = { 0.187198, 0.252878, 0.222155, 0.158425, 0.179343 };
 
 f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f64, v2_variable_count>& weights);
 
