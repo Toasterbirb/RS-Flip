@@ -15,6 +15,7 @@ namespace flips
 		u32 max_random_flip_count = 0;
 		bool ge_inspector_format = false;
 		u8 recommendation_algorithm = 0; // set to non-zero value to pick a non-default algorithm
+		bool use_blacklist = true;
 	};
 
 	struct flip

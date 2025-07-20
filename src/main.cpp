@@ -43,7 +43,8 @@ int main(int argc, char** argv)
 		(clipp::option("-c") & clipp::number("count", options.tips.max_result_count)) % "maximum result count",
 		(clipp::option("-r") & clipp::number("count", options.tips.max_random_flip_count)) % "maximum random flip suggestion count (def: 0)",
 		clipp::option("-g").set(options.tips.ge_inspector_format) % "print the results in ge-inspector pre-filter list format",
-		(clipp::option("-a") & clipp::number("algorithm_version", options.tips.recommendation_algorithm)) % "change the recommendation algorithm version"
+		(clipp::option("-a") & clipp::number("algorithm_version", options.tips.recommendation_algorithm)) % "change the recommendation algorithm version",
+		clipp::option("-b").set(options.tips.use_blacklist, false) % "include blacklisted items in the results"
 	) % "recommend flips based on past flipping data";
 
 	const auto optimize = (

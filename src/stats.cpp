@@ -55,4 +55,11 @@ namespace stats
 
 		return flips;
 	}
+
+	void sort_flips_by_recommendation_direct(std::vector<avg_stat>& flips)
+	{
+		std::sort(std::execution::par_unseq, flips.begin(), flips.end(), [](const avg_stat& a, const avg_stat& b) {
+			return a.flip_recommendation() > b.flip_recommendation();
+		});
+	}
 }

@@ -21,4 +21,11 @@ namespace stats
 
 	__attribute__((cold))
 	std::vector<avg_stat> sort_flips_by_recommendation(std::vector<avg_stat> flips);
+
+	// optimized version of sort_flips_by_recommendation,
+	// but avoids unnecessary copying
+	//
+	// mainly useful for the v2 algo optimization
+	__attribute__((hot))
+	void sort_flips_by_recommendation_direct(std::vector<avg_stat>& flips);
 }

@@ -1,6 +1,7 @@
 #include "Recommendations.hpp"
 
 #include <cassert>
+#include <iostream>
 
 f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f64, v2_variable_count>& weights)
 {
@@ -19,11 +20,16 @@ f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f6
 		1.0 - stat.cancellation_ratio(),
 
 		// how many flips have been done
-		// (consider removing this variable, since it seems to be insignificant)
-		// stat.flip_count() >= 5 ? 1.0 : stat.flip_count() / 5.0,
+		stat.flip_count() >= 15 ? 1.0 : stat.flip_count() / 15.0,
 
 		// average return on investment
 		stat.normalized_avg_roi(),
+
+		// average buy limit
+		stat.normalized_avg_buy_limit(),
+
+		// reversed average buy limit
+		1.0 - stat.normalized_avg_buy_limit()
 	};
 
 	f64 composite_score{0};

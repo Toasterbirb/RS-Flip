@@ -9,7 +9,7 @@
 #include <functional>
 #include <array>
 
-constexpr u8 v2_variable_count = 5;
+constexpr u8 v2_variable_count = 8;
 // static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = {
 // 	0.254,  // avg profit
 // 	0.263,  // success rate
@@ -21,7 +21,7 @@ constexpr u8 v2_variable_count = 5;
 // 	0.2,
 // };
 
-static inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = { 0.187198, 0.252878, 0.222155, 0.158425, 0.179343 };
+inline std::array<f64, v2_variable_count> v2_recommendation_algorithm_weights = { 0.118973, 0.197536, 0.136292, 0.0262364, 0.0178793, 0.146605, 0.138587, 0.217891 };
 
 f64 v2_recommendation_algorithm(const stats::avg_stat& stat, const std::array<f64, v2_variable_count>& weights);
 
